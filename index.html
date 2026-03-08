@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="el">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InfoDash Hub - Premium Dashboard</title>
+    <meta name="description" content="Η 100% δωρεάν πλατφόρμα σας για Στοίχημα, Κληρώσεις, Crypto και Χρήσιμα Links.">
+
+    <!-- Google Fonts: Roboto & Outfit for premium look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Roboto:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body class="dark-theme">
+    <!-- Particles Background for premium dynamic feel -->
+    <div id="particles-bg"></div>
+
+    <div id="login-gate" class="login-overlay">
+        <div class="login-card glass-panel">
+            <div class="login-logo">
+                <i class="fa-solid fa-infinity gradient-text" style="font-size: 3rem;"></i>
+                <h1 class="gradient-text">InfoDash Hub</h1>
+            </div>
+            <p>Παρακαλώ εισάγετε τον κωδικό πρόσβασης</p>
+            <div class="login-input-group">
+                <input type="password" id="login-password" placeholder="Κωδικός..." autofocus>
+                <button id="login-btn"><i class="fa-solid fa-arrow-right-to-bracket"></i></button>
+            </div>
+            <p id="login-error" class="hidden text-red" style="font-size: 0.8rem; margin-top: 10px;">Λάθος κωδικός!</p>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-infinity"></i>
+                    <h2>InfoDash<span>Hub</span></h2>
+                </div>
+                <button id="mobile-menu-close" class="mobile-only" title="Κλείσιμο Μενού" aria-label="Close menu"><i
+                        class="fa-solid fa-times"></i></button>
+            </div>
+
+            <ul class="nav-links">
+                <li class="nav-item active" data-target="betting">
+                    <i class="fa-solid fa-futbol"></i>
+                    <span>Στοίχημα & Αγώνες</span>
+                </li>
+                <li class="nav-item" data-target="lottery">
+                    <i class="fa-solid fa-money-bill-1-wave"></i>
+                    <span>Τζόκερ / Eurojackpot</span>
+                </li>
+                <li class="nav-item" data-target="crypto">
+                    <i class="fa-brands fa-bitcoin"></i>
+                    <span>Crypto Markets</span>
+                </li>
+                <li class="nav-item" data-target="links">
+                    <i class="fa-solid fa-link"></i>
+                    <span>Directory (Χρήσιμα)</span>
+                </li>
+                <li class="nav-item" data-target="recommendations">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>Προτάσεις μας</span>
+                </li>
+                <li class="nav-item" data-target="lifehacks">
+                    <i class="fa-solid fa-rocket"></i>
+                    <span>LifeHack & Prod</span>
+                </li>
+                <li class="nav-item" data-target="finance">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Finance & Trends</span>
+                </li>
+                <li class="nav-item" data-target="edgeanalytics">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    <span>Game & Edge Stats</span>
+                </li>
+                <li class="nav-item" data-target="science">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Επιστήμη & Δεδομένα</span>
+                </li>
+                <li class="nav-item" data-target="leisure">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>Leisure & Retro</span>
+                </li>
+                <!-- NEW PHASE 3 HUBS -->
+                <li class="nav-item" data-target="ai">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AI & Automation</span>
+                </li>
+                <li class="nav-item" data-target="nomads">
+                    <i class="fa-solid fa-earth-americas"></i>
+                    <span>Nomads & Remote</span>
+                </li>
+                <li class="nav-item" data-target="privacy">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Privacy & Cyber</span>
+                </li>
+                <li class="nav-item" data-target="health">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span>Health & Fitness</span>
+                </li>
+                <li class="nav-item" data-target="creator">
+                    <i class="fa-solid fa-palette"></i>
+                    <span>Creator Studio</span>
+                </li>
+                <li class="nav-item" data-target="academic">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>Career & Academic</span>
+                </li>
+                <li class="nav-item" data-target="skills">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Lifelong Skills</span>
+                </li>
+                <!-- NEW PHASE 4 HUBS (UNDERGROUND) -->
+                <li class="nav-item" data-target="osint">
+                    <i class="fa-solid fa-user-secret"></i>
+                    <span>OSINT & Footprint</span>
+                </li>
+                <li class="nav-item" data-target="web3">
+                    <i class="fa-brands fa-ethereum"></i>
+                    <span>Web3 & Decentralized</span>
+                </li>
+                <li class="nav-item" data-target="metaskills">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>Masterclass & Skills</span>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <p>© 2026 InfoDash Hub</p>
+                <p>Manolis Kornilakis</p>
+                <p style="font-size: 0.6rem; opacity: 0.6;">All Rights Reserved</p>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="topbar">
+                <button id="mobile-menu-open" class="mobile-only" title="Άνοιγμα Μενού" aria-label="Open menu"><i
+                        class="fa-solid fa-bars"></i></button>
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Αναζήτηση παντού...">
+                </div>
+                <div class="user-actions">
+                    <button class="theme-toggle" id="theme-toggle" title="Εναλλαγή Θέματος" aria-label="Toggle Theme">
+                        <i class="fa-solid fa-sun"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- VIEW: BETTING -->
+                <section id="view-betting" class="view-section active">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Οι Δημοφιλέστεροι Αγώνες Σήμερα</h1>
+                        <p>Αληθινά δεδομένα, Tips, Στατιστικά και Έρευνα αποκλειστικά από δημοφιλείς αγώνες.</p>
+                    </div>
+
+                    <div class="filters-bar" id="betting-filters">
+                        <!-- Filters dynamically injected based on ESPN feed -->
+                        <button class="filter-btn active" data-filter="all">Όλοι οι Αγώνες</button>
+                    </div>
+
+                    <div class="matches-grid" id="matches-container">
+                        <!-- Matches injected here via JS -->
+                        <div class="loader-glass"></div>
+                    </div>
+                </section>
+
+                <!-- VIEW: LOTTERY -->
+                <section id="view-lottery" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Τελευταίες 100 Κληρώσεις</h1>
+                        <p>Eurojackpot, Joker, Lotto. Επαγγελματικά στατιστικά και συχνότητες εμφάνισης!</p>
+                    </div>
+
+                    <div class="lottery-tabs">
+                        <button class="tab-btn active" data-lottery="joker">ΤΖΟΚΕΡ</button>
+                        <button class="tab-btn" data-lottery="eurojackpot">EUROJACKPOT</button>
+                        <button class="tab-btn" data-lottery="lotto">ΛΟΤΤΟ</button>
+                    </div>
+
+                    <div class="lottery-dashboard">
+                        <div class="stats-panel glass-panel">
+                            <h3>Βασικά & Προχωρημένα Στατιστικά</h3>
+                            <div class="hot-numbers" id="hot-numbers">
+                                <!-- Hot numbers injected here -->
+                            </div>
+                            <div class="cold-numbers" id="cold-numbers" class="mt-1rem"></div>
+
+                            <h4 class="mt-1-5rem border-bottom-panel">
+                                25 Advanced Στατιστικά</h4>
+                            <div id="advanced-stats" class="advanced-stats-container">
+                                <!-- 25 stats dynamically injected here -->
+                            </div>
+                        </div>
+
+                        <div class="draws-list-container flex-column-gap">
+                            <div class="glass-panel p-1-5rem">
+                                <h3>Τελευταίες 20 Κληρώσεις με Νικητή 1ης Κατηγορίας</h3>
+                                <div id="tier1-winners-container" class="mt-1rem scrollable-list-short">
+                                    <div class="loader-glass"></div>
+                                </div>
+                            </div>
+
+                            <div class="draws-list glass-panel p-1-5rem">
+                                <h3 class="mb-1rem">Ιστορικό (100 Τελευταίες)</h3>
+                                <div id="draws-container" class="scrollable-list">
+                                    <div class="loader-glass"></div>
+                                    <!-- Draws injected here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: CRYPTO -->
+                <section id="view-crypto" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Crypto Market Αγορά</h1>
+                        <p>Τα 20 δημοφιλέστερα και τα 20 νέα Crypto κάτω από 0.25€</p>
+                    </div>
+
+                    <div class="crypto-dashboard">
+                        <div class="crypto-panel top-cryptos glass-panel">
+                            <div class="panel-head">
+                                <h3><i class="fa-solid fa-fire text-orange"></i> Top 20 Δημοφιλέστερα</h3>
+                            </div>
+                            <div class="crypto-table-container">
+                                <table class="crypto-table" id="top-crypto-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Νόμισμα</th>
+                                            <th>Τιμή (€)</th>
+                                            <th>Market Cap</th>
+                                            <th>Τάση Αγοράς (Μάζα)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="crypto-panel new-cryptos glass-panel">
+                            <div class="panel-head">
+                                <h3><i class="fa-solid fa-rocket text-green"></i> Top 20 (< 0.25€)</h3>
+                            </div>
+                            <div class="crypto-table-container">
+                                <table class="crypto-table" id="cheap-crypto-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Νόμισμα</th>
+                                            <th>Τιμή (€)</th>
+                                            <th>Volume</th>
+                                            <th>Τάση Αγοράς (Μάζα)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: LINKS DIRECTORY -->
+                <section id="view-links" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Το Απόλυτο Directory</h1>
+                        <p>Εκατοντάδες δωρεάν χρήσιμες ιστοσελίδες οργανωμένες σε 5 υποκατηγορίες.</p>
+                    </div>
+
+                    <div class="links-navigation">
+                        <button class="link-cat-btn active" data-lcat="trackers">Radar & Καιρός (25)</button>
+                        <button class="link-cat-btn" data-lcat="downloads">Δωρεάν Downloads (25)</button>
+                        <button class="link-cat-btn" data-lcat="giveaways">Giveaways (25)</button>
+                        <button class="link-cat-btn" data-lcat="categories">1000+ Κατηγορίες (25)</button>
+                        <button class="link-cat-btn" data-lcat="learn">Μάθε Οτιδήποτε (25)</button>
+                    </div>
+
+                    <div class="links-grid" id="links-container">
+                        <!-- Links generated dynamically -->
+                    </div>
+                </section>
+
+                <!-- VIEW: RECOMMENDATIONS -->
+                <section id="view-recommendations" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Προτάσεις Αποκλειστικά για Εσάς</h1>
+                        <p>Επιλεγμένες 100% Δωρεάν πλατφόρμες και εργαλεία που ξεχωρίζουν, χωρίς καμία δέσμευση.</p>
+                    </div>
+
+                    <div class="recommendations-grid" id="recs-container">
+                        <!-- Dynamic recs here -->
+                    </div>
+                </section>
+
+                <!-- NEW MEGA HUBS -->
+                <section id="view-lifehacks" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">LifeHack & Productivity</h1>
+                        <p>Τα απόλυτα εργαλεία για να γλιτώνεις χρόνο και χρήμα καθημερινά.</p>
+                    </div>
+                    <div class="links-navigation" id="lifehacks-tabs">
+                        <button class="mega-tab-btn active" data-hub="lifehacks" data-tab="discounts">Εκπτώσεις
+                            Ημέρας</button>
+                        <button class="mega-tab-btn" data-hub="lifehacks" data-tab="hacks">Hacker Alerts</button>
+                        <button class="mega-tab-btn" data-hub="lifehacks" data-tab="learning">Micro-Learning 5'</button>
+                        <button class="mega-tab-btn" data-hub="lifehacks" data-tab="tech">Tech Radar</button>
+                        <button class="mega-tab-btn" data-hub="lifehacks" data-tab="freebies">Freebies &
+                            Airdrops</button>
+                    </div>
+                    <div id="lifehacks-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-finance" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Finance & Global Trends</h1>
+                        <p>Παρακολούθηση οικονομίας, ευκαιριών και διεθνών τάσεων.</p>
+                    </div>
+                    <div class="links-navigation" id="finance-tabs">
+                        <button class="mega-tab-btn active" data-hub="finance" data-tab="sidehustles">Side
+                            Hustles</button>
+                        <button class="mega-tab-btn" data-hub="finance" data-tab="heatmap">Global Heatmap</button>
+                        <button class="mega-tab-btn" data-hub="finance" data-tab="dividends">Dividend Tracker</button>
+                        <button class="mega-tab-btn" data-hub="finance" data-tab="costofliving">Cost of Living</button>
+                        <button class="mega-tab-btn" data-hub="finance" data-tab="trends">Global Sentiment</button>
+                    </div>
+                    <div id="finance-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-edgeanalytics" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Game & Edge Analytics</h1>
+                        <p>Προηγμένα data, F1 stats, Dropping Odds και πληροφορίες που κάνουν τη διαφορά.</p>
+                    </div>
+                    <div class="links-navigation" id="edgeanalytics-tabs">
+                        <button class="mega-tab-btn active" data-hub="edgeanalytics" data-tab="droppingodds">Dropping
+                            Odds</button>
+                        <button class="mega-tab-btn" data-hub="edgeanalytics" data-tab="injuries">Απουσιολόγιο</button>
+                        <button class="mega-tab-btn" data-hub="edgeanalytics" data-tab="arbitrage">Arbitrage
+                            Finder</button>
+                        <button class="mega-tab-btn" data-hub="edgeanalytics" data-tab="motorsport">F1 &
+                            Motorsport</button>
+                    </div>
+                    <div id="edgeanalytics-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-science" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Επιστήμη & Δεδομένα</h1>
+                        <p>Διάστημα, Live Σεισμοί και Flight Hacks.</p>
+                    </div>
+                    <div class="links-navigation" id="science-tabs">
+                        <button class="mega-tab-btn active" data-hub="science" data-tab="space">Space & NASA</button>
+                        <button class="mega-tab-btn" data-hub="science" data-tab="earthquakes">Σεισμοί (Live)</button>
+                        <button class="mega-tab-btn" data-hub="science" data-tab="flights">Flight Hacks</button>
+                    </div>
+                    <div id="science-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-leisure" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Leisure & Retro</h1>
+                        <p>Χαλάρωση, Δωρεάν Games, Podcasts και... Ωροσκόπιο AI.</p>
+                    </div>
+                    <div class="links-navigation" id="leisure-tabs">
+                        <button class="mega-tab-btn active" data-hub="leisure" data-tab="games">Free Games</button>
+                        <button class="mega-tab-btn" data-hub="leisure" data-tab="podcasts">Podcasts</button>
+                        <button class="mega-tab-btn" data-hub="leisure" data-tab="retro">Retro Web</button>
+                        <button class="mega-tab-btn" data-hub="leisure" data-tab="viral">Viral Media</button>
+                        <button class="mega-tab-btn" data-hub="leisure" data-tab="horoscope">Horoscope AI</button>
+                    </div>
+                    <div id="leisure-content" style="margin-top:20px;"></div>
+                </section>
+
+                <!-- PHASE 3 MEGA HUBS SECTIONS -->
+                <section id="view-ai" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">AI & Automation Hub</h1>
+                        <p>Τα κορυφαία δωρεάν εργαλεία Τεχνητής Νοημοσύνης και Αυτοματισμών.</p>
+                    </div>
+                    <div class="links-navigation" id="ai-tabs">
+                        <button class="mega-tab-btn active" data-hub="ai" data-tab="chatbots">Chatbots & LLMs</button>
+                        <button class="mega-tab-btn" data-hub="ai" data-tab="imageai">Image & Art AI</button>
+                        <button class="mega-tab-btn" data-hub="ai" data-tab="prompts">Prompt Library</button>
+                        <button class="mega-tab-btn" data-hub="ai" data-tab="mediaai">Audio/Video AI</button>
+                        <button class="mega-tab-btn" data-hub="ai" data-tab="nocode">No-Code Tools</button>
+                    </div>
+                    <div id="ai-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-nomads" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Nomads & Remote Work</h1>
+                        <p>Βρες απομακρυσμένη εργασία, οργάνωσε ταξίδια και ζήσε οπουδήποτε.</p>
+                    </div>
+                    <div class="links-navigation" id="nomads-tabs">
+                        <button class="mega-tab-btn active" data-hub="nomads" data-tab="remotejobs">Remote Jobs</button>
+                        <button class="mega-tab-btn" data-hub="nomads" data-tab="nomadguides">Nomad Guides</button>
+                        <button class="mega-tab-btn" data-hub="nomads" data-tab="travelhacks">Travel Hacks</button>
+                        <button class="mega-tab-btn" data-hub="nomads" data-tab="visa">Visa & Relocation</button>
+                    </div>
+                    <div id="nomads-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-privacy" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Privacy & Cybersecurity</h1>
+                        <p>Προστάτευσε τα δεδομένα σου, σέρφαρε ανώνυμα και με ασφάλεια.</p>
+                    </div>
+                    <div class="links-navigation" id="privacy-tabs">
+                        <button class="mega-tab-btn active" data-hub="privacy" data-tab="burners">Burner Tools</button>
+                        <button class="mega-tab-btn" data-hub="privacy" data-tab="adblockers">Ad-Block &
+                            Privacy</button>
+                        <button class="mega-tab-btn" data-hub="privacy" data-tab="securecomms">Secure Comms</button>
+                        <button class="mega-tab-btn" data-hub="privacy" data-tab="networks">Network & VPN</button>
+                    </div>
+                    <div id="privacy-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-health" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Health, Biohacking & Fitness</h1>
+                        <p>Data-driven εργαλεία για άσκηση, διατροφή, ύπνο και ψυχική υγεία.</p>
+                    </div>
+                    <div class="links-navigation" id="health-tabs">
+                        <button class="mega-tab-btn active" data-hub="health" data-tab="workouts">Workout Gen</button>
+                        <button class="mega-tab-btn" data-hub="health" data-tab="diet">Diet & Macros</button>
+                        <button class="mega-tab-btn" data-hub="health" data-tab="biohacking">Sleep & Biohack</button>
+                        <button class="mega-tab-btn" data-hub="health" data-tab="mindfulness">Mindfulness</button>
+                    </div>
+                    <div id="health-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-creator" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Creator Studio</h1>
+                        <p>Εργαλεία ελεύθερης πρόσβασης για Video Editing, Design και Social Media.</p>
+                    </div>
+                    <div class="links-navigation" id="creator-tabs">
+                        <button class="mega-tab-btn active" data-hub="creator" data-tab="videoediting">Free Video
+                            Editors</button>
+                        <button class="mega-tab-btn" data-hub="creator" data-tab="social">Social Analytics</button>
+                        <button class="mega-tab-btn" data-hub="creator" data-tab="design">Design & UI</button>
+                        <button class="mega-tab-btn" data-hub="creator" data-tab="assets">Free Assets</button>
+                    </div>
+                    <div id="creator-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-academic" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Καριέρα & Ακαδημαϊκή Εξέλιξη</h1>
+                        <p>Εφόδια, ακαδημαϊκή γνώση και χτίσιμο βιογραφικού.</p>
+                    </div>
+                    <div class="links-navigation" id="academic-tabs">
+                        <button class="mega-tab-btn active" data-hub="academic" data-tab="universities">Top Uni
+                            Freebies</button>
+                        <button class="mega-tab-btn" data-hub="academic" data-tab="certs">Free Certs</button>
+                        <button class="mega-tab-btn" data-hub="academic" data-tab="research">Research & Libs</button>
+                        <button class="mega-tab-btn" data-hub="academic" data-tab="cv">CV & Interview</button>
+                        <button class="mega-tab-btn" data-hub="academic" data-tab="softskills">Soft Skills</button>
+                    </div>
+                    <div id="academic-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-skills" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Δια Βίου Μάθηση & Skills</h1>
+                        <p>Μάθε προγραμματισμό, γλώσσες, οικονομικά και μαστορέματα.</p>
+                    </div>
+                    <div class="links-navigation" id="skills-tabs">
+                        <button class="mega-tab-btn active" data-hub="skills" data-tab="coding">Coding & Tech</button>
+                        <button class="mega-tab-btn" data-hub="skills" data-tab="languages">Ξένες Γλώσσες</button>
+                        <button class="mega-tab-btn" data-hub="skills" data-tab="finskills">Money Skills</button>
+                        <button class="mega-tab-btn" data-hub="skills" data-tab="arts">Arts & Design</button>
+                        <button class="mega-tab-btn" data-hub="skills" data-tab="diy">DIY & Fix It</button>
+                    </div>
+                    <div id="skills-content" style="margin-top:20px;"></div>
+                </section>
+
+                <!-- PHASE 4 MEGA HUBS SECTIONS (UNDERGROUND) -->
+                <section id="view-osint" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">OSINT & Digital Footprint</h1>
+                        <p>Εργαλεία ανοικτού κώδικα για παρακολούθηση πληροφοριών και digital forensics.</p>
+                    </div>
+                    <div class="links-navigation" id="osint-tabs">
+                        <button class="mega-tab-btn active" data-hub="osint" data-tab="usernames">Username
+                            Trackers</button>
+                        <button class="mega-tab-btn" data-hub="osint" data-tab="reverseimage">Reverse Image</button>
+                        <button class="mega-tab-btn" data-hub="osint" data-tab="tracking">Flight & Vessel</button>
+                        <button class="mega-tab-btn" data-hub="osint" data-tab="darkweb">Dark Web Scanners</button>
+                    </div>
+                    <div id="osint-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-web3" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Web3 & Decentralized World</h1>
+                        <p>Εξερεύνηση Crypto φαλαινών, Airdrops και Αποκεντρωμένης Οικονομίας.</p>
+                    </div>
+                    <div class="links-navigation" id="web3-tabs">
+                        <button class="mega-tab-btn active" data-hub="web3" data-tab="whales">Whale Trackers</button>
+                        <button class="mega-tab-btn" data-hub="web3" data-tab="airdrops">Airdrop Hunters</button>
+                        <button class="mega-tab-btn" data-hub="web3" data-tab="defi">DeFi Yields</button>
+                        <button class="mega-tab-btn" data-hub="web3" data-tab="explorers">Block Explorers</button>
+                    </div>
+                    <div id="web3-content" style="margin-top:20px;"></div>
+                </section>
+
+                <section id="view-metaskills" class="view-section hidden">
+                    <div class="section-header">
+                        <h1 class="gradient-text">Masterclass & Meta-Skills</h1>
+                        <p>Η απόλυτη ακαδημία αυτοβελτίωσης. Απόκτησε υπερ-δεξιότητες ζωής.</p>
+                    </div>
+                    <div class="links-navigation" id="metaskills-tabs">
+                        <button class="mega-tab-btn active" data-hub="metaskills" data-tab="memory">Memory &
+                            Reading</button>
+                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="logic">Logic & Critical</button>
+                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="persuasion">Persuasion</button>
+                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="voice">Public Speaking</button>
+                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="survival">Survival</button>
+                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="mentalmodels">Mental
+                            Models</button>
+                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="eq">Emotional IQ (EQ)</button>
+                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="cyberhygiene">Cyber
+                            Hygiene</button>
+                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="deepwork">Deep Work Flow</button>
+                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="fineng">Financial Eng.</button>
+                    </div>
+                    <div id="metaskills-content" style="margin-top:20px;"></div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals Logic will go here -->
+    <div class="modal" id="info-modal">
+        <div class="modal-content glass-panel">
+            <span class="close-modal"><i class="fa-solid fa-times"></i></span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="./js/app.js" type="module"></script>
+</body>
+
+</html>
