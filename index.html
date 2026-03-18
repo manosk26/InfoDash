@@ -17,6 +17,9 @@
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 
@@ -52,7 +55,11 @@
             </div>
 
             <ul class="nav-links">
-                <li class="nav-item active" data-target="betting">
+                <li class="nav-item active" data-target="myhub">
+                    <i class="fa-solid fa-house-user"></i>
+                    <span>My Dashboard</span>
+                </li>
+                <li class="nav-item" data-target="betting">
                     <i class="fa-solid fa-futbol"></i>
                     <span>Στοίχημα & Αγώνες</span>
                 </li>
@@ -149,8 +156,20 @@
                         class="fa-solid fa-bars"></i></button>
                 <div class="search-bar">
                     <i class="fa-solid fa-search"></i>
-                    <input type="text" placeholder="Αναζήτηση παντού...">
+                    <input type="text" id="global-search" placeholder="Αναζήτηση παντού (hacks, crypto, tools)...">
+                    <div id="search-results" class="search-results-container hidden"></div>
                 </div>
+                
+                <!-- Real-Time Widgets -->
+                <div class="topbar-widgets">
+                    <div class="widget clock-widget" id="clock-widget">
+                        <i class="fa-regular fa-clock"></i> <span id="time-display">--:--</span>
+                    </div>
+                    <div class="widget weather-widget" id="weather-widget">
+                        <i class="fa-solid fa-cloud-sun"></i> <span>22°C Αθήνα</span>
+                    </div>
+                </div>
+                
                 <div class="user-actions">
                     <button class="theme-toggle" id="theme-toggle" title="Εναλλαγή Θέματος" aria-label="Toggle Theme">
                         <i class="fa-solid fa-sun"></i>
@@ -158,9 +177,61 @@
                 </div>
             </header>
 
+            <!-- News Ticker -->
+            <div class="news-ticker-container">
+                <div class="news-ticker-label"><i class="fa-solid fa-bolt text-orange"></i> Live News</div>
+                <div class="news-ticker" id="news-ticker">
+                    <span>Φόρτωση κορυφαίων ειδήσεων...</span>
+                </div>
+            </div>
+
             <div class="content-wrapper">
+                <!-- VIEW: MY HUB -->
+                <section id="view-myhub" class="view-section active">
+                    <div class="section-header">
+                        <h1 class="gradient-text">My Dashboard</h1>
+                        <p>Ο προσωπικός σου χώρος παραγωγικότητας και σημειώσεων.</p>
+                    </div>
+                    
+                    <div class="myhub-dashboard">
+                        <!-- To-Do List Widget -->
+                        <div class="glass-panel p-1-5rem">
+                            <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-check-double text-green"></i> To-Do List</h3>
+                            <div class="todo-input-group">
+                                <input type="text" id="new-todo-input" placeholder="Νέα εργασία...">
+                                <button id="add-todo-btn"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <ul id="todo-list" class="todo-list mt-1rem">
+                                <!-- Todos will be injected here -->
+                            </ul>
+                        </div>
+                        
+                        <!-- Quick Notes Widget -->
+                        <div class="glass-panel p-1-5rem">
+                            <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-pen-to-square text-orange"></i> Quick Notes</h3>
+                            <textarea id="quick-notes" class="quick-notes-area" placeholder="Γράψε τις ιδέες σου εδώ... θα αποθηκευτούν αυτόματα."></textarea>
+                        </div>
+                        
+                        <!-- Saved Links Widget -->
+                        <div class="glass-panel p-1-5rem" style="grid-column: 1 / -1;">
+                            <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--panel-border); padding-bottom: 1rem;">
+                                <h3><i class="fa-solid fa-bookmark text-primary"></i> Αγαπημένα & Δικά μου Εργαλεία</h3>
+                                <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-top:0.5rem;">
+                                    <input type="text" id="custom-link-url" placeholder="Επικόλληση Link (π.χ. https://github.com/...)" style="width:250px; padding:0.5rem; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:white; border-radius:4px; outline:none;">
+                                    <input type="text" id="custom-link-title" placeholder="Όνομα..." style="width:120px; padding:0.5rem; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:white; border-radius:4px; outline:none;">
+                                    <button onclick="addCustomLink()" title="Αυτόματη Προσθήκη στο Dashboard" style="padding:0.5rem 1rem; background:var(--accent-gradient); border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                            </div>
+                            <div id="saved-links-grid" class="links-grid" style="grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));">
+                                <!-- Saved links will be injected here -->
+                                <p style="color: var(--text-secondary); font-size: 0.9rem;">Κάνε κλικ στο αστεράκι σε οποιοδήποτε tool για να το αποθηκεύσεις εδώ.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
                 <!-- VIEW: BETTING -->
-                <section id="view-betting" class="view-section active">
+                <section id="view-betting" class="view-section hidden">
                     <div class="section-header">
                         <h1 class="gradient-text">Οι Δημοφιλέστεροι Αγώνες Σήμερα</h1>
                         <p>Αληθινά δεδομένα, Tips, Στατιστικά και Έρευνα αποκλειστικά από δημοφιλείς αγώνες.</p>
@@ -315,13 +386,17 @@
                         <p>Τα απόλυτα εργαλεία για να γλιτώνεις χρόνο και χρήμα καθημερινά.</p>
                     </div>
                     <div class="links-navigation" id="lifehacks-tabs">
-                        <button class="mega-tab-btn active" data-hub="lifehacks" data-tab="discounts">Εκπτώσεις
-                            Ημέρας</button>
+                        <button class="mega-tab-btn active" data-hub="lifehacks" data-tab="discounts">Εκπτώσεις Ημέρας</button>
                         <button class="mega-tab-btn" data-hub="lifehacks" data-tab="hacks">Hacker Alerts</button>
                         <button class="mega-tab-btn" data-hub="lifehacks" data-tab="learning">Micro-Learning 5'</button>
                         <button class="mega-tab-btn" data-hub="lifehacks" data-tab="tech">Tech Radar</button>
-                        <button class="mega-tab-btn" data-hub="lifehacks" data-tab="freebies">Freebies &
-                            Airdrops</button>
+                        <button class="mega-tab-btn" data-hub="lifehacks" data-tab="freebies">Freebies & Airdrops</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="lifehacks" data-tab="ai_notes"><i class="fa-solid fa-robot"></i> AI Note Takers</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="lifehacks" data-tab="ai_emails"><i class="fa-solid fa-robot"></i> AI Emails</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="lifehacks" data-tab="ai_summaries"><i class="fa-solid fa-robot"></i> AI Summarizers</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="lifehacks" data-tab="ai_focus"><i class="fa-solid fa-robot"></i> AI Focus</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="lifehacks" data-tab="ai_habits"><i class="fa-solid fa-robot"></i> AI Habit Trackers</button>
                     </div>
                     <div id="lifehacks-content" style="margin-top:20px;"></div>
                 </section>
@@ -332,12 +407,17 @@
                         <p>Παρακολούθηση οικονομίας, ευκαιριών και διεθνών τάσεων.</p>
                     </div>
                     <div class="links-navigation" id="finance-tabs">
-                        <button class="mega-tab-btn active" data-hub="finance" data-tab="sidehustles">Side
-                            Hustles</button>
+                        <button class="mega-tab-btn active" data-hub="finance" data-tab="sidehustles">Side Hustles</button>
                         <button class="mega-tab-btn" data-hub="finance" data-tab="heatmap">Global Heatmap</button>
                         <button class="mega-tab-btn" data-hub="finance" data-tab="dividends">Dividend Tracker</button>
                         <button class="mega-tab-btn" data-hub="finance" data-tab="costofliving">Cost of Living</button>
                         <button class="mega-tab-btn" data-hub="finance" data-tab="trends">Global Sentiment</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="finance" data-tab="ai_trading"><i class="fa-solid fa-robot"></i> AI Trading Bots</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="finance" data-tab="ai_portfolio"><i class="fa-solid fa-robot"></i> AI Portfolio</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="finance" data-tab="ai_crypto"><i class="fa-solid fa-robot"></i> AI Crypto Predict</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="finance" data-tab="ai_markets"><i class="fa-solid fa-robot"></i> AI Market Sentiment</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="finance" data-tab="ai_taxes"><i class="fa-solid fa-robot"></i> AI Budgeting</button>
                     </div>
                     <div id="finance-content" style="margin-top:20px;"></div>
                 </section>
@@ -348,13 +428,16 @@
                         <p>Προηγμένα data, F1 stats, Dropping Odds και πληροφορίες που κάνουν τη διαφορά.</p>
                     </div>
                     <div class="links-navigation" id="edgeanalytics-tabs">
-                        <button class="mega-tab-btn active" data-hub="edgeanalytics" data-tab="droppingodds">Dropping
-                            Odds</button>
+                        <button class="mega-tab-btn active" data-hub="edgeanalytics" data-tab="droppingodds">Dropping Odds</button>
                         <button class="mega-tab-btn" data-hub="edgeanalytics" data-tab="injuries">Απουσιολόγιο</button>
-                        <button class="mega-tab-btn" data-hub="edgeanalytics" data-tab="arbitrage">Arbitrage
-                            Finder</button>
-                        <button class="mega-tab-btn" data-hub="edgeanalytics" data-tab="motorsport">F1 &
-                            Motorsport</button>
+                        <button class="mega-tab-btn" data-hub="edgeanalytics" data-tab="arbitrage">Arbitrage Finder</button>
+                        <button class="mega-tab-btn" data-hub="edgeanalytics" data-tab="motorsport">F1 & Motorsport</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="edgeanalytics" data-tab="ai_xg"><i class="fa-solid fa-robot"></i> AI xG Simulators</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="edgeanalytics" data-tab="ai_fatigue"><i class="fa-solid fa-robot"></i> AI Fatigue Models</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="edgeanalytics" data-tab="ai_var"><i class="fa-solid fa-robot"></i> AI VAR Predictors</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="edgeanalytics" data-tab="ai_scout"><i class="fa-solid fa-robot"></i> AI Data Scouts</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="edgeanalytics" data-tab="ai_lines"><i class="fa-solid fa-robot"></i> AI Market Lines</button>
                     </div>
                     <div id="edgeanalytics-content" style="margin-top:20px;"></div>
                 </section>
@@ -368,6 +451,12 @@
                         <button class="mega-tab-btn active" data-hub="science" data-tab="space">Space & NASA</button>
                         <button class="mega-tab-btn" data-hub="science" data-tab="earthquakes">Σεισμοί (Live)</button>
                         <button class="mega-tab-btn" data-hub="science" data-tab="flights">Flight Hacks</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="science" data-tab="ai_astro"><i class="fa-solid fa-robot"></i> AI Astrophysics</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="science" data-tab="ai_climate"><i class="fa-solid fa-robot"></i> AI Climate Tech</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="science" data-tab="ai_bio"><i class="fa-solid fa-robot"></i> AI Biology</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="science" data-tab="ai_physics"><i class="fa-solid fa-robot"></i> AI Physics Models</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="science" data-tab="ai_materials"><i class="fa-solid fa-robot"></i> AI Material Science</button>
                     </div>
                     <div id="science-content" style="margin-top:20px;"></div>
                 </section>
@@ -383,6 +472,12 @@
                         <button class="mega-tab-btn" data-hub="leisure" data-tab="retro">Retro Web</button>
                         <button class="mega-tab-btn" data-hub="leisure" data-tab="viral">Viral Media</button>
                         <button class="mega-tab-btn" data-hub="leisure" data-tab="horoscope">Horoscope AI</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="leisure" data-tab="ai_games"><i class="fa-solid fa-robot"></i> AI Games</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="leisure" data-tab="ai_movies"><i class="fa-solid fa-robot"></i> AI Movies</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="leisure" data-tab="ai_books"><i class="fa-solid fa-robot"></i> AI Books</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="leisure" data-tab="ai_music"><i class="fa-solid fa-robot"></i> AI Music</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="leisure" data-tab="ai_travel"><i class="fa-solid fa-robot"></i> AI Travel</button>
                     </div>
                     <div id="leisure-content" style="margin-top:20px;"></div>
                 </section>
@@ -399,6 +494,12 @@
                         <button class="mega-tab-btn" data-hub="ai" data-tab="prompts">Prompt Library</button>
                         <button class="mega-tab-btn" data-hub="ai" data-tab="mediaai">Audio/Video AI</button>
                         <button class="mega-tab-btn" data-hub="ai" data-tab="nocode">No-Code Tools</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="ai" data-tab="ai_text"><i class="fa-solid fa-robot"></i> AI Text & LLMs</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="ai" data-tab="ai_prompts"><i class="fa-solid fa-robot"></i> AI Prompts</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="ai" data-tab="ai_agents"><i class="fa-solid fa-robot"></i> AI Autonomous Agents</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="ai" data-tab="ai_ethics"><i class="fa-solid fa-robot"></i> AI Ethics & Safety</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="ai" data-tab="ai_art_tools"><i class="fa-solid fa-robot"></i> AI Art Tools</button>
                     </div>
                     <div id="ai-content" style="margin-top:20px;"></div>
                 </section>
@@ -413,6 +514,12 @@
                         <button class="mega-tab-btn" data-hub="nomads" data-tab="nomadguides">Nomad Guides</button>
                         <button class="mega-tab-btn" data-hub="nomads" data-tab="travelhacks">Travel Hacks</button>
                         <button class="mega-tab-btn" data-hub="nomads" data-tab="visa">Visa & Relocation</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="nomads" data-tab="ai_itinerary"><i class="fa-solid fa-robot"></i> AI Itinerary Planners</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="nomads" data-tab="ai_jobmatch"><i class="fa-solid fa-robot"></i> AI Job Matchers</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="nomads" data-tab="ai_costloc"><i class="fa-solid fa-robot"></i> AI Cost Locators</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="nomads" data-tab="ai_trans"><i class="fa-solid fa-robot"></i> AI Live Translators</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="nomads" data-tab="ai_culture"><i class="fa-solid fa-robot"></i> AI Culture Guides</button>
                     </div>
                     <div id="nomads-content" style="margin-top:20px;"></div>
                 </section>
@@ -424,10 +531,15 @@
                     </div>
                     <div class="links-navigation" id="privacy-tabs">
                         <button class="mega-tab-btn active" data-hub="privacy" data-tab="burners">Burner Tools</button>
-                        <button class="mega-tab-btn" data-hub="privacy" data-tab="adblockers">Ad-Block &
-                            Privacy</button>
+                        <button class="mega-tab-btn" data-hub="privacy" data-tab="adblockers">Ad-Block & Privacy</button>
                         <button class="mega-tab-btn" data-hub="privacy" data-tab="securecomms">Secure Comms</button>
                         <button class="mega-tab-btn" data-hub="privacy" data-tab="networks">Network & VPN</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="privacy" data-tab="ai_phishing"><i class="fa-solid fa-robot"></i> AI Phishing Detect</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="privacy" data-tab="ai_malware"><i class="fa-solid fa-robot"></i> AI Malware Scans</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="privacy" data-tab="ai_fakenews"><i class="fa-solid fa-robot"></i> AI Fake News Check</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="privacy" data-tab="ai_passwords"><i class="fa-solid fa-robot"></i> AI Password Gens</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="privacy" data-tab="ai_anonymizers"><i class="fa-solid fa-robot"></i> AI Face Anonymizers</button>
                     </div>
                     <div id="privacy-content" style="margin-top:20px;"></div>
                 </section>
@@ -442,6 +554,12 @@
                         <button class="mega-tab-btn" data-hub="health" data-tab="diet">Diet & Macros</button>
                         <button class="mega-tab-btn" data-hub="health" data-tab="biohacking">Sleep & Biohack</button>
                         <button class="mega-tab-btn" data-hub="health" data-tab="mindfulness">Mindfulness</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="health" data-tab="ai_dietitian"><i class="fa-solid fa-robot"></i> AI Dietitians</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="health" data-tab="ai_workoutgen"><i class="fa-solid fa-robot"></i> AI Workout Gen</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="health" data-tab="ai_sleep"><i class="fa-solid fa-robot"></i> AI Sleep Analyser</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="health" data-tab="ai_symptoms"><i class="fa-solid fa-robot"></i> AI Symptom Check</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="health" data-tab="ai_posture"><i class="fa-solid fa-robot"></i> AI Posture Detect</button>
                     </div>
                     <div id="health-content" style="margin-top:20px;"></div>
                 </section>
@@ -452,11 +570,16 @@
                         <p>Εργαλεία ελεύθερης πρόσβασης για Video Editing, Design και Social Media.</p>
                     </div>
                     <div class="links-navigation" id="creator-tabs">
-                        <button class="mega-tab-btn active" data-hub="creator" data-tab="videoediting">Free Video
-                            Editors</button>
+                        <button class="mega-tab-btn active" data-hub="creator" data-tab="videoediting">Free Video Editors</button>
                         <button class="mega-tab-btn" data-hub="creator" data-tab="social">Social Analytics</button>
                         <button class="mega-tab-btn" data-hub="creator" data-tab="design">Design & UI</button>
                         <button class="mega-tab-btn" data-hub="creator" data-tab="assets">Free Assets</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="creator" data-tab="ai_mvideo"><i class="fa-solid fa-robot"></i> AI Video Editor</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="creator" data-tab="ai_maudio"><i class="fa-solid fa-robot"></i> AI Audio Tools</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="creator" data-tab="ai_mcopy"><i class="fa-solid fa-robot"></i> AI Copywriting</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="creator" data-tab="ai_mdesign"><i class="fa-solid fa-robot"></i> AI Graphic Design</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="creator" data-tab="ai_manalytics"><i class="fa-solid fa-robot"></i> AI Analytics</button>
                     </div>
                     <div id="creator-content" style="margin-top:20px;"></div>
                 </section>
@@ -473,6 +596,12 @@
                         <button class="mega-tab-btn" data-hub="academic" data-tab="research">Research & Libs</button>
                         <button class="mega-tab-btn" data-hub="academic" data-tab="cv">CV & Interview</button>
                         <button class="mega-tab-btn" data-hub="academic" data-tab="softskills">Soft Skills</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="academic" data-tab="ai_tutors"><i class="fa-solid fa-robot"></i> AI Tutors</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="academic" data-tab="ai_papers"><i class="fa-solid fa-robot"></i> AI Research Papers</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="academic" data-tab="ai_essays"><i class="fa-solid fa-robot"></i> AI Essays</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="academic" data-tab="ai_math"><i class="fa-solid fa-robot"></i> AI Math Solvers</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="academic" data-tab="ai_flash"><i class="fa-solid fa-robot"></i> AI Flashcards</button>
                     </div>
                     <div id="academic-content" style="margin-top:20px;"></div>
                 </section>
@@ -488,6 +617,12 @@
                         <button class="mega-tab-btn" data-hub="skills" data-tab="finskills">Money Skills</button>
                         <button class="mega-tab-btn" data-hub="skills" data-tab="arts">Arts & Design</button>
                         <button class="mega-tab-btn" data-hub="skills" data-tab="diy">DIY & Fix It</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="skills" data-tab="ai_coding"><i class="fa-solid fa-robot"></i> AI Code Mentors</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="skills" data-tab="ai_lang"><i class="fa-solid fa-robot"></i> AI Language Partners</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="skills" data-tab="ai_ux"><i class="fa-solid fa-robot"></i> AI UX Tutors</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="skills" data-tab="ai_speak"><i class="fa-solid fa-robot"></i> AI Public Speaking</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="skills" data-tab="ai_data"><i class="fa-solid fa-robot"></i> AI Data Science</button>
                     </div>
                     <div id="skills-content" style="margin-top:20px;"></div>
                 </section>
@@ -499,11 +634,16 @@
                         <p>Εργαλεία ανοικτού κώδικα για παρακολούθηση πληροφοριών και digital forensics.</p>
                     </div>
                     <div class="links-navigation" id="osint-tabs">
-                        <button class="mega-tab-btn active" data-hub="osint" data-tab="usernames">Username
-                            Trackers</button>
+                        <button class="mega-tab-btn active" data-hub="osint" data-tab="usernames">Username Trackers</button>
                         <button class="mega-tab-btn" data-hub="osint" data-tab="reverseimage">Reverse Image</button>
                         <button class="mega-tab-btn" data-hub="osint" data-tab="tracking">Flight & Vessel</button>
                         <button class="mega-tab-btn" data-hub="osint" data-tab="darkweb">Dark Web Scanners</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="osint" data-tab="ai_search"><i class="fa-solid fa-robot"></i> AI Search</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="osint" data-tab="ai_faces"><i class="fa-solid fa-robot"></i> AI Face Recog</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="osint" data-tab="ai_social"><i class="fa-solid fa-robot"></i> AI Social Profiling</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="osint" data-tab="ai_geo"><i class="fa-solid fa-robot"></i> AI Geo-Location</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="osint" data-tab="ai_data_leaks"><i class="fa-solid fa-robot"></i> AI Leak Track</button>
                     </div>
                     <div id="osint-content" style="margin-top:20px;"></div>
                 </section>
@@ -518,6 +658,12 @@
                         <button class="mega-tab-btn" data-hub="web3" data-tab="airdrops">Airdrop Hunters</button>
                         <button class="mega-tab-btn" data-hub="web3" data-tab="defi">DeFi Yields</button>
                         <button class="mega-tab-btn" data-hub="web3" data-tab="explorers">Block Explorers</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="web3" data-tab="ai_tradebot"><i class="fa-solid fa-robot"></i> AI Trading Bots</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="web3" data-tab="ai_audit"><i class="fa-solid fa-robot"></i> AI Smart Audits</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="web3" data-tab="ai_nfts"><i class="fa-solid fa-robot"></i> AI NFT Tools</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="web3" data-tab="ai_sec"><i class="fa-solid fa-robot"></i> AI Security</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="web3" data-tab="ai_sentiment"><i class="fa-solid fa-robot"></i> AI Market Sentiment</button>
                     </div>
                     <div id="web3-content" style="margin-top:20px;"></div>
                 </section>
@@ -541,6 +687,12 @@
                             Hygiene</button>
                         <button class="mega-tab-btn" data-hub="metaskills" data-tab="deepwork">Deep Work Flow</button>
                         <button class="mega-tab-btn" data-hub="metaskills" data-tab="fineng">Financial Eng.</button>
+                        <!-- AI Tabs -->
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="metaskills" data-tab="ai_focus"><i class="fa-solid fa-robot"></i> AI Focus Tools</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="metaskills" data-tab="ai_memory_tools"><i class="fa-solid fa-robot"></i> AI Memory Tutors</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="metaskills" data-tab="ai_problemsolving"><i class="fa-solid fa-robot"></i> AI Problem Solving</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="metaskills" data-tab="ai_reading"><i class="fa-solid fa-robot"></i> AI Speed Reading</button>
+                        <button class="mega-tab-btn ai-tab-btn" data-hub="metaskills" data-tab="ai_habits"><i class="fa-solid fa-robot"></i> AI Habit Coaches</button>
                     </div>
                     <div id="metaskills-content" style="margin-top:20px;"></div>
                 </section>
@@ -556,8 +708,64 @@
             <div id="modal-body"></div>
         </div>
     </div>
+    
+    <!-- ADVANCED MATCH DETAILS MODAL -->
+    <div id="advanced-match-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel" id="advanced-match-content" style="max-width: 800px; width: 90%;">
+            <!-- Content Injected via JS -->
+        </div>
+    </div>
 
-    <script src="./js/app.js" type="module"></script>
+    
+    <!-- MASTER VAULT OVERLAY -->
+    <div id="master-vault-login" style="display:none; background: rgba(0,0,0,0.95); z-index: 10000; position:fixed; top:0;left:0;width:100%;height:100%; align-items:center; justify-content:center;">
+        <div style="border: 2px solid #ffd700; background: rgba(10,10,10,0.95); padding: 40px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 0 30px rgba(255,215,0,0.2);">
+            <i class="fa-solid fa-crown" style="font-size: 3rem; color: #ffd700; margin-bottom: 20px;"></i>
+            <h2 style="color: #ffd700; margin-bottom: 20px; font-family: 'Outfit', sans-serif; letter-spacing: 2px;">THE SYNDICATE</h2>
+            <div style="height: 2px; background: #ffd700; width: 100%; margin-bottom: 20px; opacity: 0.5;"></div>
+            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">Restricted Access Protocol</p>
+            <input type="password" id="master-pass" placeholder="ENTER 5-DIGIT PIN" style="border: 1px solid #ffd700; background: #000; color: #ffd700; padding: 15px; width: 100%; text-align: center; margin-bottom: 20px; outline:none; font-family:monospace; font-size:1.2rem; border-radius:6px; box-sizing: border-box;" autocomplete="off">
+            <button id="master-submit" style="color: #000; background: #ffd700; border: none; padding: 15px; font-weight: 800; cursor: pointer; width: 100%; border-radius:6px; font-size:1.1rem; transition: transform 0.1s;">DECRYPT & ENTER</button>
+            <p id="master-error" style="display:none; color: #ff3333; margin-top: 15px; font-family: monospace;">ACCESS DENIED: INVALID SECURITY PIN</p>
+        </div>
+    </div>
+
+    <!-- MASTER VAULT MAIN INTERFACE -->
+    <div id="master-vault" style="display:none; background: rgba(10,10,10,0.98); z-index: 9999; position:fixed; top:0;left:0;width:100%;height:100%; font-family: 'Outfit', sans-serif;">
+        <div style="border-right: 1px solid rgba(255,215,0,0.3); width: 320px; display:flex; flex-direction:column; background: linear-gradient(180deg, rgba(20,20,20,1) 0%, rgba(5,5,5,1) 100%);">
+            <div style="color: #ffd700; font-size: 1.3rem; font-weight:800; padding: 25px 20px; border-bottom: 1px solid rgba(255,215,0,0.2); letter-spacing: 1px;">
+                <i class="fa-solid fa-crown" style="margin-right:8px;"></i> <span>WEALTH SYNDICATE</span>
+            </div>
+            <div style="flex:1; overflow-y:auto; overflow-x:hidden; background: rgba(0,0,0,0.2);">
+                <ul id="master-nav" style="list-style:none; padding:0; margin:0;">
+                    <!-- Nav items injected via JS -->
+                </ul>
+            </div>
+            <div style="padding: 15px; border-top: 1px solid rgba(255,215,0,0.2);">
+                <button id="master-exit" style="color:#000; background:#ffd700; border: none; padding: 15px; width:100%; font-weight:bold; cursor:pointer; border-radius:6px; font-size:1rem;">EXIT SYNDICATE TERMINAL</button>
+            </div>
+        </div>
+        
+        <div style="flex:1; display:flex; flex-direction:column; padding: 40px; overflow-y:auto; background: radial-gradient(circle at center, rgba(30,30,30,1) 0%, rgba(10,10,10,1) 100%);">
+            <div style="border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 20px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 style="color:#ffd700; margin:0; font-size: 1.5rem; letter-spacing: 2px;">SECURE CONNECTION ESTABLISHED</h3>
+                    <p style="color: #6c757d; margin: 5px 0 0 0; font-size: 0.9rem;">TOP 2% EXCLUSIVE TOOLS SUITE</p>
+                </div>
+                <div id="master-clock" style="color:#ffd700; font-family:monospace; font-size: 1.5rem; padding: 10px 20px; background: rgba(255,215,0,0.05); border-radius: 8px; border: 1px solid rgba(255,215,0,0.2);">00:00:00</div>
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <h2 id="master-cat-title" style="color:#ffd700; font-size: 2.2rem; margin-bottom: 15px; font-weight:800;">Category</h2>
+                <p id="master-cat-desc" style="color:#aaa; margin-bottom: 40px; font-size:1.15rem; max-width: 800px; line-height: 1.6;">Desc</p>
+                <div id="master-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/secret-data.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/app.js"></script>
 </body>
 
 </html>
