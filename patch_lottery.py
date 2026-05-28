@@ -1,7 +1,7 @@
 import re
 
 # 1. Update index.html
-html_path = r'c:\Users\manol\.gemini\antigravity\scratch\infodash\index.html'
+html_path = r'c:\Users\manol\.gemini\antigravity-ide\scratch\infodash\index.html'
 with open(html_path, 'r', encoding='utf-8') as f:
     html_text = f.read()
 

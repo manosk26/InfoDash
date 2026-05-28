@@ -1,6 +1,6 @@
 import codecs
 
-with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/js/app.js', 'r', 'utf-8') as f:
+with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/js/app.js', 'r', 'utf-8') as f:
     js_code = f.read()
 
 custom_link_code = """
@@ -53,5 +53,5 @@ target = "// Global function to toggle save state"
 if target in js_code:
     js_code = js_code.replace(target, custom_link_code + "\n" + target)
 
-with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/js/app.js', 'w', 'utf-8') as f:
+with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/js/app.js', 'w', 'utf-8') as f:
     f.write(js_code)

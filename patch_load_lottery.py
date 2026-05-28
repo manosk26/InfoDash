@@ -1,6 +1,6 @@
 import re
 
-app_path = r'c:\Users\manol\.gemini\antigravity\scratch\infodash\js\app.js'
+app_path = r'c:\Users\manol\.gemini\antigravity-ide\scratch\infodash\js\app.js'
 with open(app_path, 'r', encoding='utf-8') as f:
     app_text = f.read()
 

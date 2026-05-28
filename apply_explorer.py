@@ -2,7 +2,7 @@ import codecs
 
 print("Refactoring app.js to include Vault Explorer...")
 
-with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/js/app.js', 'r', 'utf-8') as f:
+with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/js/app.js', 'r', 'utf-8') as f:
     js_code = f.read()
 
 # 1. Inject Vault Explorer Button in Sidebar
@@ -180,7 +180,7 @@ window.loadVaultDirectory = async function(dirHandle, pathName) {
 if "initVaultExplorer" not in js_code:
     js_code += "\n" + vault_explorer_code
 
-with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/js/app.js', 'w', 'utf-8') as f:
+with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/js/app.js', 'w', 'utf-8') as f:
     f.write(js_code)
 
 print("Done refactoring app.js!")

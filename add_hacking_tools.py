@@ -1,7 +1,7 @@
 import codecs
 import re
 
-with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/js/secret-data.js', 'r', 'utf-8') as f:
+with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/js/secret-data.js', 'r', 'utf-8') as f:
     data = f.read()
 
 new_cats = """
@@ -83,7 +83,7 @@ new_db = """
 
 data = re.sub(r'};\s+return\s+db\[category\]', new_db + '\n    return db[category]', data, count=1)
 
-with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/js/secret-data.js', 'w', 'utf-8') as f:
+with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/js/secret-data.js', 'w', 'utf-8') as f:
     f.write(data)
 
 print("Hacking tools successfully injected (44 tools).")

@@ -1,7 +1,7 @@
 import codecs
 import re
 
-with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/js/api.js', 'r', 'utf-8') as f:
+with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/js/api.js', 'r', 'utf-8') as f:
     js_code = f.read()
 
 target = """        // Extract Win Probabilities or Form if available
@@ -78,5 +78,5 @@ if target in js_code:
 else:
     print("Target explicitly not found. Proceed manually.")
 
-with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/js/api.js', 'w', 'utf-8') as f:
+with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/js/api.js', 'w', 'utf-8') as f:
     f.write(js_code)

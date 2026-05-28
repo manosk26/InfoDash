@@ -1,4 +1,4 @@
-api_path = r'c:\Users\manol\.gemini\antigravity\scratch\infodash\js\api.js'
+api_path = r'c:\Users\manol\.gemini\antigravity-ide\scratch\infodash\js\api.js'
 
 addition = """
 // === MEGA LOTTERY ENGINE ===

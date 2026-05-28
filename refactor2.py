@@ -129,14 +129,14 @@ function initMasterClock() {
 }
 """
 
-with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/js/app.js', 'r', 'utf-8') as f:
+with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/js/app.js', 'r', 'utf-8') as f:
     app_content = f.read()
 
 # Make sure not to duplicate
 if "initMasterVault()" not in app_content:
     app_content += "\n" + js_logic
     app_content = re.sub(r'initMyHub\(\);', 'initMyHub();\n    initMasterVault();', app_content)
-    with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/js/app.js', 'w', 'utf-8') as f:
+    with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/js/app.js', 'w', 'utf-8') as f:
         f.write(app_content)
     print("app.js logic integrated.")
 
@@ -188,13 +188,13 @@ html_overlay = """
     </div>
 """
 
-with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/index.html', 'r', 'utf-8') as f:
+with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/index.html', 'r', 'utf-8') as f:
     html_content = f.read()
 
 if "master-vault-login" not in html_content:
     html_content = html_content.replace('<script src="./js/api.js"></script>', 
         html_overlay + '\n    <script src="./js/secret-data.js"></script>\n    <script src="./js/api.js"></script>')
-    with codecs.open('c:/Users/manol/.gemini/antigravity/scratch/infodash/index.html', 'w', 'utf-8') as f:
+    with codecs.open('c:/Users/manol/.gemini/antigravity-ide/scratch/infodash/index.html', 'w', 'utf-8') as f:
         f.write(html_content)
     print("index.html HTML integrated.")
 

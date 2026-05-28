@@ -1,6 +1,6 @@
 import re
 
-api_path = r'c:\Users\manol\.gemini\antigravity\scratch\infodash\js\api.js'
+api_path = r'c:\Users\manol\.gemini\antigravity-ide\scratch\infodash\js\api.js'
 with open(api_path, 'r', encoding='utf-8') as f:
     api_text = f.read()
 

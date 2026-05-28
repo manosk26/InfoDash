@@ -14,9 +14,9 @@ def clean_file(path, patterns):
         f.write(content)
 
 # File Paths
-index_path = r'c:\Users\manol\.gemini\antigravity\scratch\infodash\index.html'
-css_path = r'c:\Users\manol\.gemini\antigravity\scratch\infodash\css\styles.css'
-js_path = r'c:\Users\manol\.gemini\antigravity\scratch\infodash\js\app.js'
+index_path = r'c:\Users\manol\.gemini\antigravity-ide\scratch\infodash\index.html'
+css_path = r'c:\Users\manol\.gemini\antigravity-ide\scratch\infodash\css\styles.css'
+js_path = r'c:\Users\manol\.gemini\antigravity-ide\scratch\infodash\js\app.js'
 
 # CSS Patterns (Selectors to remove)
 css_patterns = [

@@ -1,7 +1,7 @@
 import re
 
 # 1. Update index.html
-html_path = r'c:\Users\manol\.gemini\antigravity\scratch\infodash\index.html'
+html_path = r'c:\Users\manol\.gemini\antigravity-ide\scratch\infodash\index.html'
 with open(html_path, 'r', encoding='utf-8') as f:
     html_text = f.read()
 
@@ -46,7 +46,7 @@ if html_count > 0:
     print("Updated index.html for Crypto")
 
 # 2. Update api.js
-api_path = r'c:\Users\manol\.gemini\antigravity\scratch\infodash\js\api.js'
+api_path = r'c:\Users\manol\.gemini\antigravity-ide\scratch\infodash\js\api.js'
 with open(api_path, 'r', encoding='utf-8') as f:
     api_text = f.read()
 
@@ -114,7 +114,7 @@ if api_count > 0:
     print("Updated api.js for Crypto")
 
 # 3. Update app.js
-app_path = r'c:\Users\manol\.gemini\antigravity\scratch\infodash\js\app.js'
+app_path = r'c:\Users\manol\.gemini\antigravity-ide\scratch\infodash\js\app.js'
 with open(app_path, 'r', encoding='utf-8') as f:
     app_text = f.read()
 
