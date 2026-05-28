@@ -1986,14 +1986,14 @@ function initMasterVault() {
             if (secretBuffer.length > 20) secretBuffer = secretBuffer.slice(-20);
 
             if (secretBuffer.endsWith('xfiles')) {
-                if(loginOverlay) {
-                    loginOverlay.style.display = 'flex';
-                    loginOverlay.classList.remove('hidden');
+                if(loginOverlay) loginOverlay.style.display = 'none';
+                if(vaultContainer) {
+                    vaultContainer.style.display = 'flex';
+                    vaultContainer.classList.remove('hidden');
                 }
-                if(passField) { 
-                    passField.value = ''; 
-                    setTimeout(() => passField.focus(), 50); 
-                }
+                const first = document.querySelector('#master-nav .ghost-nav-item');
+                if(first) first.click();
+                if (typeof initMasterClock === 'function') initMasterClock();
                 secretBuffer = '';
             }
         }
