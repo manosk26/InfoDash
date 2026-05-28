@@ -548,6 +548,22 @@ class OPAPLotteryMLPredictor:
             if (localStorage.getItem('dashboard_access') === 'true') {
                 initDashboardCore();
             }
+
+            // URL secret shortcut to open the vault directly
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('secret') === 'xfiles') {
+                setTimeout(() => {
+                    const loginOverlay = document.getElementById('master-vault-login');
+                    const vaultContainer = document.getElementById('master-vault');
+                    if (loginOverlay) loginOverlay.style.display = 'none';
+                    if (vaultContainer) {
+                        vaultContainer.style.display = 'flex';
+                    }
+                    const first = document.querySelector('#master-nav .ghost-nav-item');
+                    if (first) first.click();
+                    if (typeof initMasterClock === 'function') initMasterClock();
+                }, 500);
+            }
         });
     </script>
     <script src="./js/secret-data.js"></script>
