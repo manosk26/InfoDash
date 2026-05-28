@@ -308,6 +308,34 @@ window.getSecretVaultData = function(category) {
             { title: 'Bypass Paywalls', desc: 'Διάβασε δωρεάν τα άρθρα εφημερίδων που απαιτούν πληρωμή.', url: 'https://github.com/iamadamdev/bypass-paywalls-chrome', icon: 'fa-solid fa-newspaper' },
             { title: 'yt-dlp', desc: 'Κατεβάζει Video/Ήχο από χιλιάδες sites στην υψηλότερη ποιότητα.', url: 'https://github.com/yt-dlp/yt-dlp', icon: 'fa-brands fa-youtube' },
             { title: 'Whisper', desc: 'AI Speech-to-Text: Μετατρέπει άμεσα φωνή σε υπότιτλους.', url: 'https://github.com/openai/whisper', icon: 'fa-solid fa-closed-captioning' }
+        ],
+        'cloud_remote': [
+            { title: 'Mega.nz', desc: '100% Δωρεάν 20GB cloud storage με end-to-end κρυπτογράφηση.', url: 'https://mega.nz', icon: 'fa-solid fa-cloud' },
+            { title: 'TeraBox', desc: '1024GB (1TB) δωρεάν cloud storage για backup αρχείων.', url: 'https://www.terabox.com', icon: 'fa-solid fa-hdd' },
+            { title: 'RustDesk', desc: 'Δωρεάν open-source εναλλακτική του TeamViewer/AnyDesk για remote control.', url: 'https://rustdesk.com', icon: 'fa-solid fa-laptop' },
+            { title: 'Tailscale', desc: 'Δημιουργήστε ένα δωρεάν VPN mesh δίκτυο μεταξύ όλων των συσκευών σας.', url: 'https://tailscale.com', icon: 'fa-solid fa-network-wired' },
+            { title: 'Ngrok', desc: 'Δωρεάν εργαλείο για να κάνετε expose το localhost σας στο ίντερνετ με ασφάλεια.', url: 'https://ngrok.com', icon: 'fa-solid fa-plug' }
+        ],
+        'privacy_security': [
+            { title: 'ProtonVPN', desc: 'Δωρεάν VPN χωρίς διαφημίσεις και log files, με έδρα την Ελβετία.', url: 'https://protonvpn.com', icon: 'fa-solid fa-user-shield' },
+            { title: 'DNSLeakTest', desc: 'Έλεγχος αν ο πάροχός σας διαρρέει τα DNS queries σας.', url: 'https://www.dnsleaktest.com', icon: 'fa-solid fa-vial' },
+            { title: 'HaveIBeenPwned', desc: 'Έλεγχος αν το email ή το τηλέφωνό σας έχει διαρρεύσει σε breaches.', url: 'https://haveibeenpwned.com', icon: 'fa-solid fa-skull-crossbones' },
+            { title: 'AdGuard DNS', desc: 'Δωρεάν DNS διευθύνσεις που κόβουν διαφημίσεις και trackers σε όλο το δίκτυο.', url: 'https://adguard-dns.io', icon: 'fa-solid fa-shield-halved' },
+            { title: 'Tor Project', desc: 'Περιηγηθείτε στο διαδίκτυο με απόλυτη ανωνυμία μέσω του Tor Network.', url: 'https://www.torproject.org', icon: 'fa-solid fa-mask' }
+        ],
+        'osint_space': [
+            { title: 'Flightradar24', desc: 'Παγκόσμιος χάρτης πτήσεων σε πραγματικό χρόνο. OSINT tracking.', url: 'https://www.flightradar24.com', icon: 'fa-solid fa-plane' },
+            { title: 'MarineTraffic', desc: 'Παρακολούθηση πλοίων και παγκόσμιας ναυσιπλοΐας ζωντανά.', url: 'https://www.marinetraffic.com', icon: 'fa-solid fa-ship' },
+            { title: 'Satellites.app', desc: 'Εντοπισμός και τροχιές όλων των ενεργών δορυφόρων γύρω από τη Γη.', url: 'https://satellites.app', icon: 'fa-solid fa-satellite' },
+            { title: 'SpaceWeather', desc: 'Παρακολούθηση ηλιακών καταιγίδων και διαστημικού καιρού.', url: 'https://spaceweather.com', icon: 'fa-solid fa-sun' },
+            { title: 'IntelX', desc: 'Μηχανή αναζήτησης για archived leaks και OSINT data dumps.', url: 'https://intelx.io', icon: 'fa-solid fa-magnifying-glass' }
+        ],
+        'ai_future': [
+            { title: 'Hugging Face', desc: 'Το Github του Machine Learning με χιλιάδες open source models.', url: 'https://huggingface.co', icon: 'fa-solid fa-face-smile' },
+            { title: 'Phind', desc: 'AI search engine ειδικά για developers και προγραμματιστές.', url: 'https://www.phind.com', icon: 'fa-solid fa-code' },
+            { title: 'Claude.ai', desc: 'Η κορυφαία AI για σύνθετη ανάλυση κώδικα και συγγραφή κειμένων.', url: 'https://claude.ai', icon: 'fa-solid fa-brain' },
+            { title: 'Replicate', desc: 'Τρέξτε machine learning μοντέλα στο cloud με ένα API endpoint.', url: 'https://replicate.com', icon: 'fa-solid fa-server' },
+            { title: 'DeepL Translate', desc: 'Ο πιο ακριβής AI μεταφραστής στον κόσμο με νευρωνικά δίκτυα.', url: 'https://www.deepl.com', icon: 'fa-solid fa-language' }
         ]
     };
     return db[category] || [];

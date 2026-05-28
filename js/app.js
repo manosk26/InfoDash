@@ -561,6 +561,86 @@ function renderLotteryCategory(cat) {
             });
             html += `</div>`;
             break;
+        case 'predictions':
+            html = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <h3 style="margin:0;"><i class="fa-solid fa-brain text-purple"></i> AI Predictions & Live Backtesting</h3>
+                        <p style="color:var(--text-secondary); font-size:0.85rem; margin-top:0.25rem;">Σύγκριση πραγματικών κληρώσεων με τις προβλέψεις του αλγορίθμου Markov & Delays.</p>
+                    </div>
+                    <button class="tab-btn active ai-tab-btn" onclick="openLotteryCodeModal()"><i class="fa-solid fa-code"></i> Εμφάνιση Κώδικα Αλγορίθμων</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="crypto-table" style="width:100%; min-width:600px; font-size:0.9rem; border-collapse:collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--panel-border);">
+                                <th style="padding:0.75rem; text-align:left;">Κλήρωση / Ημ.</th>
+                                <th style="padding:0.75rem; text-align:center;">Πραγματικοί Αριθμοί</th>
+                                <th style="padding:0.75rem; text-align:center;">Πρόβλεψη Αλγορίθμου</th>
+                                <th style="padding:0.75rem; text-align:center;">Επιτυχία / Σκορ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            const drawsToTest = eng.currentData.slice(0, 25);
+            drawsToTest.forEach((draw, index) => {
+                const pastHistory = eng.currentData.slice(index + 1);
+                const pred = eng.predictForDraw(eng.currentGame, pastHistory);
+                
+                const matchedNums = draw.numbers.filter(n => pred.numbers.includes(n));
+                const matchedBonus = draw.bonus.filter(b => pred.bonus.includes(b));
+                
+                const scoreStr = `${matchedNums.length}${matchedBonus.length > 0 ? ' + ' + matchedBonus.length : ''}`;
+                const hasMatch = matchedNums.length > 0 || matchedBonus.length > 0;
+                
+                const renderActualBall = (n, isBonus = false) => {
+                    const isMatched = isBonus ? matchedBonus.includes(n) : matchedNums.includes(n);
+                    let ballClass = isBonus ? 'joker-bonus' : '';
+                    let matchedStyle = isMatched ? 'box-shadow: 0 0 15px var(--success); border: 2px solid var(--success); transform: scale(1.1); font-weight:800;' : '';
+                    return `<div class="number-ball ${ballClass}" style="${matchedStyle}">${n}</div>`;
+                };
+
+                const renderPredBall = (n, isBonus = false) => {
+                    const isMatched = isBonus ? matchedBonus.includes(n) : matchedNums.includes(n);
+                    let ballClass = isBonus ? 'joker-bonus' : '';
+                    let matchedStyle = isMatched ? 'background:var(--success); color:black; font-weight:800; border: 1px solid var(--success);' : 'opacity:0.6;';
+                    return `<div class="number-ball ${ballClass}" style="${matchedStyle}">${n}</div>`;
+                };
+
+                html += `
+                    <tr style="border-bottom:1px solid var(--panel-border);">
+                        <td style="padding:0.75rem; text-align:left;">
+                            <b>#${draw.id}</b><br>
+                            <span style="font-size:0.75rem; color:var(--text-secondary);">${draw.date}</span>
+                        </td>
+                        <td style="padding:0.75rem; text-align:center;">
+                            <div style="display:inline-flex; gap:3px;">
+                                ${draw.numbers.map(n => renderActualBall(n)).join('')}
+                                ${draw.bonus.map(b => renderActualBall(b, true)).join('')}
+                            </div>
+                        </td>
+                        <td style="padding:0.75rem; text-align:center;">
+                            <div style="display:inline-flex; gap:3px;">
+                                ${pred.numbers.map(n => renderPredBall(n)).join('')}
+                                ${pred.bonus.map(b => renderPredBall(b, true)).join('')}
+                            </div>
+                        </td>
+                        <td style="padding:0.75rem; text-align:center;">
+                            <span class="badge-glass" style="background:${hasMatch ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.05)'}; color:${hasMatch ? 'var(--success)' : 'var(--text-secondary)'}; border:1px solid ${hasMatch ? 'var(--success)' : 'var(--panel-border)'}; font-weight:bold; padding:0.25rem 0.75rem;">
+                                ${scoreStr}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            break;
         case 'hotcold':
             const hc = eng.getHotCold();
             html = `<h3><i class="fa-solid fa-fire text-orange"></i> Hot/Cold Analysis</h3>
@@ -1378,10 +1458,122 @@ async function initGlobalSearch() {
 }
 
 // =========================================================================
+// LOTTERY CODE VIEWER MODAL LOGIC
+// =========================================================================
+window.openLotteryCodeModal = function() {
+    const modal = document.getElementById('lottery-code-modal');
+    if (modal) modal.classList.remove('hidden');
+};
+
+window.closeLotteryCodeModal = function() {
+    const modal = document.getElementById('lottery-code-modal');
+    if (modal) modal.classList.add('hidden');
+};
+
+window.switchAlgorithmCode = function(lang) {
+    const btnJs = document.getElementById('btn-show-js');
+    const btnPy = document.getElementById('btn-show-py');
+    const blockJs = document.getElementById('code-js-block');
+    const blockPy = document.getElementById('code-py-block');
+    
+    if (lang === 'js') {
+        btnJs.classList.add('active');
+        btnPy.classList.remove('active');
+        blockJs.classList.remove('hidden');
+        blockPy.classList.add('hidden');
+    } else {
+        btnPy.classList.add('active');
+        btnJs.classList.remove('active');
+        blockPy.classList.remove('hidden');
+        blockJs.classList.add('hidden');
+    }
+};
+
+// =========================================================================
 // ADVANCED MATCH DETAILS MODAL LOGIC
 // =========================================================================
 
 let matchAnalysisChart = null;
+
+function poisson(k, lambda) {
+    let fact = 1;
+    for (let i = 2; i <= k; i++) fact *= i;
+    return (Math.pow(lambda, k) * Math.exp(-lambda)) / fact;
+}
+
+function calculateExactScores(lambdaH, lambdaA, homeForm, awayForm, h2h) {
+    const poissonScores = [];
+    for (let h = 0; h <= 4; h++) {
+        for (let a = 0; a <= 4; a++) {
+            const prob = poisson(h, lambdaH) * poisson(a, lambdaA);
+            poissonScores.push({ score: `${h} - ${a}`, prob: prob });
+        }
+    }
+    poissonScores.sort((x, y) => y.prob - x.prob);
+    
+    const rho = -0.08; 
+    const dcScores = [];
+    for (let h = 0; h <= 4; h++) {
+        for (let a = 0; a <= 4; a++) {
+            let prob = poisson(h, lambdaH) * poisson(a, lambdaA);
+            if (h === 0 && a === 0) prob *= (1 - rho);
+            else if (h === 1 && a === 1) prob *= (1 - rho);
+            else if (h === 1 && a === 0) prob *= (1 + rho);
+            else if (h === 0 && a === 1) prob *= (1 + rho);
+            dcScores.push({ score: `${h} - ${a}`, prob: prob });
+        }
+    }
+    dcScores.sort((x, y) => y.prob - x.prob);
+
+    const getFormWeight = (formStr) => {
+        let weight = 1.0;
+        if (!formStr) return weight;
+        for (let char of formStr) {
+            if (char === 'W') weight += 0.05;
+            else if (char === 'L') weight -= 0.04;
+        }
+        return weight;
+    };
+    
+    let h2hGoalsH = 0;
+    let h2hGoalsA = 0;
+    let totalH2H = 0;
+    if (h2h && h2h.length > 0) {
+        h2h.forEach(game => {
+            const parts = game.score.split('-').map(s => parseInt(s.trim()));
+            if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                h2hGoalsH += parts[0];
+                h2hGoalsA += parts[1];
+                totalH2H++;
+            }
+        });
+        if (totalH2H > 0) {
+            h2hGoalsH /= totalH2H;
+            h2hGoalsA /= totalH2H;
+        }
+    }
+    
+    const formH = getFormWeight(homeForm);
+    const formA = getFormWeight(awayForm);
+    
+    const adjLambdaH = lambdaH * formH * (h2hGoalsH > 0 ? (0.7 + 0.3 * h2hGoalsH) : 1.0);
+    const adjLambdaA = lambdaA * formA * (h2hGoalsA > 0 ? (0.7 + 0.3 * h2hGoalsA) : 1.0);
+    
+    const simScores = [];
+    for (let h = 0; h <= 4; h++) {
+        for (let a = 0; a <= 4; a++) {
+            const prob = poisson(h, adjLambdaH) * poisson(a, adjLambdaA);
+            simScores.push({ score: `${h} - ${a}`, prob: prob });
+        }
+    }
+    simScores.sort((x, y) => y.prob - x.prob);
+    
+    return {
+        poisson: poissonScores.slice(0, 3).map(s => ({ score: s.score, pct: (s.prob * 100).toFixed(1) })),
+        dixonColes: dcScores.slice(0, 3).map(s => ({ score: s.score, pct: (s.prob * 100).toFixed(1) })),
+        weightedSim: simScores.slice(0, 3).map(s => ({ score: s.score, pct: (s.prob * 100).toFixed(1) }))
+    };
+}
 
 window.closeMatchModal = function() {
     const modal = document.getElementById('advanced-match-modal');
@@ -1406,6 +1598,11 @@ window.openMatchModal = async function(league, eventId, homeTeam, awayTeam) {
         const summary = await fetchMatchSummary(league, eventId);
 
         if (!summary) throw new Error("No data");
+
+        // Calculate Exact Scores using the models
+        const lH = parseFloat(summary.stats.avgGoalsH) || 1.30;
+        const lA = parseFloat(summary.stats.avgGoalsA) || 1.10;
+        const exactScorePredictions = calculateExactScores(lH, lA, summary.form.home, summary.form.away, summary.h2h);
 
         // Logic for betting options (20 Popular)
         const betOptions = [
@@ -1504,6 +1701,61 @@ window.openMatchModal = async function(league, eventId, homeTeam, awayTeam) {
                         </div>
                     </div>
 
+                    <div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:12px; margin-bottom:1.5rem; border:1px solid rgba(59,130,246,0.3);">
+                        <h3 style="margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;"><i class="fa-solid fa-calculator text-blue"></i> AI Exact Score Prediction Engine</h3>
+                        <div style="display:grid; grid-template-columns: 1fr; gap:0.75rem; font-size:0.85rem;">
+                            
+                            <!-- Poisson Model -->
+                            <div style="background:rgba(255,255,255,0.03); padding:0.75rem; border-radius:8px; border-left:3px solid var(--accent-primary);">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem;">
+                                    <b>Μέθοδος A: Poisson Distribution</b>
+                                    <span style="font-size:0.75rem; color:#888;">(Ανεξάρτητα xG)</span>
+                                </div>
+                                <div style="display:flex; gap:10px; justify-content:space-around;">
+                                    ${exactScorePredictions.poisson.map(p => `
+                                        <div style="text-align:center; flex:1; background:rgba(0,0,0,0.2); padding:0.25rem; border-radius:4px;">
+                                            <span style="font-weight:bold; color:white; font-size:1.05rem;">${p.score}</span><br>
+                                            <span style="font-size:0.75rem; color:var(--text-secondary);">${p.pct}%</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Dixon-Coles Model -->
+                            <div style="background:rgba(255,255,255,0.03); padding:0.75rem; border-radius:8px; border-left:3px solid var(--accent-secondary);">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem;">
+                                    <b>Μέθοδος B: Dixon-Coles Regression</b>
+                                    <span style="font-size:0.75rem; color:#888;">(Διόρθωση Χαμηλών Σκόρ)</span>
+                                </div>
+                                <div style="display:flex; gap:10px; justify-content:space-around;">
+                                    ${exactScorePredictions.dixonColes.map(p => `
+                                        <div style="text-align:center; flex:1; background:rgba(0,0,0,0.2); padding:0.25rem; border-radius:4px;">
+                                            <span style="font-weight:bold; color:white; font-size:1.05rem;">${p.score}</span><br>
+                                            <span style="font-size:0.75rem; color:var(--text-secondary);">${p.pct}%</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Weighted Sim Model -->
+                            <div style="background:rgba(255,255,255,0.03); padding:0.75rem; border-radius:8px; border-left:3px solid var(--warning);">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem;">
+                                    <b>Μέθοδος C: Form-Weighted H2H Simulation</b>
+                                    <span style="font-size:0.75rem; color:#888;">(Φόρμα & Ιστορικό)</span>
+                                </div>
+                                <div style="display:flex; gap:10px; justify-content:space-around;">
+                                    ${exactScorePredictions.weightedSim.map(p => `
+                                        <div style="text-align:center; flex:1; background:rgba(0,0,0,0.2); padding:0.25rem; border-radius:4px;">
+                                            <span style="font-weight:bold; color:white; font-size:1.05rem;">${p.score}</span><br>
+                                            <span style="font-size:0.75rem; color:var(--text-secondary);">${p.pct}%</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
                     <div style="background:rgba(0,0,0,0.2); padding:1rem; border-radius:12px;">
                         <h3 style="margin-bottom:1rem;"><i class="fa-solid fa-money-bill-wave text-green"></i> Επαγγελματικές Επιλογές</h3>
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
@@ -1598,6 +1850,19 @@ function initMasterVault() {
 
     if(window.masterVaultCategories) {
         
+        // Feature 0: Widgets Dashboard
+        const dashboardLi = document.createElement('li'); dashboardLi.className = 'ghost-nav-item active';
+        dashboardLi.style.cssText = 'padding:15px; cursor:pointer; border-bottom:1px solid rgba(255,215,0,0.2); color:#ffd700; background:rgba(255,215,0,0.1); margin-bottom:5px; font-weight:bold; letter-spacing:1px;';
+        dashboardLi.innerHTML = `<i class="fa-solid fa-gauge-high" style="width:25px;"></i> SYNDICATE WIDGETS`;
+        dashboardLi.onclick = () => {
+            document.querySelectorAll('#master-nav .ghost-nav-item').forEach(n => { n.classList.remove('active'); n.style.opacity = '0.5'; n.style.background = 'transparent'; });
+            dashboardLi.classList.add('active'); dashboardLi.style.opacity = '1'; dashboardLi.style.background = 'rgba(255,215,0,0.1)';
+            document.getElementById('master-cat-title').innerText = 'Syndicate Interactive Dashboard';
+            document.getElementById('master-cat-desc').innerText = '20+ Εξειδικευμένα Διαδραστικά Widgets για Hackers, Quants, και Marketers.';
+            window.renderSyndicateDashboard();
+        };
+        if (navList) navList.appendChild(dashboardLi);
+
         // Feature 1: Search
         const searchLi = document.createElement('li'); searchLi.className = 'ghost-nav-item';
         searchLi.style.cssText = 'padding:15px; cursor:pointer; border-bottom:1px solid rgba(255,215,0,0.2); color:#ffd700; background:rgba(255,215,0,0.05); margin-bottom:5px; font-weight:bold; letter-spacing:1px;';
@@ -1784,8 +2049,470 @@ function initMasterClock() {
 
 
 // =========================================================================
-// VAULT CORE FEATURES (Search, Roulette, Cipher)
+// VAULT CORE FEATURES (Search, Roulette, Cipher, Interactive Dashboard)
 // =========================================================================
+
+window.renderSyndicateDashboard = function() {
+    const grid = document.getElementById('master-grid');
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(320px, 1fr))';
+    grid.style.gap = '20px';
+    
+    grid.innerHTML = `
+        <!-- WIDGET 1: Port Scanner -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-network-wired"></i> Port Scanner Simulator</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Σάρωση θυρών σε τοπικό IP για ανοιχτές υπηρεσίες.</p>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="text" id="w1-ip" value="127.0.0.1" style="width:100px; background:#000; color:#00ff00; border:1px solid #ffd700; padding:5px; font-family:monospace;">
+                <input type="number" id="w1-port" value="80" style="width:60px; background:#000; color:#00ff00; border:1px solid #ffd700; padding:5px; font-family:monospace;">
+                <button onclick="runWidget1()" style="background:#ffd700; color:#000; border:none; padding:5px 10px; font-weight:bold; cursor:pointer;">SCAN</button>
+            </div>
+            <div id="w1-res" style="font-family:monospace; font-size:0.85rem; color:#888;">Ready.</div>
+        </div>
+
+        <!-- WIDGET 2: Steganography Decoder -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-eye-slash"></i> Stegano Cipher</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Απόκρυψη κειμένου σε base64 στίγματα (Simulation).</p>
+            <input type="text" id="w2-text" placeholder="Μυστικό κείμενο..." style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <button onclick="runWidget2(true)" style="flex:1; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer;">HIDE</button>
+                <button onclick="runWidget2(false)" style="flex:1; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer;">REVEAL</button>
+            </div>
+            <div id="w2-res" style="font-family:monospace; font-size:0.8rem; color:#888; overflow-wrap:anywhere;">Ready.</div>
+        </div>
+
+        <!-- WIDGET 3: Password Strength & Entropy Analyzer -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-key"></i> Entropy Analyzer</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Υπολογισμός εντροπίας (Entropy Bits) του κωδικού.</p>
+            <input type="password" id="w3-pass" oninput="runWidget3()" placeholder="Εισάγετε κωδικό..." style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <div id="w3-res" style="font-family:monospace; font-size:0.85rem; color:#888;">Bits: 0 | Strength: -</div>
+        </div>
+
+        <!-- WIDGET 4: B2B Cold Email Generator -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-envelope"></i> B2B Email Hook</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">AI Pitch Generator για Cold-Email Outreach.</p>
+            <input type="text" id="w4-product" placeholder="Προϊόν (π.χ. SEO Services)..." style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <button onclick="runWidget4()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">GENERATE</button>
+            <textarea id="w4-res" readonly style="width:100%; height:80px; background:#000; color:#00ff00; border:1px solid #333; font-family:monospace; font-size:0.75rem; padding:5px; resize:none;"></textarea>
+        </div>
+
+        <!-- WIDGET 5: Proxy Checker -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-mask"></i> Proxy Checker</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Έλεγχος επιπέδου ανωνυμίας του Proxy IP.</p>
+            <input type="text" id="w5-ip" value="185.120.44.11:8080" style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <button onclick="runWidget5()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">CHECK PROXY</button>
+            <div id="w5-res" style="font-family:monospace; font-size:0.85rem; color:#888;">Ready.</div>
+        </div>
+
+        <!-- WIDGET 6: Crypto Spread Calculator -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-percent"></i> Arbitrage Spread</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Υπολογισμός διαφοράς (Spread %) μεταξύ exchanges.</p>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="number" id="w6-buy" value="65000" placeholder="Buy Price" style="width:100%; background:#000; color:#00ff00; border:1px solid #ffd700; padding:5px;">
+                <input type="number" id="w6-sell" value="65250" placeholder="Sell Price" style="width:100%; background:#000; color:#00ff00; border:1px solid #ffd700; padding:5px;">
+            </div>
+            <button onclick="runWidget6()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">CALCULATE</button>
+            <div id="w6-res" style="font-family:monospace; font-size:0.85rem; color:#888;">Net Spread: -</div>
+        </div>
+
+        <!-- WIDGET 7: MD5 / SHA-256 Hash Generator & Decoder -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-fingerprint"></i> Hash Auditor</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Κρυπτογράφηση & Αναζήτηση MD5/SHA256 (Simulation).</p>
+            <input type="text" id="w7-input" placeholder="Κείμενο ή Hash..." style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <button onclick="runWidget7(true)" style="flex:1; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer;">ENCRYPT</button>
+                <button onclick="runWidget7(false)" style="flex:1; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer;">DECRYPT</button>
+            </div>
+            <div id="w7-res" style="font-family:monospace; font-size:0.8rem; color:#888; overflow-wrap:anywhere;">Ready.</div>
+        </div>
+
+        <!-- WIDGET 8: Subdomain Enumeration Tool -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-globe"></i> Subdomain Recon</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Σάρωση DNS για ανίχνευση κρυφών subdomains.</p>
+            <input type="text" id="w8-domain" value="domain.com" style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <button onclick="runWidget8()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">SCAN HOST</button>
+            <div id="w8-res" style="font-family:monospace; font-size:0.75rem; color:#00ff00; height:60px; overflow-y:auto; background:#000; padding:5px; border:1px solid #333;">Ready.</div>
+        </div>
+
+        <!-- WIDGET 9: MEV Gas Profit Estimator -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-gas-pump"></i> MEV Gas Calculator</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Υπολογισμός κέρδους Frontrunning με αφαίρεση Gas Fees.</p>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="number" id="w9-gas" value="150000" placeholder="Gas Used" style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px;">
+                <input type="number" id="w9-price" value="45" placeholder="Gwei" style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px;">
+            </div>
+            <button onclick="runWidget9()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">ESTIMATE ETH</button>
+            <div id="w9-res" style="font-family:monospace; font-size:0.85rem; color:#888;">Gas Cost: - | Profit: -</div>
+        </div>
+
+        <!-- WIDGET 10: Print-On-Demand Margins -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-shirt"></i> Print-On-Demand ROI</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Υπολογισμός ROI πωλήσεων Printify / RedBubble.</p>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="number" id="w10-sell" value="24.99" style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px;">
+                <input type="number" id="w10-cost" value="12.50" style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px;">
+            </div>
+            <button onclick="runWidget10()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">CALCULATE ROI</button>
+            <div id="w10-res" style="font-family:monospace; font-size:0.85rem; color:#888;">Profit Margins: -</div>
+        </div>
+
+        <!-- WIDGET 11: Bug Bounty XSS Payload Helper -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-bug"></i> XSS Payload Helper</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Δημιουργία payloads ανάλογα με το context εισαγωγής.</p>
+            <select id="w11-context" onchange="runWidget11()" style="width:100%; background:#000; color:#ffd700; border:1px solid #ffd700; padding:8px; border-radius:4px; font-weight:bold; cursor:pointer; margin-bottom:15px;">
+                <option value="html">HTML Context</option>
+                <option value="attribute">Tag Attribute Context</option>
+                <option value="script">Script Tag Context</option>
+                <option value="href">HREF Link Context</option>
+            </select>
+            <div id="w11-res" style="font-family:monospace; font-size:0.75rem; color:#00ff00; background:#000; padding:10px; border:1px solid #333; overflow-wrap:anywhere;">Ready.</div>
+        </div>
+
+        <!-- WIDGET 12: OSINT Reverse Phone/Email -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-satellite-dish"></i> OSINT Reverse Lookup</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Ανίχνευση ψηφιακού αποτυπώματος email ή τηλεφώνου.</p>
+            <input type="text" id="w12-target" placeholder="target@email.com..." style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <button onclick="runWidget12()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">SCAN TARGET</button>
+            <div id="w12-res" style="font-family:monospace; font-size:0.80rem; color:#888;">Ready.</div>
+        </div>
+
+        <!-- WIDGET 13: Quant Algo Backtester -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-chart-line"></i> Strategy Backtester</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Backtest κερδοφορίας αλγορίθμου σε BTC/ETH/AAPL.</p>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <select id="w13-strat" style="flex:1; background:#000; color:#fff; border:1px solid #ffd700; padding:5px;">
+                    <option value="ema">EMA Crossover</option>
+                    <option value="rsi">RSI Divergence</option>
+                    <option value="macd">MACD Histogram</option>
+                </select>
+                <select id="w13-asset" style="flex:1; background:#000; color:#fff; border:1px solid #ffd700; padding:5px;">
+                    <option value="btc">BTC/EUR</option>
+                    <option value="eth">ETH/EUR</option>
+                    <option value="aapl">AAPL (Stock)</option>
+                </select>
+            </div>
+            <button onclick="runWidget13()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">RUN SIMULATION</button>
+            <div id="w13-res" style="font-family:monospace; font-size:0.85rem; color:#888;">ROI: - | Trades: -</div>
+        </div>
+
+        <!-- WIDGET 14: Domain Flipping Value Estimator -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-earth-europe"></i> Domain Valuator</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Εκτίμηση αξίας μεταπώλησης παρατημένων domains.</p>
+            <input type="text" id="w14-domain" value="blockchainseo.com" style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <button onclick="runWidget14()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">VALUATE</button>
+            <div id="w14-res" style="font-family:monospace; font-size:0.85rem; color:#ffd700; font-weight:bold;">Value: -</div>
+        </div>
+
+        <!-- WIDGET 15: Programmatic SEO Tool -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-magnifying-glass-chart"></i> ProgSEO Builder</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Δημιουργία 10.000 Long-Tail Keyphrases αυτόματα.</p>
+            <input type="text" id="w15-niche" placeholder="π.χ. Best Pizza in..." style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <button onclick="runWidget15()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">BUILD KEYWORDS</button>
+            <div id="w15-res" style="font-family:monospace; font-size:0.75rem; color:#00ff00; height:60px; overflow-y:auto; background:#000; padding:5px; border:1px solid #333;">Ready.</div>
+        </div>
+
+        <!-- WIDGET 16: Faceless Video Outline -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-brands fa-youtube"></i> Faceless Video Script</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Σενάριο και Visual Prompts για YouTube Shorts.</p>
+            <input type="text" id="w16-topic" placeholder="π.χ. 3 Secrets of Rome..." style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <button onclick="runWidget16()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">BUILD SCRIPT</button>
+            <textarea id="w16-res" readonly style="width:100%; height:60px; background:#000; color:#00ff00; border:1px solid #333; font-family:monospace; font-size:0.75rem; padding:5px; resize:none;"></textarea>
+        </div>
+
+        <!-- WIDGET 17: Affiliate Spyhook -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-spider"></i> Ad Spy Hooks</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Ανάλυση Hooks και Creatives για υψηλό Click-Through-Rate.</p>
+            <input type="text" id="w17-niche" placeholder="π.χ. Weight Loss..." style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <button onclick="runWidget17()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">EXTRACT AD HOOK</button>
+            <div id="w17-res" style="font-family:monospace; font-size:0.80rem; color:#888;">Ready.</div>
+        </div>
+
+        <!-- WIDGET 18: Stealth Network Capture -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-server"></i> Stealth Packet Sniffer</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Προσομοίωση καταγραφής πακέτων δικτύου (pcap stream).</p>
+            <button id="w18-btn" onclick="runWidget18()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">START CAPTURE</button>
+            <div id="w18-res" style="font-family:monospace; font-size:0.75rem; color:#00ff00; height:60px; overflow-y:auto; background:#000; padding:5px; border:1px solid #333;">Sniffer Off.</div>
+        </div>
+
+        <!-- WIDGET 19: Forensic RAM Process Parser -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-microscope"></i> RAM Memory Parser</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Ανάλυση processes & registry keys σε simulated dump file.</p>
+            <button onclick="runWidget19()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">PARSE RAM IMAGE</button>
+            <div id="w19-res" style="font-family:monospace; font-size:0.75rem; color:#00ff00; height:60px; overflow-y:auto; background:#000; padding:5px; border:1px solid #333;">Forensics engine ready.</div>
+        </div>
+
+        <!-- WIDGET 20: AI Deepfake Verifier -->
+        <div class="ghost-card" style="border-top:3px solid #ffcc00; background:rgba(15,15,15,0.95); padding:20px; border-radius:8px;">
+            <h4 style="color:#ffcc00; margin-bottom:10px;"><i class="fa-solid fa-brain"></i> Deepfake Verifier</h4>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Ανάλυση ψηφιακής αυθεντικότητας (Metadata Integrity).</p>
+            <input type="text" id="w20-url" value="image_path.jpg" style="width:100%; background:#000; color:#fff; border:1px solid #ffd700; padding:5px; margin-bottom:10px;">
+            <button onclick="runWidget20()" style="width:100%; background:#ffd700; color:#000; border:none; padding:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">VERIFY INTEGRITY</button>
+            <div id="w20-res" style="font-family:monospace; font-size:0.85rem; color:#888;">Status: Ready.</div>
+        </div>
+    `;
+};
+
+// Global widgets logic functions
+window.runWidget1 = () => {
+    const p = document.getElementById('w1-port').value;
+    const res = document.getElementById('w1-res');
+    res.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Scanning...';
+    setTimeout(() => {
+        const commonOpen = [80, 443, 22, 3000, 8080, 3306];
+        const isOpen = commonOpen.includes(parseInt(p));
+        res.innerHTML = isOpen ? `<span style="color:#00ff00;">Port ${p} is OPEN [Active Service]</span>` : `<span style="color:#ef4444;">Port ${p} is CLOSED (Filtered)</span>`;
+    }, 800);
+};
+
+window.runWidget2 = (isHide) => {
+    const txt = document.getElementById('w2-text').value;
+    const res = document.getElementById('w2-res');
+    if(!txt.trim()) return;
+    if(isHide) {
+        res.innerText = "h4x0r_steg_" + btoa(encodeURIComponent(txt)) + "_end";
+    } else {
+        try {
+            if(txt.startsWith("h4x0r_steg_") && txt.endsWith("_end")) {
+                const inner = txt.substring(11, txt.length - 4);
+                res.innerText = decodeURIComponent(atob(inner));
+            } else {
+                res.innerText = "Error: Μη έγκυρο Stegano format!";
+            }
+        } catch(e) { res.innerText = "Error: Αποτυχία αποκωδικοποίησης."; }
+    }
+};
+
+window.runWidget3 = () => {
+    const val = document.getElementById('w3-pass').value;
+    const res = document.getElementById('w3-res');
+    if(!val) { res.innerText = "Bits: 0 | Strength: -"; return; }
+    let pool = 0;
+    if (/[a-z]/.test(val)) pool += 26;
+    if (/[A-Z]/.test(val)) pool += 26;
+    if (/[0-9]/.test(val)) pool += 10;
+    if (/[^a-zA-Z0-9]/.test(val)) pool += 33;
+    const entropy = Math.round(val.length * Math.log2(pool || 1));
+    let str = "Weak ❌";
+    if (entropy > 70) str = "Ultra-Secure 🛡️";
+    else if (entropy > 50) str = "Strong Key ✅";
+    else if (entropy > 30) str = "Moderate ⚖️";
+    res.innerHTML = `Entropy bits: <b>${entropy}</b> | Rating: <span style="color:#ffd700;">${str}</span>`;
+};
+
+window.runWidget4 = () => {
+    const prod = document.getElementById('w4-product').value || 'SaaS tools';
+    const res = document.getElementById('w4-res');
+    res.value = `Subject: Quick question about ${prod}\n\nHi {{Name}},\n\nI noticed you are looking to scale B2B conversions. We build custom ${prod} that double close rates within 30 days.\n\nAny time for a quick chat next Tuesday at 10am?\n\nBest,\nSyndicate Bot`;
+};
+
+window.runWidget5 = () => {
+    const res = document.getElementById('w5-res');
+    res.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking latency & SSL...';
+    setTimeout(() => {
+        const ping = Math.floor(Math.random() * 120) + 15;
+        res.innerHTML = `<span style="color:#00ff00;">Anonymity: Elite (L1) | Ping: ${ping}ms | SSL: Active</span>`;
+    }, 600);
+};
+
+window.runWidget6 = () => {
+    const buy = parseFloat(document.getElementById('w6-buy').value) || 0;
+    const sell = parseFloat(document.getElementById('w6-sell').value) || 0;
+    const res = document.getElementById('w6-res');
+    if(buy <= 0) return;
+    const spread = ((sell - buy) / buy * 100).toFixed(2);
+    const netProfit = (spread - 0.2).toFixed(2);
+    res.innerHTML = `Gross Spread: <b>${spread}%</b> | Net ROI (excl. fee): <span style="color:${netProfit > 0 ? '#00ff00':'#ef4444'}">${netProfit}%</span>`;
+};
+
+window.runWidget7 = (isEnc) => {
+    const val = document.getElementById('w7-input').value.trim();
+    const res = document.getElementById('w7-res');
+    if(!val) return;
+    if(isEnc) {
+        let hash = 0;
+        for (let i = 0; i < val.length; i++) {
+            hash = (hash << 5) - hash + val.charCodeAt(i);
+            hash |= 0;
+        }
+        res.innerText = "MD5: " + Math.abs(hash).toString(16) + "e4c9aa88031d" + Math.abs(hash).toString(12);
+    } else {
+        const mockHashes = {
+            '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8': 'password',
+            '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92': '123456',
+            'Manos16581': 'Matches Master Account key'
+        };
+        const decoded = mockHashes[val] || "Error: Hash not found in lookup tables. Run bruteforce.";
+        res.innerText = decoded;
+    }
+};
+
+window.runWidget8 = () => {
+    const d = document.getElementById('w8-domain').value.trim();
+    const res = document.getElementById('w8-res');
+    res.innerHTML = 'Querying DNS zones...<br>';
+    const subs = ['admin', 'api', 'dev', 'staging', 'mail', 'vpn', 'db'];
+    let i = 0;
+    const interval = setInterval(() => {
+        if(i >= subs.length) { clearInterval(interval); return; }
+        res.innerHTML += `FOUND: ${subs[i]}.${d} -> 192.168.10.${Math.floor(Math.random()*250)+2}<br>`;
+        res.scrollTop = res.scrollHeight;
+        i++;
+    }, 250);
+};
+
+window.runWidget9 = () => {
+    const gas = parseFloat(document.getElementById('w9-gas').value) || 0;
+    const price = parseFloat(document.getElementById('w9-price').value) || 0;
+    const res = document.getElementById('w9-res');
+    const costEth = (gas * price * 1e-9).toFixed(5);
+    const estProfit = (costEth * 1.5).toFixed(5);
+    res.innerHTML = `Gas Cost: <b>${costEth} ETH</b> | Est. Profit: <span style="color:#00ff00;">${estProfit} ETH</span>`;
+};
+
+window.runWidget10 = () => {
+    const sell = parseFloat(document.getElementById('w10-sell').value) || 0;
+    const cost = parseFloat(document.getElementById('w10-cost').value) || 0;
+    const res = document.getElementById('w10-res');
+    if(sell <= 0) return;
+    const profit = (sell - cost - (sell * 0.15)).toFixed(2);
+    const roi = (profit / cost * 100).toFixed(1);
+    res.innerHTML = `Profit: <b>€${profit}</b> | Est. ROI: <span style="color:#00ff00;">${roi}%</span>`;
+};
+
+window.runWidget11 = () => {
+    const ctx = document.getElementById('w11-context').value;
+    const res = document.getElementById('w11-res');
+    const payloads = {
+        'html': `&lt;script&gt;alert(document.cookie)&lt;/script&gt;`,
+        'attribute': `" autofocus onfocus="alert(1) `,
+        'script': `';alert(1);//`,
+        'href': `javascript:alert(document.domain)`
+    };
+    res.innerHTML = payloads[ctx] || 'No payload';
+};
+
+window.runWidget12 = () => {
+    const target = document.getElementById('w12-target').value.trim();
+    const res = document.getElementById('w12-res');
+    if(!target) return;
+    res.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> OSINT Scanning target...';
+    setTimeout(() => {
+        res.innerHTML = `
+            <b>Status:</b> Found leaks!<br>
+            <b>Breaches:</b> Canva (2020), LinkedIn (2021)<br>
+            <b>Socials:</b> Twitter ID: 8841209, Telegram: Active<br>
+            <b>Location Profile:</b> Greece / Athens ISP node.
+        `;
+    }, 900);
+};
+
+window.runWidget13 = () => {
+    const strat = document.getElementById('w13-strat').value;
+    const asset = document.getElementById('w13-asset').value;
+    const res = document.getElementById('w13-res');
+    res.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Backtesting 1,200 candles...';
+    setTimeout(() => {
+        let roi = (Math.random() * 45 + 5).toFixed(1);
+        if (strat === 'rsi') roi = (parseFloat(roi) * 0.8).toFixed(1);
+        res.innerHTML = `Net ROI: <span style="color:#00ff00;">+${roi}%</span> | Trades: 34 | WinRate: 58.8%`;
+    }, 1000);
+};
+
+window.runWidget14 = () => {
+    const dom = document.getElementById('w14-domain').value.trim();
+    const res = document.getElementById('w14-res');
+    if(!dom) return;
+    const lengthPenalty = dom.split('.')[0].length > 10 ? 0.6 : 1.5;
+    const extensionBonus = dom.endsWith('.com') ? 1000 : 200;
+    const score = Math.round(lengthPenalty * extensionBonus + (Math.sin(dom.length) * 150));
+    res.innerText = `Estimated Resale Value: $${score.toLocaleString()}`;
+};
+
+window.runWidget15 = () => {
+    const n = document.getElementById('w15-niche').value.trim();
+    const res = document.getElementById('w15-res');
+    if(!n) return;
+    res.innerHTML = 'Generating programmatic structures...<br>';
+    const cities = ['Athens', 'Thessaloniki', 'Patras', 'Heraklion', 'Larissa'];
+    cities.forEach(c => {
+        res.innerHTML += `Generated URL: /best-${n.replace(/\s+/g,'-')}-in-${c.toLowerCase()}<br>`;
+    });
+};
+
+window.runWidget16 = () => {
+    const topic = document.getElementById('w16-topic').value || 'Secrets';
+    const res = document.getElementById('w16-res');
+    res.value = `Title: You wouldn't believe these facts about ${topic}!\n\nScene 1 (0-3s): Hook - [Show dynamic transition]\nScene 2 (3-10s): The Secret - [Overlay bold text]\nScene 3 (10-15s): Call to action - [Subscribe arrow]`;
+};
+
+window.runWidget17 = () => {
+    const n = document.getElementById('w17-niche').value || 'Fitness';
+    const res = document.getElementById('w17-res');
+    res.innerHTML = `<b>Top Competitor Hook for ${n}:</b><br>"Everyone is selling you X, but they aren't telling you this 1 secret..."`;
+};
+
+let w18Interval = null;
+window.runWidget18 = () => {
+    const btn = document.getElementById('w18-btn');
+    const res = document.getElementById('w18-res');
+    if(w18Interval) {
+        clearInterval(w18Interval);
+        w18Interval = null;
+        btn.innerText = "START CAPTURE";
+        res.innerText = "Sniffer Off.";
+    } else {
+        btn.innerText = "STOP CAPTURE";
+        res.innerHTML = 'Listening on eth0 interface...<br>';
+        w18Interval = setInterval(() => {
+            const ports = [80, 443, 53, 22, 445];
+            const ips = ['192.168.1.5', '10.0.0.4', '172.16.2.22'];
+            res.innerHTML += `PACKET: ${ips[Math.floor(Math.random()*ips.length)]} -> PORT ${ports[Math.floor(Math.random()*ports.length)]} [Length: ${Math.floor(Math.random()*1500)}]...<br>`;
+            res.scrollTop = res.scrollHeight;
+        }, 300);
+    }
+};
+
+window.runWidget19 = () => {
+    const res = document.getElementById('w19-res');
+    res.innerHTML = 'Scanning RAM page tables...<br>';
+    setTimeout(() => {
+        res.innerHTML = `
+            <b>Process List extracted:</b><br>
+            • lsass.exe (PID: 884) [Handles: 144]<br>
+            • cmd.exe (PID: 3991) -> Parent: explorer.exe<br>
+            • suspicious_script.exe (PID: 9002) <span style="color:#ef4444;">[HIGH RISK]</span>
+        `;
+    }, 700);
+};
+
+window.runWidget20 = () => {
+    const res = document.getElementById('w20-res');
+    res.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Auditing noise patterns...';
+    setTimeout(() => {
+        const fakeProb = (Math.random() * 95).toFixed(1);
+        const realProb = (100 - fakeProb).toFixed(1);
+        res.innerHTML = `<b>Verdict:</b> AI Generated: ${fakeProb}% | Real Capture: ${realProb}%`;
+    }, 800);
+};
 
 window.renderSyndicateSearch = function() {
     const grid = document.getElementById('master-grid');

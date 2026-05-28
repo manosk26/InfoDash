@@ -180,6 +180,7 @@
         <!-- Sidebar Navigation (18 Items) -->
         <div class="lottery-sub-tabs glass-panel" id="lottery-nav">
             <button class="active" data-cat="latest">Τελευταία</button>
+            <button data-cat="predictions" style="border: 1px solid rgba(139, 92, 246, 0.4); color: #c084fc;"><i class="fa-solid fa-brain"></i> Αλγόριθμοι & AI</button>
             <button data-cat="history">Προηγούμενες</button>
             <button data-cat="tables">Πινακάκια</button>
             <button data-cat="board">Πίνακας</button>
@@ -330,6 +331,183 @@
     <!-- MODALS -->
     <div class="modal" id="info-modal"><div class="modal-content glass-panel"><span class="close-modal"><i class="fa-solid fa-times"></i></span><div id="modal-body"></div></div></div>
     <div id="advanced-match-modal" class="modal-overlay hidden"><div class="modal-content glass-panel" id="advanced-match-content" style="max-width: 800px; width: 90%;"></div></div>
+ 
+    <!-- LOTTERY CODE VIEW MODAL -->
+    <div id="lottery-code-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel" style="max-width: 900px; width: 95%; max-height: 85vh; overflow-y: auto; position: relative;">
+            <span class="close-modal" style="position:absolute; top:1rem; right:1.5rem; font-size:1.5rem; cursor:pointer;" onclick="closeLotteryCodeModal()"><i class="fa-solid fa-times"></i></span>
+            <h2 class="gradient-text" style="margin-bottom: 1.5rem;"><i class="fa-solid fa-code"></i> AI Prediction Algorithm Codebase</h2>
+            <p style="color:var(--text-secondary); margin-bottom: 1.5rem;">Ο παρακάτω κώδικας εκτελείται καθημερινά, αναλύει το ιστορικό των κληρώσεων και υπολογίζει τις πιθανότητες εμφάνισης των αριθμών.</p>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 1.5rem;">
+                <button class="tab-btn active" id="btn-show-js" onclick="switchAlgorithmCode('js')">Javascript Engine</button>
+                <button class="tab-btn" id="btn-show-py" onclick="switchAlgorithmCode('py')">Python Predictor (xG/Regression)</button>
+            </div>
+
+            <!-- Javascript Code Block -->
+            <pre id="code-js-block" style="background:#02040a; border: 1px solid var(--panel-border); padding: 1.5rem; border-radius: 8px; overflow-x: auto; color:#a6accd; font-family: monospace; font-size: 0.8rem; margin:0;">
+<code>// Javascript Markov Chain & Hot-Cold Prediction Algorithm
+class LotteryPredictor {
+    constructor(drawsHistory) {
+        this.history = drawsHistory; // Array of draws { numbers: [...], bonus: [...] }
+    }
+
+    // 1. Calculate weights based on delays
+    calculateDelayWeights(maxNum) {
+        const delays = Array(maxNum + 1).fill(0);
+        const weights = Array(maxNum + 1).fill(1.0);
+        
+        for (let num = 1; num &lt;= maxNum; num++) {
+            const lastIdx = this.history.findIndex(h =&gt; h.numbers.includes(num));
+            delays[num] = lastIdx === -1 ? this.history.length : lastIdx;
+            // Higher delay = higher probability weight (mean reversion)
+            weights[num] += Math.log(delays[num] + 1) * 1.5;
+        }
+        return weights;
+    }
+
+    // 2. Markov Chain transition probability matrix (First-order)
+    calculateMarkovTransitions(maxNum) {
+        const matrix = Array(maxNum + 1).fill(0).map(() =&gt; Array(maxNum + 1).fill(0));
+        
+        for (let idx = 0; idx &lt; this.history.length - 1; idx++) {
+            const currentDraw = this.history[idx].numbers;
+            const nextDraw = this.history[idx + 1].numbers;
+            
+            currentDraw.forEach(c =&gt; {
+                nextDraw.forEach(n =&gt; {
+                    matrix[c][n]++;
+                });
+            });
+        }
+        return matrix;
+    }
+
+    // 3. Generate Top Predictions
+    predict(maxNum, count, bonusMax = 0) {
+        const delayWeights = this.calculateDelayWeights(maxNum);
+        const transitionMatrix = this.calculateMarkovTransitions(maxNum);
+        
+        const finalScores = Array(maxNum + 1).fill(0);
+        const lastDraw = this.history[0]?.numbers || [];
+
+        for (let num = 1; num &lt;= maxNum; num++) {
+            let score = delayWeights[num];
+            // Add transition weights from the last drawn numbers
+            lastDraw.forEach(lastNum =&gt; {
+                score += (transitionMatrix[lastNum][num] || 0) * 2.0;
+            });
+            finalScores[num] = score;
+        }
+
+        // Sort by final prediction score
+        const predictions = [];
+        for (let i = 1; i &lt;= maxNum; i++) {
+            predictions.push({ number: i, score: finalScores[i] });
+        }
+        predictions.sort((a, b) =&gt; b.score - a.score);
+        
+        const mainNumbers = predictions.slice(0, count).map(p =&gt; p.number).sort((a,b)=&gt;a-b);
+        
+        // Bonus predictions if applicable
+        const bonusNumbers = [];
+        if (bonusMax &gt; 0) {
+            const bonusFreq = {};
+            this.history.forEach(d =&gt; {
+                d.bonus.forEach(b =&gt; {
+                    bonusFreq[b] = (bonusFreq[b] || 0) + 1;
+                });
+            });
+            const bSorted = Object.keys(bonusFreq).sort((x, y) =&gt; bonusFreq[y] - bonusFreq[x]).map(Number);
+            bonusNumbers.push(bSorted[0] || 1);
+        }
+        
+        return { numbers: mainNumbers, bonus: bonusNumbers };
+    }
+}</code></pre>
+
+            <!-- Python Code Block -->
+            <pre id="code-py-block" class="hidden" style="background:#02040a; border: 1px solid var(--panel-border); padding: 1.5rem; border-radius: 8px; overflow-x: auto; color:#a6accd; font-family: monospace; font-size: 0.8rem; margin:0;">
+<code># Python Predictive Engine using Pandas & Scikit-Learn Regression
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import PoissonRegressor
+from sklearn.preprocessing import StandardScaler
+
+class OPAPLotteryMLPredictor:
+    def __init__(self, draws_dataframe):
+        self.df = draws_dataframe # columns: ['draw_id', 'date', 'n1', 'n2', 'n3', 'n4', 'n5', 'bonus']
+
+    def engineer_features(self, max_number):
+        features = []
+        targets = []
+        
+        # Calculate historical stats prior to each draw for features
+        for idx in range(50, len(self.df)):
+            sub_df = self.df.iloc[idx:] # historical draws prior to current
+            
+            # Feature calculation: Delays & rolling frequency
+            for num in range(1, max_number + 1):
+                delay = 0
+                freq_50 = 0
+                for _, row in sub_df.iterrows():
+                    draw_nums = [row['n1'], row['n2'], row['n3'], row['n4'], row['n5']]
+                    if num in draw_nums:
+                        break
+                    delay += 1
+                
+                for _, row in sub_df.head(50).iterrows():
+                    draw_nums = [row['n1'], row['n2'], row['n3'], row['n4'], row['n5']]
+                    if num in draw_nums:
+                        freq_50 += 1
+                        
+                features.append([delay, freq_50])
+                
+                # Target: 1 if number is drawn in current draw, 0 otherwise
+                current_draw_nums = [self.df.iloc[idx]['n1'], self.df.iloc[idx]['n2'], self.df.iloc[idx]['n3'], self.df.iloc[idx]['n4'], self.df.iloc[idx]['n5']]
+                targets.append(1 if num in current_draw_nums else 0)
+                
+        return np.array(features), np.array(targets)
+
+    def train_and_predict(self, max_number, select_count):
+        X, y = self.engineer_features(max_number)
+        
+        # Scale features
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        
+        # Fit Poisson Regression model
+        model = PoissonRegressor(alpha=1.0)
+        model.fit(X_scaled, y)
+        
+        # Calculate features for current state (for next draw)
+        live_features = []
+        for num in range(1, max_number + 1):
+            delay = 0
+            freq_50 = 0
+            for _, row in self.df.iterrows():
+                draw_nums = [row['n1'], row['n2'], row['n3'], row['n4'], row['n5']]
+                if num in draw_nums:
+                    break
+                delay += 1
+            
+            for _, row in self.df.head(50).iterrows():
+                draw_nums = [row['n1'], row['n2'], row['n3'], row['n4'], row['n5']]
+                if num in draw_nums:
+                    freq_50 += 1
+            live_features.append([delay, freq_50])
+            
+        live_features_scaled = scaler.transform(np.array(live_features))
+        probabilities = model.predict(live_features_scaled)
+        
+        # Sort and select top candidates
+        top_indices = np.argsort(probabilities)[::-1][:select_count]
+        predicted_numbers = [i + 1 for i in top_indices]
+        predicted_numbers.sort()
+        
+        return predicted_numbers</code></pre>
+        </div>
+    </div>
 
 
     <!-- VAULT -->

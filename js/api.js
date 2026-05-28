@@ -1731,7 +1731,13 @@ function getRecommendations() {
             icon: "fa-solid fa-wrench",
             url: `https://www.google.com/search?q=free+productivity+tool+${i}`
         });
-   // === MEGA LOTTERY ENGINE ===
+    }
+
+    // Επιστροφή 200 στοιχείων συνολικά (100 Πλατφόρμες, 100 Εργαλεία)
+    return [...platforms, ...tools];
+}
+
+// === MEGA LOTTERY ENGINE ===
 
 const LotteryEngine = {
     currentGame: 'joker',
@@ -1871,6 +1877,78 @@ const LotteryEngine = {
         }).map(d => ({
             id: d.id, date: d.date, matched: d.numbers.filter(n => myNums.includes(n)).length, numbers: d.numbers
         }));
+    },
+    predictForDraw(game, history) {
+        if (!history || history.length === 0) return { numbers: [], bonus: [] };
+        
+        let maxNum = 45;
+        let count = 5;
+        let bonusMax = 20;
+        let bonusCount = 1;
+        
+        if (game === 'eurojackpot') {
+            maxNum = 50;
+            count = 5;
+            bonusMax = 12;
+            bonusCount = 2;
+        } else if (game === 'lotto') {
+            maxNum = 49;
+            count = 6;
+            bonusMax = 0;
+            bonusCount = 0;
+        }
+        
+        const delays = Array(maxNum + 1).fill(0);
+        const weights = Array(maxNum + 1).fill(1.0);
+        
+        for (let num = 1; num <= maxNum; num++) {
+            const lastIdx = history.findIndex(h => h.numbers.includes(num));
+            delays[num] = lastIdx === -1 ? history.length : lastIdx;
+            weights[num] += Math.log(delays[num] + 1) * 1.5;
+        }
+        
+        const freq = {};
+        history.forEach(h => h.numbers.forEach(n => freq[n] = (freq[n]||0)+1));
+        for (let num = 1; num <= maxNum; num++) {
+            weights[num] += (freq[num] || 0) * 0.2;
+        }
+        
+        const candidates = [];
+        for (let i = 1; i <= maxNum; i++) {
+            candidates.push({ number: i, weight: weights[i] });
+        }
+        
+        candidates.forEach(c => {
+            c.weight += (Math.sin(c.number + history.length) * 0.5);
+        });
+        
+        candidates.sort((a, b) => b.weight - a.weight);
+        const selectedNums = candidates.slice(0, count).map(c => c.number).sort((a,b)=>a-b);
+        
+        const selectedBonus = [];
+        if (bonusMax > 0) {
+            const bWeights = Array(bonusMax + 1).fill(1.0);
+            for (let b = 1; b <= bonusMax; b++) {
+                const lastIdx = history.findIndex(h => h.bonus.includes(b));
+                const bDelay = lastIdx === -1 ? history.length : lastIdx;
+                bWeights[b] += Math.log(bDelay + 1) * 1.0;
+                
+                const bFreq = history.filter(h => h.bonus.includes(b)).length;
+                bWeights[b] += bFreq * 0.3;
+                bWeights[b] += (Math.cos(b + history.length) * 0.3);
+            }
+            const bCandidates = [];
+            for (let b = 1; b <= bonusMax; b++) {
+                bCandidates.push({ number: b, weight: bWeights[b] });
+            }
+            bCandidates.sort((a, b) => b.weight - a.weight);
+            for (let i = 0; i < bonusCount; i++) {
+                selectedBonus.push(bCandidates[i].number);
+            }
+            selectedBonus.sort((a,b)=>a-b);
+        }
+        
+        return { numbers: selectedNums, bonus: selectedBonus };
     },
     getStatisticalSummary() { 
         return "Το μοντέλο AI προβλέπει υψηλή πιθανότητα για αριθμούς στις δεκάδες 20-29 για την επόμενη κλήρωση."; 
