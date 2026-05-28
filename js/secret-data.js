@@ -30,9 +30,15 @@ window.masterVaultCategories = [
     { id: 'on_recon', icon: 'fa-solid fa-satellite-dish', title: 'Online Target Reconnaissance', desc: 'Σάρωση υποδομών, χαρτογράφηση στόχων και εύρεση Subdomains στο Web.' },
     { id: 'on_web_scanners', icon: 'fa-solid fa-spider', title: 'Online Web Scanners', desc: 'Αυτοματοποιημένος εντοπισμός κενών ασφαλείας (SQL, XSS) σε Web εφαρμογές.' },
     { id: 'on_exploitation', icon: 'fa-solid fa-bomb', title: 'Online Exploitation Frameworks', desc: 'Πλατφόρμες εκμετάλλευσης τρωτών σημείων και παράκαμψης συστημάτων (PenTesting).' },
-    { id: 'on_phishing', icon: 'fa-solid fa-fish-fins', title: 'Phishing Simulators & Social Eng.', desc: 'Δοκιμές κοινωνικής μηχανικής (Social Engineering) και πλαστές καμπάνιες Phishing.' }
+    { id: 'on_phishing', icon: 'fa-solid fa-fish-fins', title: 'Phishing Simulators & Social Eng.', desc: 'Δοκιμές κοινωνικής μηχανικής (Social Engineering) και πλαστές καμπάνιες Phishing.' },
+    
+    // --- NEW SPECIALIZED CATEGORIES (STABLE & ONLINE) ---
+    { id: 'cloud_remote', icon: 'fa-solid fa-cloud-arrow-up', title: 'Cloud & Remote Bridge', desc: 'Πρόσβαση σε δωρεάν Cloud Storage (Mega, TeraBox) και πύλες απομακρυσμένης σύνδεσης (Remote Desktop).' },
+    { id: 'privacy_security', icon: 'fa-solid fa-user-shield', title: 'Privacy & Net Security', desc: 'Εξειδικευμένα εργαλεία για ανωνυμία, έλεγχο διαρροών (Leaks) και ασφάλεια δικτύου σε πραγματικό χρόνο.' },
+    { id: 'osint_space', icon: 'fa-solid fa-satellite', title: 'OSINT & Intelligence', desc: 'Παρακολούθηση δορυφόρων, καιρικών φαινομένων διαστήματος και παγκόσμιας κίνησης (Air/Sea) OSINT.' },
+    { id: 'ai_future', icon: 'fa-solid fa-brain', title: 'AI & Future Tech', desc: 'Εργαλεία τεχνητής νοημοσύνης για ανάλυση κώδικα (Auditing), Sentiment Analysis και Deepfake forensics.' },
 
-    ,{ id: 'git_ai', icon: 'fa-solid fa-robot', title: 'GitHub: AI & Machine Learning', desc: 'Τα κορυφαία Open Source έργα Τεχνητής Νοημοσύνης.' },
+    { id: 'git_ai', icon: 'fa-solid fa-robot', title: 'GitHub: AI & Machine Learning', desc: 'Τα κορυφαία Open Source έργα Τεχνητής Νοημοσύνης.' },
     { id: 'git_cyber', icon: 'fa-solid fa-user-secret', title: 'GitHub: Cyber Security (1)', desc: 'Κορυφαία εργαλεία Hacking & Security Testing.' },
     { id: 'git_cyber2', icon: 'fa-solid fa-shield-halved', title: 'GitHub: Cyber Security (2)', desc: 'Λειτουργικά Συστήματα Hackers, Privacy & VPNs.' },
     { id: 'git_dev', icon: 'fa-solid fa-code', title: 'GitHub: Development & No-Code', desc: 'Εργαλεία συγγραφής κώδικα και εναλλακτικές Cloud.' },

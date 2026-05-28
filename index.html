@@ -7,24 +7,26 @@
     <title>InfoDash Hub - Premium Dashboard</title>
     <meta name="description" content="Η 100% δωρεάν πλατφόρμα σας για Στοίχημα, Κληρώσεις, Crypto και Χρήσιμα Links.">
 
-    <!-- Google Fonts: Roboto & Outfit for premium look -->
+    <!-- Google Fonts: Roboto & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Roboto:wght@300;400;500;700&display=swap"
         rel="stylesheet">
 
-    <!-- Font Awesome for Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Chart.js for visualizations -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/styles.css?v=3">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/825/825540.png">
+    <meta name="theme-color" content="#ffd700">
 </head>
 
 <body class="dark-theme">
-    <!-- Particles Background for premium dynamic feel -->
     <div id="particles-bg"></div>
 
     <div id="login-gate" class="login-overlay">
@@ -34,738 +36,343 @@
                 <h1 class="gradient-text">InfoDash Hub</h1>
             </div>
             <p>Παρακαλώ εισάγετε τον κωδικό πρόσβασης</p>
-            <div class="login-input-group">
-                <input type="password" id="login-password" placeholder="Κωδικός..." autofocus>
-                <button id="login-btn"><i class="fa-solid fa-arrow-right-to-bracket"></i></button>
-            </div>
-            <p id="login-error" class="hidden text-red" style="font-size: 0.8rem; margin-top: 10px;">Λάθος κωδικός!</p>
+            <form id="login-form">
+                <div class="login-input-group">
+                    <input type="password" id="login-password" placeholder="Κωδικός..." autofocus autocomplete="current-password">
+                    <button type="submit" id="login-btn"><i class="fa-solid fa-arrow-right-to-bracket"></i></button>
+                </div>
+                <p id="login-error" class="hidden text-red" style="font-size: 0.8rem; margin-top: 10px;">Λάθος κωδικός!</p>
+            </form>
         </div>
     </div>
 
     <div class="app-container">
         <!-- Sidebar Navigation -->
-        <nav class="sidebar" id="sidebar">
+
+        <nav class="sidebar" id="sidebar-left">
             <div class="sidebar-header">
                 <div class="logo">
-                    <i class="fa-solid fa-infinity"></i>
+                    <i class="fa-solid fa-infinity text-green"></i>
                     <h2>InfoDash<span>Hub</span></h2>
                 </div>
-                <button id="mobile-menu-close" class="mobile-only" title="Κλείσιμο Μενού" aria-label="Close menu"><i
-                        class="fa-solid fa-times"></i></button>
             </div>
 
             <ul class="nav-links">
-                <li class="nav-item active" data-target="myhub">
-                    <i class="fa-solid fa-house-user"></i>
-                    <span>My Dashboard</span>
-                </li>
-                <li class="nav-item" data-target="betting">
-                    <i class="fa-solid fa-futbol"></i>
-                    <span>Στοίχημα & Αγώνες</span>
-                </li>
-                <li class="nav-item" data-target="lottery">
-                    <i class="fa-solid fa-money-bill-1-wave"></i>
-                    <span>Τζόκερ / Eurojackpot</span>
-                </li>
-                <li class="nav-item" data-target="crypto">
-                    <i class="fa-brands fa-bitcoin"></i>
-                    <span>Crypto Markets</span>
-                </li>
-                <li class="nav-item" data-target="links">
-                    <i class="fa-solid fa-link"></i>
-                    <span>Directory (Χρήσιμα)</span>
-                </li>
-                <li class="nav-item" data-target="recommendations">
-                    <i class="fa-solid fa-lightbulb"></i>
-                    <span>Προτάσεις μας</span>
-                </li>
-                <li class="nav-item" data-target="lifehacks">
-                    <i class="fa-solid fa-rocket"></i>
-                    <span>LifeHack & Prod</span>
-                </li>
-                <li class="nav-item" data-target="finance">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Finance & Trends</span>
-                </li>
-                <li class="nav-item" data-target="edgeanalytics">
-                    <i class="fa-solid fa-magnifying-glass-chart"></i>
-                    <span>Game & Edge Stats</span>
-                </li>
-                <li class="nav-item" data-target="science">
-                    <i class="fa-solid fa-globe"></i>
-                    <span>Επιστήμη & Δεδομένα</span>
-                </li>
-                <li class="nav-item" data-target="leisure">
-                    <i class="fa-solid fa-gamepad"></i>
-                    <span>Leisure & Retro</span>
-                </li>
-                <!-- NEW PHASE 3 HUBS -->
-                <li class="nav-item" data-target="ai">
-                    <i class="fa-solid fa-robot"></i>
-                    <span>AI & Automation</span>
-                </li>
-                <li class="nav-item" data-target="nomads">
-                    <i class="fa-solid fa-earth-americas"></i>
-                    <span>Nomads & Remote</span>
-                </li>
-                <li class="nav-item" data-target="privacy">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span>Privacy & Cyber</span>
-                </li>
-                <li class="nav-item" data-target="health">
-                    <i class="fa-solid fa-heart-pulse"></i>
-                    <span>Health & Fitness</span>
-                </li>
-                <li class="nav-item" data-target="creator">
-                    <i class="fa-solid fa-palette"></i>
-                    <span>Creator Studio</span>
-                </li>
-                <li class="nav-item" data-target="academic">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                    <span>Career & Academic</span>
-                </li>
-                <li class="nav-item" data-target="skills">
-                    <i class="fa-solid fa-book-open"></i>
-                    <span>Lifelong Skills</span>
-                </li>
-                <!-- NEW PHASE 4 HUBS (UNDERGROUND) -->
-                <li class="nav-item" data-target="osint">
-                    <i class="fa-solid fa-user-secret"></i>
-                    <span>OSINT & Footprint</span>
-                </li>
-                <li class="nav-item" data-target="web3">
-                    <i class="fa-brands fa-ethereum"></i>
-                    <span>Web3 & Decentralized</span>
-                </li>
-                <li class="nav-item" data-target="metaskills">
-                    <i class="fa-solid fa-brain"></i>
-                    <span>Masterclass & Skills</span>
-                </li>
+                <li class="nav-item active" data-target="myhub"><i class="fa-solid fa-house-user"></i><span>My Dashboard</span></li>
+                <li class="nav-item" data-target="betting"><i class="fa-solid fa-futbol"></i><span>Στοίχημα & Αγώνες</span></li>
+                <li class="nav-item" data-target="lottery"><i class="fa-solid fa-money-bill-1-wave"></i><span>Τζόκερ / Eurojackpot</span></li>
+                <li class="nav-item" data-target="crypto"><i class="fa-brands fa-bitcoin"></i><span>Crypto Markets</span></li>
+                <li class="nav-item" data-target="finance"><i class="fa-solid fa-chart-line"></i><span>Finance & Trends</span></li>
+                <li class="nav-item" data-target="lifehacks"><i class="fa-solid fa-rocket"></i><span>LifeHack & Productivity</span></li>
+                <li class="nav-item" data-target="science"><i class="fa-solid fa-globe"></i><span>Επιστήμη & Δεδομένα</span></li>
+                <li class="nav-item" data-target="links"><i class="fa-solid fa-link"></i><span>Directory (Χρήσιμα)</span></li>
+                <li class="nav-item" data-target="leisure"><i class="fa-solid fa-gamepad"></i><span>Leisure & Retro</span></li>
             </ul>
-            <div class="sidebar-footer">
-                <p>© 2026 InfoDash Hub</p>
-                <p>Manolis Kornilakis</p>
-                <p style="font-size: 0.6rem; opacity: 0.6;">All Rights Reserved</p>
-            </div>
         </nav>
 
         <!-- Main Content Area -->
         <main class="main-content">
             <header class="topbar">
-                <button id="mobile-menu-open" class="mobile-only" title="Άνοιγμα Μενού" aria-label="Open menu"><i
-                        class="fa-solid fa-bars"></i></button>
+                <button id="mobile-menu-open" class="mobile-only" title="Άνοιγμα Μενού"><i class="fa-solid fa-bars"></i></button>
+
                 <div class="search-bar">
-                    <i class="fa-solid fa-search"></i>
-                    <input type="text" id="global-search" placeholder="Αναζήτηση παντού (hacks, crypto, tools)...">
-                    <div id="search-results" class="search-results-container hidden"></div>
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="global-search" placeholder="Search the Hub...">
+                    <div id="search-results" class="search-results-container hidden glass-panel"></div>
                 </div>
-                
-                <!-- Real-Time Widgets -->
+
                 <div class="topbar-widgets">
-                    <div class="widget clock-widget" id="clock-widget">
-                        <i class="fa-regular fa-clock"></i> <span id="time-display">--:--</span>
+                    <!-- VPN WIDGET -->
+                    <div class="widget vpn-widget glass-panel">
+                        <i class="fa-solid fa-shield-halved text-green"></i>
+                        <select id="vpn-country-select" class="vpn-select" title="Select VPN Country">
+                            <option value="OFF">VPN: OFF</option>
+                            <option value="DE">DE (Berlin)</option>
+                            <option value="US">US (New York)</option>
+                            <option value="NL">NL (Amsterdam)</option>
+                            <option value="JP">JP (Tokyo)</option>
+                        </select>
+                        <div id="vpn-status-dot" class="status-dot"></div>
                     </div>
-                    <div class="widget weather-widget" id="weather-widget">
-                        <i class="fa-solid fa-cloud-sun"></i> <span>22°C Αθήνα</span>
+
+                    <div class="widget weather-widget glass-panel header-weather">
+                        <i class="fa-solid fa-cloud-sun weather-icon"></i>
+                        <select id="weather-city-select" class="vpn-select" style="background:transparent; border:none; outline:none; color:white; margin-right:5px; cursor:pointer;" onchange="window.updateWeather(this.value)" title="Επιλέξτε Πόλη">
+                            <option value="Athens">Αθήνα</option>
+                            <option value="Thessaloniki">Θεσσαλονίκη</option>
+                            <option value="Patras">Πάτρα</option>
+                            <option value="Heraklion" selected>Ηράκλειο</option>
+                            <option value="London">Λονδίνο</option>
+                            <option value="New York">Νέα Υόρκη</option>
+                        </select>
+                        <span id="weather-temp" class="weather-temp-span">--°C</span>
                     </div>
-                </div>
-                
-                <div class="user-actions">
-                    <button class="theme-toggle" id="theme-toggle" title="Εναλλαγή Θέματος" aria-label="Toggle Theme">
-                        <i class="fa-solid fa-sun"></i>
-                    </button>
+                    <div class="widget clock-widget">
+                        <i class="fa-solid fa-clock"></i>
+                        <select id="world-clock-select" class="vpn-select" style="background:transparent; border:none; outline:none; color:white; margin-right:5px; cursor:pointer;" onchange="window.updateWorldClock(this.value)" title="Επιλέξτε Χώρα">
+                            <option value="Europe/Athens" selected>Ελλάδα</option>
+                            <option value="Europe/Moscow">Ρωσία</option>
+                            <option value="America/Toronto">Καναδάς</option>
+                            <option value="America/New_York">ΗΠΑ</option>
+                            <option value="Asia/Shanghai">Κίνα</option>
+                            <option value="America/Sao_Paulo">Βραζιλία</option>
+                            <option value="Australia/Sydney">Αυστραλία</option>
+                            <option value="Asia/Kolkata">Ινδία</option>
+                            <option value="America/Argentina/Buenos_Aires">Αργεντινή</option>
+                            <option value="Asia/Almaty">Καζακστάν</option>
+                            <option value="Africa/Algiers">Αλγερία</option>
+                            <option value="Africa/Kinshasa">Κονγκό (ΛΔ)</option>
+                            <option value="America/Nuuk">Γροιλανδία</option>
+                            <option value="Asia/Riyadh">Σαουδική Αραβία</option>
+                            <option value="America/Mexico_City">Μεξικό</option>
+                            <option value="Asia/Jakarta">Ινδονησία</option>
+                            <option value="Africa/Khartoum">Σουδάν</option>
+                            <option value="Africa/Tripoli">Λιβύη</option>
+                            <option value="Asia/Tehran">Ιράν</option>
+                            <option value="Asia/Ulaanbaatar">Μογγολία</option>
+                        </select>
+                        <span id="digital-clock">00:00:00</span>
+                    </div>
+                    <!-- Theme Toggle Removed as requested -->
                 </div>
             </header>
 
+
+
             <!-- News Ticker -->
             <div class="news-ticker-container">
-                <div class="news-ticker-label"><i class="fa-solid fa-bolt text-orange"></i> Live News</div>
-                <div class="news-ticker" id="news-ticker">
-                    <span>Φόρτωση κορυφαίων ειδήσεων...</span>
-                </div>
+                <div class="news-ticker-label"><i class="fa-solid fa-bolt"></i> TRENDING</div>
+                <div class="news-ticker" id="news-ticker"></div>
             </div>
 
             <div class="content-wrapper">
-                <!-- VIEW: MY HUB -->
-                <section id="view-myhub" class="view-section active">
+                <!-- MY HUB (Default) -->
+                <div id="main-telemetry-header" class="telemetry-bar glass-panel"></div>
+                <section id="myhub-view" class="view-section">
                     <div class="section-header">
-                        <h1 class="gradient-text">My Dashboard</h1>
-                        <p>Ο προσωπικός σου χώρος παραγωγικότητας και σημειώσεων.</p>
+                        <h1>Καλώς ήρθες, <span class="gradient-text">Man<span style="cursor:default;" ondblclick="window.openSyndicateAccess()">o</span>li</span> <span id="premium-status-badge" class="premium-badge hidden" title="Η συνδρομή σας είναι ενεργή"><i class="fa-solid fa-crown"></i> PRO</span></h1>
+                        <p>Το προσωπικό σου κέντρο ελέγχου και παραγωγικότητας. <span id="syndicate-shortcut-container" class="hidden"></span></p>
                     </div>
-                    
-                    <div class="myhub-dashboard">
-                        <!-- To-Do List Widget -->
-                        <div class="glass-panel p-1-5rem">
-                            <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-check-double text-green"></i> To-Do List</h3>
-                            <div class="todo-input-group">
-                                <input type="text" id="new-todo-input" placeholder="Νέα εργασία...">
-                                <button id="add-todo-btn"><i class="fa-solid fa-plus"></i></button>
-                            </div>
-                            <ul id="todo-list" class="todo-list mt-1rem">
-                                <!-- Todos will be injected here -->
-                            </ul>
-                        </div>
-                        
-                        <!-- Quick Notes Widget -->
-                        <div class="glass-panel p-1-5rem">
-                            <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-pen-to-square text-orange"></i> Quick Notes</h3>
-                            <textarea id="quick-notes" class="quick-notes-area" placeholder="Γράψε τις ιδέες σου εδώ... θα αποθηκευτούν αυτόματα."></textarea>
-                        </div>
-                        
-                        <!-- Saved Links Widget -->
-                        <div class="glass-panel p-1-5rem" style="grid-column: 1 / -1;">
-                            <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--panel-border); padding-bottom: 1rem;">
-                                <h3><i class="fa-solid fa-bookmark text-primary"></i> Αγαπημένα & Δικά μου Εργαλεία</h3>
-                                <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-top:0.5rem;">
-                                    <input type="text" id="custom-link-url" placeholder="Επικόλληση Link (π.χ. https://github.com/...)" style="width:250px; padding:0.5rem; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:white; border-radius:4px; outline:none;">
-                                    <input type="text" id="custom-link-title" placeholder="Όνομα..." style="width:120px; padding:0.5rem; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:white; border-radius:4px; outline:none;">
-                                    <button onclick="addCustomLink()" title="Αυτόματη Προσθήκη στο Dashboard" style="padding:0.5rem 1rem; background:var(--accent-gradient); border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;"><i class="fa-solid fa-plus"></i></button>
-                                </div>
-                            </div>
-                            <div id="saved-links-grid" class="links-grid" style="grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));">
-                                <!-- Saved links will be injected here -->
-                                <p style="color: var(--text-secondary); font-size: 0.9rem;">Κάνε κλικ στο αστεράκι σε οποιοδήποτε tool για να το αποθηκεύσεις εδώ.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- VIEW: BETTING -->
-                <section id="view-betting" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Οι Δημοφιλέστεροι Αγώνες Σήμερα</h1>
-                        <p>Αληθινά δεδομένα, Tips, Στατιστικά και Έρευνα αποκλειστικά από δημοφιλείς αγώνες.</p>
-                    </div>
-
-                    <div class="filters-bar" id="betting-filters">
-                        <!-- Filters dynamically injected based on ESPN feed -->
-                        <button class="filter-btn active" data-filter="all">Όλοι οι Αγώνες</button>
-                    </div>
-
-                    <div class="matches-grid" id="matches-container">
-                        <!-- Matches injected here via JS -->
-                        <div class="loader-glass"></div>
-                    </div>
+                    <!-- My Hub Content Injected via JS -->
+                    <div id="myhub-grid"></div>
                 </section>
 
-                <!-- VIEW: LOTTERY -->
-                <section id="view-lottery" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Τελευταίες 100 Κληρώσεις</h1>
-                        <p>Eurojackpot, Joker, Lotto. Επαγγελματικά στατιστικά και συχνότητες εμφάνισης!</p>
-                    </div>
-
-                    <div class="lottery-tabs">
-                        <button class="tab-btn active" data-lottery="joker">ΤΖΟΚΕΡ</button>
-                        <button class="tab-btn" data-lottery="eurojackpot">EUROJACKPOT</button>
-                        <button class="tab-btn" data-lottery="lotto">ΛΟΤΤΟ</button>
-                    </div>
-
-                    <div class="lottery-dashboard">
-                        <div class="stats-panel glass-panel">
-                            <h3>Βασικά & Προχωρημένα Στατιστικά</h3>
-                            <div class="hot-numbers" id="hot-numbers">
-                                <!-- Hot numbers injected here -->
-                            </div>
-                            <div class="cold-numbers" id="cold-numbers" class="mt-1rem"></div>
-
-                            <h4 class="mt-1-5rem border-bottom-panel">
-                                25 Advanced Στατιστικά</h4>
-                            <div id="advanced-stats" class="advanced-stats-container">
-                                <!-- 25 stats dynamically injected here -->
-                            </div>
-                        </div>
-
-                        <div class="draws-list-container flex-column-gap">
-                            <div class="glass-panel p-1-5rem">
-                                <h3>Τελευταίες 20 Κληρώσεις με Νικητή 1ης Κατηγορίας</h3>
-                                <div id="tier1-winners-container" class="mt-1rem scrollable-list-short">
-                                    <div class="loader-glass"></div>
-                                </div>
-                            </div>
-
-                            <div class="draws-list glass-panel p-1-5rem">
-                                <h3 class="mb-1rem">Ιστορικό (100 Τελευταίες)</h3>
-                                <div id="draws-container" class="scrollable-list">
-                                    <div class="loader-glass"></div>
-                                    <!-- Draws injected here -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- VIEW: CRYPTO -->
-                <section id="view-crypto" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Crypto Market Αγορά</h1>
-                        <p>Τα 20 δημοφιλέστερα και τα 20 νέα Crypto κάτω από 0.25€</p>
-                    </div>
-
-                    <div class="crypto-dashboard">
-                        <div class="crypto-panel top-cryptos glass-panel">
-                            <div class="panel-head">
-                                <h3><i class="fa-solid fa-fire text-orange"></i> Top 20 Δημοφιλέστερα</h3>
-                            </div>
-                            <div class="crypto-table-container">
-                                <table class="crypto-table" id="top-crypto-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Νόμισμα</th>
-                                            <th>Τιμή (€)</th>
-                                            <th>Market Cap</th>
-                                            <th>Τάση Αγοράς (Μάζα)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Data -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="crypto-panel new-cryptos glass-panel">
-                            <div class="panel-head">
-                                <h3><i class="fa-solid fa-rocket text-green"></i> Top 20 (< 0.25€)</h3>
-                            </div>
-                            <div class="crypto-table-container">
-                                <table class="crypto-table" id="cheap-crypto-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Νόμισμα</th>
-                                            <th>Τιμή (€)</th>
-                                            <th>Volume</th>
-                                            <th>Τάση Αγοράς (Μάζα)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Data -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- VIEW: LINKS DIRECTORY -->
-                <section id="view-links" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Το Απόλυτο Directory</h1>
-                        <p>Εκατοντάδες δωρεάν χρήσιμες ιστοσελίδες οργανωμένες σε 5 υποκατηγορίες.</p>
-                    </div>
-
-                    <div class="links-navigation">
-                        <button class="link-cat-btn active" data-lcat="trackers">Radar & Καιρός (25)</button>
-                        <button class="link-cat-btn" data-lcat="downloads">Δωρεάν Downloads (25)</button>
-                        <button class="link-cat-btn" data-lcat="giveaways">Giveaways (25)</button>
-                        <button class="link-cat-btn" data-lcat="categories">1000+ Κατηγορίες (25)</button>
-                        <button class="link-cat-btn" data-lcat="learn">Μάθε Οτιδήποτε (25)</button>
-                    </div>
-
-                    <div class="links-grid" id="links-container">
-                        <!-- Links generated dynamically -->
-                    </div>
-                </section>
-
-                <!-- VIEW: RECOMMENDATIONS -->
-                <section id="view-recommendations" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Προτάσεις Αποκλειστικά για Εσάς</h1>
-                        <p>Επιλεγμένες 100% Δωρεάν πλατφόρμες και εργαλεία που ξεχωρίζουν, χωρίς καμία δέσμευση.</p>
-                    </div>
-
-                    <div class="recommendations-grid" id="recs-container">
-                        <!-- Dynamic recs here -->
-                    </div>
-                </section>
-
-                <!-- NEW MEGA HUBS -->
-                <section id="view-lifehacks" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">LifeHack & Productivity</h1>
-                        <p>Τα απόλυτα εργαλεία για να γλιτώνεις χρόνο και χρήμα καθημερινά.</p>
-                    </div>
-                    <div class="links-navigation" id="lifehacks-tabs">
-                        <button class="mega-tab-btn active" data-hub="lifehacks" data-tab="discounts">Εκπτώσεις Ημέρας</button>
-                        <button class="mega-tab-btn" data-hub="lifehacks" data-tab="hacks">Hacker Alerts</button>
-                        <button class="mega-tab-btn" data-hub="lifehacks" data-tab="learning">Micro-Learning 5'</button>
-                        <button class="mega-tab-btn" data-hub="lifehacks" data-tab="tech">Tech Radar</button>
-                        <button class="mega-tab-btn" data-hub="lifehacks" data-tab="freebies">Freebies & Airdrops</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="lifehacks" data-tab="ai_notes"><i class="fa-solid fa-robot"></i> AI Note Takers</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="lifehacks" data-tab="ai_emails"><i class="fa-solid fa-robot"></i> AI Emails</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="lifehacks" data-tab="ai_summaries"><i class="fa-solid fa-robot"></i> AI Summarizers</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="lifehacks" data-tab="ai_focus"><i class="fa-solid fa-robot"></i> AI Focus</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="lifehacks" data-tab="ai_habits"><i class="fa-solid fa-robot"></i> AI Habit Trackers</button>
-                    </div>
-                    <div id="lifehacks-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-finance" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Finance & Global Trends</h1>
-                        <p>Παρακολούθηση οικονομίας, ευκαιριών και διεθνών τάσεων.</p>
-                    </div>
-                    <div class="links-navigation" id="finance-tabs">
-                        <button class="mega-tab-btn active" data-hub="finance" data-tab="sidehustles">Side Hustles</button>
-                        <button class="mega-tab-btn" data-hub="finance" data-tab="heatmap">Global Heatmap</button>
-                        <button class="mega-tab-btn" data-hub="finance" data-tab="dividends">Dividend Tracker</button>
-                        <button class="mega-tab-btn" data-hub="finance" data-tab="costofliving">Cost of Living</button>
-                        <button class="mega-tab-btn" data-hub="finance" data-tab="trends">Global Sentiment</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="finance" data-tab="ai_trading"><i class="fa-solid fa-robot"></i> AI Trading Bots</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="finance" data-tab="ai_portfolio"><i class="fa-solid fa-robot"></i> AI Portfolio</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="finance" data-tab="ai_crypto"><i class="fa-solid fa-robot"></i> AI Crypto Predict</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="finance" data-tab="ai_markets"><i class="fa-solid fa-robot"></i> AI Market Sentiment</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="finance" data-tab="ai_taxes"><i class="fa-solid fa-robot"></i> AI Budgeting</button>
-                    </div>
-                    <div id="finance-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-edgeanalytics" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Game & Edge Analytics</h1>
-                        <p>Προηγμένα data, F1 stats, Dropping Odds και πληροφορίες που κάνουν τη διαφορά.</p>
-                    </div>
-                    <div class="links-navigation" id="edgeanalytics-tabs">
-                        <button class="mega-tab-btn active" data-hub="edgeanalytics" data-tab="droppingodds">Dropping Odds</button>
-                        <button class="mega-tab-btn" data-hub="edgeanalytics" data-tab="injuries">Απουσιολόγιο</button>
-                        <button class="mega-tab-btn" data-hub="edgeanalytics" data-tab="arbitrage">Arbitrage Finder</button>
-                        <button class="mega-tab-btn" data-hub="edgeanalytics" data-tab="motorsport">F1 & Motorsport</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="edgeanalytics" data-tab="ai_xg"><i class="fa-solid fa-robot"></i> AI xG Simulators</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="edgeanalytics" data-tab="ai_fatigue"><i class="fa-solid fa-robot"></i> AI Fatigue Models</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="edgeanalytics" data-tab="ai_var"><i class="fa-solid fa-robot"></i> AI VAR Predictors</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="edgeanalytics" data-tab="ai_scout"><i class="fa-solid fa-robot"></i> AI Data Scouts</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="edgeanalytics" data-tab="ai_lines"><i class="fa-solid fa-robot"></i> AI Market Lines</button>
-                    </div>
-                    <div id="edgeanalytics-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-science" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Επιστήμη & Δεδομένα</h1>
-                        <p>Διάστημα, Live Σεισμοί και Flight Hacks.</p>
-                    </div>
-                    <div class="links-navigation" id="science-tabs">
-                        <button class="mega-tab-btn active" data-hub="science" data-tab="space">Space & NASA</button>
-                        <button class="mega-tab-btn" data-hub="science" data-tab="earthquakes">Σεισμοί (Live)</button>
-                        <button class="mega-tab-btn" data-hub="science" data-tab="flights">Flight Hacks</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="science" data-tab="ai_astro"><i class="fa-solid fa-robot"></i> AI Astrophysics</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="science" data-tab="ai_climate"><i class="fa-solid fa-robot"></i> AI Climate Tech</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="science" data-tab="ai_bio"><i class="fa-solid fa-robot"></i> AI Biology</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="science" data-tab="ai_physics"><i class="fa-solid fa-robot"></i> AI Physics Models</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="science" data-tab="ai_materials"><i class="fa-solid fa-robot"></i> AI Material Science</button>
-                    </div>
-                    <div id="science-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-leisure" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Leisure & Retro</h1>
-                        <p>Χαλάρωση, Δωρεάν Games, Podcasts και... Ωροσκόπιο AI.</p>
-                    </div>
-                    <div class="links-navigation" id="leisure-tabs">
-                        <button class="mega-tab-btn active" data-hub="leisure" data-tab="games">Free Games</button>
-                        <button class="mega-tab-btn" data-hub="leisure" data-tab="podcasts">Podcasts</button>
-                        <button class="mega-tab-btn" data-hub="leisure" data-tab="retro">Retro Web</button>
-                        <button class="mega-tab-btn" data-hub="leisure" data-tab="viral">Viral Media</button>
-                        <button class="mega-tab-btn" data-hub="leisure" data-tab="horoscope">Horoscope AI</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="leisure" data-tab="ai_games"><i class="fa-solid fa-robot"></i> AI Games</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="leisure" data-tab="ai_movies"><i class="fa-solid fa-robot"></i> AI Movies</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="leisure" data-tab="ai_books"><i class="fa-solid fa-robot"></i> AI Books</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="leisure" data-tab="ai_music"><i class="fa-solid fa-robot"></i> AI Music</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="leisure" data-tab="ai_travel"><i class="fa-solid fa-robot"></i> AI Travel</button>
-                    </div>
-                    <div id="leisure-content" style="margin-top:20px;"></div>
-                </section>
-
-                <!-- PHASE 3 MEGA HUBS SECTIONS -->
-                <section id="view-ai" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">AI & Automation Hub</h1>
-                        <p>Τα κορυφαία δωρεάν εργαλεία Τεχνητής Νοημοσύνης και Αυτοματισμών.</p>
-                    </div>
-                    <div class="links-navigation" id="ai-tabs">
-                        <button class="mega-tab-btn active" data-hub="ai" data-tab="chatbots">Chatbots & LLMs</button>
-                        <button class="mega-tab-btn" data-hub="ai" data-tab="imageai">Image & Art AI</button>
-                        <button class="mega-tab-btn" data-hub="ai" data-tab="prompts">Prompt Library</button>
-                        <button class="mega-tab-btn" data-hub="ai" data-tab="mediaai">Audio/Video AI</button>
-                        <button class="mega-tab-btn" data-hub="ai" data-tab="nocode">No-Code Tools</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="ai" data-tab="ai_text"><i class="fa-solid fa-robot"></i> AI Text & LLMs</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="ai" data-tab="ai_prompts"><i class="fa-solid fa-robot"></i> AI Prompts</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="ai" data-tab="ai_agents"><i class="fa-solid fa-robot"></i> AI Autonomous Agents</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="ai" data-tab="ai_ethics"><i class="fa-solid fa-robot"></i> AI Ethics & Safety</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="ai" data-tab="ai_art_tools"><i class="fa-solid fa-robot"></i> AI Art Tools</button>
-                    </div>
-                    <div id="ai-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-nomads" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Nomads & Remote Work</h1>
-                        <p>Βρες απομακρυσμένη εργασία, οργάνωσε ταξίδια και ζήσε οπουδήποτε.</p>
-                    </div>
-                    <div class="links-navigation" id="nomads-tabs">
-                        <button class="mega-tab-btn active" data-hub="nomads" data-tab="remotejobs">Remote Jobs</button>
-                        <button class="mega-tab-btn" data-hub="nomads" data-tab="nomadguides">Nomad Guides</button>
-                        <button class="mega-tab-btn" data-hub="nomads" data-tab="travelhacks">Travel Hacks</button>
-                        <button class="mega-tab-btn" data-hub="nomads" data-tab="visa">Visa & Relocation</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="nomads" data-tab="ai_itinerary"><i class="fa-solid fa-robot"></i> AI Itinerary Planners</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="nomads" data-tab="ai_jobmatch"><i class="fa-solid fa-robot"></i> AI Job Matchers</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="nomads" data-tab="ai_costloc"><i class="fa-solid fa-robot"></i> AI Cost Locators</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="nomads" data-tab="ai_trans"><i class="fa-solid fa-robot"></i> AI Live Translators</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="nomads" data-tab="ai_culture"><i class="fa-solid fa-robot"></i> AI Culture Guides</button>
-                    </div>
-                    <div id="nomads-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-privacy" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Privacy & Cybersecurity</h1>
-                        <p>Προστάτευσε τα δεδομένα σου, σέρφαρε ανώνυμα και με ασφάλεια.</p>
-                    </div>
-                    <div class="links-navigation" id="privacy-tabs">
-                        <button class="mega-tab-btn active" data-hub="privacy" data-tab="burners">Burner Tools</button>
-                        <button class="mega-tab-btn" data-hub="privacy" data-tab="adblockers">Ad-Block & Privacy</button>
-                        <button class="mega-tab-btn" data-hub="privacy" data-tab="securecomms">Secure Comms</button>
-                        <button class="mega-tab-btn" data-hub="privacy" data-tab="networks">Network & VPN</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="privacy" data-tab="ai_phishing"><i class="fa-solid fa-robot"></i> AI Phishing Detect</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="privacy" data-tab="ai_malware"><i class="fa-solid fa-robot"></i> AI Malware Scans</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="privacy" data-tab="ai_fakenews"><i class="fa-solid fa-robot"></i> AI Fake News Check</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="privacy" data-tab="ai_passwords"><i class="fa-solid fa-robot"></i> AI Password Gens</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="privacy" data-tab="ai_anonymizers"><i class="fa-solid fa-robot"></i> AI Face Anonymizers</button>
-                    </div>
-                    <div id="privacy-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-health" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Health, Biohacking & Fitness</h1>
-                        <p>Data-driven εργαλεία για άσκηση, διατροφή, ύπνο και ψυχική υγεία.</p>
-                    </div>
-                    <div class="links-navigation" id="health-tabs">
-                        <button class="mega-tab-btn active" data-hub="health" data-tab="workouts">Workout Gen</button>
-                        <button class="mega-tab-btn" data-hub="health" data-tab="diet">Diet & Macros</button>
-                        <button class="mega-tab-btn" data-hub="health" data-tab="biohacking">Sleep & Biohack</button>
-                        <button class="mega-tab-btn" data-hub="health" data-tab="mindfulness">Mindfulness</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="health" data-tab="ai_dietitian"><i class="fa-solid fa-robot"></i> AI Dietitians</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="health" data-tab="ai_workoutgen"><i class="fa-solid fa-robot"></i> AI Workout Gen</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="health" data-tab="ai_sleep"><i class="fa-solid fa-robot"></i> AI Sleep Analyser</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="health" data-tab="ai_symptoms"><i class="fa-solid fa-robot"></i> AI Symptom Check</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="health" data-tab="ai_posture"><i class="fa-solid fa-robot"></i> AI Posture Detect</button>
-                    </div>
-                    <div id="health-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-creator" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Creator Studio</h1>
-                        <p>Εργαλεία ελεύθερης πρόσβασης για Video Editing, Design και Social Media.</p>
-                    </div>
-                    <div class="links-navigation" id="creator-tabs">
-                        <button class="mega-tab-btn active" data-hub="creator" data-tab="videoediting">Free Video Editors</button>
-                        <button class="mega-tab-btn" data-hub="creator" data-tab="social">Social Analytics</button>
-                        <button class="mega-tab-btn" data-hub="creator" data-tab="design">Design & UI</button>
-                        <button class="mega-tab-btn" data-hub="creator" data-tab="assets">Free Assets</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="creator" data-tab="ai_mvideo"><i class="fa-solid fa-robot"></i> AI Video Editor</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="creator" data-tab="ai_maudio"><i class="fa-solid fa-robot"></i> AI Audio Tools</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="creator" data-tab="ai_mcopy"><i class="fa-solid fa-robot"></i> AI Copywriting</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="creator" data-tab="ai_mdesign"><i class="fa-solid fa-robot"></i> AI Graphic Design</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="creator" data-tab="ai_manalytics"><i class="fa-solid fa-robot"></i> AI Analytics</button>
-                    </div>
-                    <div id="creator-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-academic" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Καριέρα & Ακαδημαϊκή Εξέλιξη</h1>
-                        <p>Εφόδια, ακαδημαϊκή γνώση και χτίσιμο βιογραφικού.</p>
-                    </div>
-                    <div class="links-navigation" id="academic-tabs">
-                        <button class="mega-tab-btn active" data-hub="academic" data-tab="universities">Top Uni
-                            Freebies</button>
-                        <button class="mega-tab-btn" data-hub="academic" data-tab="certs">Free Certs</button>
-                        <button class="mega-tab-btn" data-hub="academic" data-tab="research">Research & Libs</button>
-                        <button class="mega-tab-btn" data-hub="academic" data-tab="cv">CV & Interview</button>
-                        <button class="mega-tab-btn" data-hub="academic" data-tab="softskills">Soft Skills</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="academic" data-tab="ai_tutors"><i class="fa-solid fa-robot"></i> AI Tutors</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="academic" data-tab="ai_papers"><i class="fa-solid fa-robot"></i> AI Research Papers</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="academic" data-tab="ai_essays"><i class="fa-solid fa-robot"></i> AI Essays</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="academic" data-tab="ai_math"><i class="fa-solid fa-robot"></i> AI Math Solvers</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="academic" data-tab="ai_flash"><i class="fa-solid fa-robot"></i> AI Flashcards</button>
-                    </div>
-                    <div id="academic-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-skills" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Δια Βίου Μάθηση & Skills</h1>
-                        <p>Μάθε προγραμματισμό, γλώσσες, οικονομικά και μαστορέματα.</p>
-                    </div>
-                    <div class="links-navigation" id="skills-tabs">
-                        <button class="mega-tab-btn active" data-hub="skills" data-tab="coding">Coding & Tech</button>
-                        <button class="mega-tab-btn" data-hub="skills" data-tab="languages">Ξένες Γλώσσες</button>
-                        <button class="mega-tab-btn" data-hub="skills" data-tab="finskills">Money Skills</button>
-                        <button class="mega-tab-btn" data-hub="skills" data-tab="arts">Arts & Design</button>
-                        <button class="mega-tab-btn" data-hub="skills" data-tab="diy">DIY & Fix It</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="skills" data-tab="ai_coding"><i class="fa-solid fa-robot"></i> AI Code Mentors</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="skills" data-tab="ai_lang"><i class="fa-solid fa-robot"></i> AI Language Partners</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="skills" data-tab="ai_ux"><i class="fa-solid fa-robot"></i> AI UX Tutors</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="skills" data-tab="ai_speak"><i class="fa-solid fa-robot"></i> AI Public Speaking</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="skills" data-tab="ai_data"><i class="fa-solid fa-robot"></i> AI Data Science</button>
-                    </div>
-                    <div id="skills-content" style="margin-top:20px;"></div>
-                </section>
-
-                <!-- PHASE 4 MEGA HUBS SECTIONS (UNDERGROUND) -->
-                <section id="view-osint" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">OSINT & Digital Footprint</h1>
-                        <p>Εργαλεία ανοικτού κώδικα για παρακολούθηση πληροφοριών και digital forensics.</p>
-                    </div>
-                    <div class="links-navigation" id="osint-tabs">
-                        <button class="mega-tab-btn active" data-hub="osint" data-tab="usernames">Username Trackers</button>
-                        <button class="mega-tab-btn" data-hub="osint" data-tab="reverseimage">Reverse Image</button>
-                        <button class="mega-tab-btn" data-hub="osint" data-tab="tracking">Flight & Vessel</button>
-                        <button class="mega-tab-btn" data-hub="osint" data-tab="darkweb">Dark Web Scanners</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="osint" data-tab="ai_search"><i class="fa-solid fa-robot"></i> AI Search</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="osint" data-tab="ai_faces"><i class="fa-solid fa-robot"></i> AI Face Recog</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="osint" data-tab="ai_social"><i class="fa-solid fa-robot"></i> AI Social Profiling</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="osint" data-tab="ai_geo"><i class="fa-solid fa-robot"></i> AI Geo-Location</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="osint" data-tab="ai_data_leaks"><i class="fa-solid fa-robot"></i> AI Leak Track</button>
-                    </div>
-                    <div id="osint-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-web3" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Web3 & Decentralized World</h1>
-                        <p>Εξερεύνηση Crypto φαλαινών, Airdrops και Αποκεντρωμένης Οικονομίας.</p>
-                    </div>
-                    <div class="links-navigation" id="web3-tabs">
-                        <button class="mega-tab-btn active" data-hub="web3" data-tab="whales">Whale Trackers</button>
-                        <button class="mega-tab-btn" data-hub="web3" data-tab="airdrops">Airdrop Hunters</button>
-                        <button class="mega-tab-btn" data-hub="web3" data-tab="defi">DeFi Yields</button>
-                        <button class="mega-tab-btn" data-hub="web3" data-tab="explorers">Block Explorers</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="web3" data-tab="ai_tradebot"><i class="fa-solid fa-robot"></i> AI Trading Bots</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="web3" data-tab="ai_audit"><i class="fa-solid fa-robot"></i> AI Smart Audits</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="web3" data-tab="ai_nfts"><i class="fa-solid fa-robot"></i> AI NFT Tools</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="web3" data-tab="ai_sec"><i class="fa-solid fa-robot"></i> AI Security</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="web3" data-tab="ai_sentiment"><i class="fa-solid fa-robot"></i> AI Market Sentiment</button>
-                    </div>
-                    <div id="web3-content" style="margin-top:20px;"></div>
-                </section>
-
-                <section id="view-metaskills" class="view-section hidden">
-                    <div class="section-header">
-                        <h1 class="gradient-text">Masterclass & Meta-Skills</h1>
-                        <p>Η απόλυτη ακαδημία αυτοβελτίωσης. Απόκτησε υπερ-δεξιότητες ζωής.</p>
-                    </div>
-                    <div class="links-navigation" id="metaskills-tabs">
-                        <button class="mega-tab-btn active" data-hub="metaskills" data-tab="memory">Memory &
-                            Reading</button>
-                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="logic">Logic & Critical</button>
-                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="persuasion">Persuasion</button>
-                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="voice">Public Speaking</button>
-                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="survival">Survival</button>
-                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="mentalmodels">Mental
-                            Models</button>
-                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="eq">Emotional IQ (EQ)</button>
-                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="cyberhygiene">Cyber
-                            Hygiene</button>
-                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="deepwork">Deep Work Flow</button>
-                        <button class="mega-tab-btn" data-hub="metaskills" data-tab="fineng">Financial Eng.</button>
-                        <!-- AI Tabs -->
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="metaskills" data-tab="ai_focus"><i class="fa-solid fa-robot"></i> AI Focus Tools</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="metaskills" data-tab="ai_memory_tools"><i class="fa-solid fa-robot"></i> AI Memory Tutors</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="metaskills" data-tab="ai_problemsolving"><i class="fa-solid fa-robot"></i> AI Problem Solving</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="metaskills" data-tab="ai_reading"><i class="fa-solid fa-robot"></i> AI Speed Reading</button>
-                        <button class="mega-tab-btn ai-tab-btn" data-hub="metaskills" data-tab="ai_habits"><i class="fa-solid fa-robot"></i> AI Habit Coaches</button>
-                    </div>
-                    <div id="metaskills-content" style="margin-top:20px;"></div>
-                </section>
-
-            </div>
-        </main>
-    </div>
-
-    <!-- Modals Logic will go here -->
-    <div class="modal" id="info-modal">
-        <div class="modal-content glass-panel">
-            <span class="close-modal"><i class="fa-solid fa-times"></i></span>
-            <div id="modal-body"></div>
-        </div>
+                <!-- HUBS (Empty containers for injection) -->
+                <section id="betting-view" class="view-section hidden"><div class="section-header"><h1>Στοίχημα & <span class="gradient-text">Live Αγώνες</span></h1></div><div class="filters-bar" id="betting-filters"></div><div id="matches-container" class="matches-grid"></div></section>
+                <section id="lottery-view" class="view-section hidden">
+    <div class="section-header">
+        <h1>Mega <span class="gradient-text">Lottery Analytics</span></h1>
+        <p>Advanced OPAP Intelligence Engine</p>
     </div>
     
-    <!-- ADVANCED MATCH DETAILS MODAL -->
-    <div id="advanced-match-modal" class="modal-overlay hidden">
-        <div class="modal-content glass-panel" id="advanced-match-content" style="max-width: 800px; width: 90%;">
-            <!-- Content Injected via JS -->
-        </div>
+    <div class="lottery-tabs" style="display:flex; gap:10px; margin-bottom:1rem; border-bottom: 1px solid var(--panel-border); padding-bottom:10px;">
+        <button class="tab-btn active" data-lottery="joker" style="font-size:1.1rem; padding:0.5rem 2rem;">Joker</button>
+        <button class="tab-btn" data-lottery="eurojackpot" style="font-size:1.1rem; padding:0.5rem 2rem;">Eurojackpot</button>
+        <button class="tab-btn" data-lottery="lotto" style="font-size:1.1rem; padding:0.5rem 2rem;">Lotto</button>
+        <!-- Game status indicator -->
+        <span id="lottery-status-indicator" style="margin-left:auto; display:flex; align-items:center; color:var(--text-secondary); font-size:0.9rem;">
+            <i class="fa-solid fa-circle-nodes" style="margin-right:5px; color:var(--accent-primary);"></i> Engine Connected
+        </span>
     </div>
 
-    
-    <!-- MASTER VAULT OVERLAY -->
-    <div id="master-vault-login" style="display:none; background: rgba(0,0,0,0.95); z-index: 10000; position:fixed; top:0;left:0;width:100%;height:100%; align-items:center; justify-content:center;">
-        <div style="border: 2px solid #ffd700; background: rgba(10,10,10,0.95); padding: 40px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 0 30px rgba(255,215,0,0.2);">
-            <i class="fa-solid fa-crown" style="font-size: 3rem; color: #ffd700; margin-bottom: 20px;"></i>
-            <h2 style="color: #ffd700; margin-bottom: 20px; font-family: 'Outfit', sans-serif; letter-spacing: 2px;">THE SYNDICATE</h2>
-            <div style="height: 2px; background: #ffd700; width: 100%; margin-bottom: 20px; opacity: 0.5;"></div>
-            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">Restricted Access Protocol</p>
-            <input type="password" id="master-pass" placeholder="ENTER 5-DIGIT PIN" style="border: 1px solid #ffd700; background: #000; color: #ffd700; padding: 15px; width: 100%; text-align: center; margin-bottom: 20px; outline:none; font-family:monospace; font-size:1.2rem; border-radius:6px; box-sizing: border-box;" autocomplete="off">
-            <button id="master-submit" style="color: #000; background: #ffd700; border: none; padding: 15px; font-weight: 800; cursor: pointer; width: 100%; border-radius:6px; font-size:1.1rem; transition: transform 0.1s;">DECRYPT & ENTER</button>
-            <p id="master-error" style="display:none; color: #ff3333; margin-top: 15px; font-family: monospace;">ACCESS DENIED: INVALID SECURITY PIN</p>
+    <!-- The 18 Categories Navigation + Content Grid -->
+    <div class="lottery-mega-grid">
+        <!-- Sidebar Navigation (18 Items) -->
+        <div class="lottery-sub-tabs glass-panel" id="lottery-nav">
+            <button class="active" data-cat="latest">Τελευταία</button>
+            <button data-cat="history">Προηγούμενες</button>
+            <button data-cat="tables">Πινακάκια</button>
+            <button data-cat="board">Πίνακας</button>
+            <button data-cat="weird">Παράξενες</button>
+            <button data-cat="numbers">Αριθμοί</button>
+            <button data-cat="hotcold">Hot&Cold</button>
+            <button data-cat="stats">Στατιστικά</button>
+            <button data-cat="check">Ελεγχος</button>
+            <button data-cat="pairs">Δυάδες</button>
+            <button data-cat="consecutive">Συνεχόμενα</button>
+            <button data-cat="tens">Δεκάδες</button>
+            <button data-cat="endings">Λήγοντες</button>
+            <button data-cat="sum">Αθροισμα</button>
+            <button data-cat="distances">Αποστάσεις</button>
+            <button data-cat="similar">Παρόμοιοι</button>
+            <button data-cat="systems">Συστήματα</button>
+            <button data-cat="jackpot">ΤΖΑΚΠΟΤ</button>
         </div>
-    </div>
 
-    <!-- MASTER VAULT MAIN INTERFACE -->
-    <div id="master-vault" style="display:none; background: rgba(10,10,10,0.98); z-index: 9999; position:fixed; top:0;left:0;width:100%;height:100%; font-family: 'Outfit', sans-serif;">
-        <div style="border-right: 1px solid rgba(255,215,0,0.3); width: 320px; display:flex; flex-direction:column; background: linear-gradient(180deg, rgba(20,20,20,1) 0%, rgba(5,5,5,1) 100%);">
-            <div style="color: #ffd700; font-size: 1.3rem; font-weight:800; padding: 25px 20px; border-bottom: 1px solid rgba(255,215,0,0.2); letter-spacing: 1px;">
-                <i class="fa-solid fa-crown" style="margin-right:8px;"></i> <span>WEALTH SYNDICATE</span>
-            </div>
-            <div style="flex:1; overflow-y:auto; overflow-x:hidden; background: rgba(0,0,0,0.2);">
-                <ul id="master-nav" style="list-style:none; padding:0; margin:0;">
-                    <!-- Nav items injected via JS -->
-                </ul>
-            </div>
-            <div style="padding: 15px; border-top: 1px solid rgba(255,215,0,0.2);">
-                <button id="master-exit" style="color:#000; background:#ffd700; border: none; padding: 15px; width:100%; font-weight:bold; cursor:pointer; border-radius:6px; font-size:1rem;">EXIT SYNDICATE TERMINAL</button>
-            </div>
-        </div>
-        
-        <div style="flex:1; display:flex; flex-direction:column; padding: 40px; overflow-y:auto; background: radial-gradient(circle at center, rgba(30,30,30,1) 0%, rgba(10,10,10,1) 100%);">
-            <div style="border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 20px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h3 style="color:#ffd700; margin:0; font-size: 1.5rem; letter-spacing: 2px;">SECURE CONNECTION ESTABLISHED</h3>
-                    <p style="color: #6c757d; margin: 5px 0 0 0; font-size: 0.9rem;">TOP 2% EXCLUSIVE TOOLS SUITE</p>
-                </div>
-                <div id="master-clock" style="color:#ffd700; font-family:monospace; font-size: 1.5rem; padding: 10px 20px; background: rgba(255,215,0,0.05); border-radius: 8px; border: 1px solid rgba(255,215,0,0.2);">00:00:00</div>
+        <!-- Main Content Area -->
+        <div class="lottery-content-area glass-panel" id="lottery-engine-content" style="padding:1.5rem; position:relative;">
+            <div id="lottery-loader" class="loader-glass" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center; z-index:10;">
+                <i class="fa-solid fa-microchip fa-spin fa-2x" style="color:var(--accent-primary); margin-bottom:10px;"></i>
+                <span id="lottery-loader-text">Ανάλυση Κληρώσεων...</span>
             </div>
             
-            <div style="margin-top: 40px;">
-                <h2 id="master-cat-title" style="color:#ffd700; font-size: 2.2rem; margin-bottom: 15px; font-weight:800;">Category</h2>
-                <p id="master-cat-desc" style="color:#aaa; margin-bottom: 40px; font-size:1.15rem; max-width: 800px; line-height: 1.6;">Desc</p>
-                <div id="master-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;"></div>
+            <div id="lottery-view-container" style="opacity:0; transition: opacity 0.3s; min-height:400px;">
+                <!-- Dynamic Content Injected Here by LotteryEngine -->
             </div>
         </div>
     </div>
+</section>
+                <section id="crypto-view" class="view-section hidden">
+    <div class="section-header">
+        <h1>Crypto <span class="gradient-text">Top 100 Intelligence</span></h1>
+        <p>15-Point Deep Statistics Dashboard</p>
+    </div>
+    
+    <div class="glass-panel" style="overflow-x:auto;">
+        <table id="cmc-crypto-table" class="crypto-table" style="min-width: 1200px; font-size: 0.85rem;">
+            <thead>
+                <tr>
+                    <th style="width:30px;">#</th>
+                    <th style="width:180px;">Name</th>
+                    <th>Price</th>
+                    <th>1h %</th>
+                    <th>24h %</th>
+                    <th>7d %</th>
+                    <th>Market Cap</th>
+                    <th>Volume(24h)</th>
+                    <th>Circulating Supply</th>
+                    <th>FDV</th>
+                    <th>ATH</th>
+                    <th>24h High/Low</th>
+                    <th>Volatility</th>
+                    <th>Sentiment</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows injected via JS -->
+            </tbody>
+        </table>
+    </div>
+</section>
+                <section id="links-view" class="view-section hidden"><div class="section-header"><h1>Useful <span class="gradient-text">Directory</span></h1></div><div id="links-cat-tabs" class="links-navigation"></div><div id="links-container" class="links-grid"></div></section>
+                <section id="recommendations-view" class="view-section hidden"><div class="section-header"><h1>InfoDash <span class="gradient-text">Top Picks</span></h1></div><div id="recs-container" class="recommendations-grid"></div></section>
 
+                <!-- DYNAMIC HUBS -->
+                <section id="lifehacks-view" class="view-section hidden"><div id="lifehacks-tabs" class="filters-bar"></div><div id="lifehacks-content"></div></section>
+                <section id="finance-view" class="view-section hidden"><div id="finance-tabs" class="filters-bar"></div><div id="finance-content"></div></section>
+                <section id="edgeanalytics-view" class="view-section hidden"><div id="edgeanalytics-tabs" class="filters-bar"></div><div id="edgeanalytics-content"></div></section>
+                <section id="science-view" class="view-section hidden"><div id="science-tabs" class="filters-bar"></div><div id="science-content"></div></section>
+                <section id="leisure-view" class="view-section hidden"><div id="leisure-tabs" class="filters-bar"></div><div id="leisure-content"></div></section>
+                
+                <!-- PHASE 3 HUBS -->
+                <section id="ai-view" class="view-section hidden"><div id="ai-tabs" class="filters-bar"></div><div id="ai-content"></div></section>
+                <section id="nomads-view" class="view-section hidden"><div id="nomads-tabs" class="filters-bar"></div><div id="nomads-content"></div></section>
+                <section id="privacy-view" class="view-section hidden"><div id="privacy-tabs" class="filters-bar"></div><div id="privacy-content"></div></section>
+                <section id="health-view" class="view-section hidden"><div id="health-tabs" class="filters-bar"></div><div id="health-content"></div></section>
+                <section id="creator-view" class="view-section hidden"><div id="creator-tabs" class="filters-bar"></div><div id="creator-content"></div></section>
+                <section id="academic-view" class="view-section hidden"><div id="academic-tabs" class="filters-bar"></div><div id="academic-content"></div></section>
+                <section id="skills-view" class="view-section hidden"><div id="skills-tabs" class="filters-bar"></div><div id="skills-content"></div></section>
+
+                <!-- PHASE 4 / EXTREME VIEWS -->
+                <section id="osint-view" class="view-section hidden"><div id="osint-tabs" class="filters-bar"></div><div id="osint-content"></div></section>
+                <section id="web3-view" class="view-section hidden"><div id="web3-tabs" class="filters-bar"></div><div id="web3-content"></div></section>
+                <section id="metaskills-view" class="view-section hidden"><div id="metaskills-tabs" class="filters-bar"></div><div id="metaskills-content"></div></section>
+
+                <!-- EXTREME HUB SECTIONS -->
+                <section id="security-fortress-view" class="view-section hidden">
+                    <div class="section-header"><h1>Security <span class="gradient-text">Fortress</span></h1><p>Mission Control for Cyber Protection.</p></div>
+                    <div class="security-tools-grid">
+                        <div class="glass-panel p-1-5rem">
+                            <h3><i class="fa-solid fa-user-secret"></i> Dark Web Leak Checker</h3>
+                            <div class="mt-1rem flex-display gap-10">
+                                <input type="text" id="leak-check-input" placeholder="Email or Username..." class="flex-1 p-1rem bg-black text-white border-radius-4 outline-none">
+                                <button onclick="window.checkLeaks()" class="tab-btn active">SCAN</button>
+                            </div>
+                            <div id="leak-results" class="mt-1rem scrollable-list-short"></div>
+                        </div>
+                        <div class="glass-panel p-1-5rem">
+                            <h3><i class="fa-solid fa-bug"></i> URL Reputation Scanner</h3>
+                            <div class="mt-1rem flex-display gap-10">
+                                <input type="text" id="url-scan-input" placeholder="https://..." class="flex-1 p-1rem bg-black text-white border-radius-4 outline-none">
+                                <button onclick="window.scanUrl()" class="tab-btn active">SCAN</button>
+                            </div>
+                            <div id="url-scan-results" class="mt-1rem scrollable-list-short"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="global-radar-view" class="view-section hidden">
+                    <div class="section-header"><h1>Global <span class="gradient-text">Radar</span></h1><p>Real-time telemetry and satellite surveillance.</p></div>
+                    <div class="radar-container glass-panel p-1-5rem">
+                        <h3><i class="fa-solid fa-satellite"></i> Satellite Pass Alerts (Simulated)</h3>
+                        <div id="sat-list" class="sat-list-grid mt-2rem"></div>
+                        <div id="telemetry-grid" class="telemetry-grid mt-2rem"></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <nav class="sidebar" id="sidebar-right">
+            <div class="sidebar-header" style="justify-content: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                <h2 style="font-size: 1.1rem; text-align: center;"><i class="fa-solid fa-bolt" style="color:var(--accent-primary);"></i> Specialized<span class="gradient-text"> Hubs</span></h2>
+            </div>
+            <ul class="nav-links">
+                <li class="nav-item" data-target="ai"><i class="fa-solid fa-robot"></i><span>AI & Automation</span></li>
+                <li class="nav-item" data-target="recommendations"><i class="fa-solid fa-lightbulb"></i><span>Top Picks</span></li>
+                <li class="nav-item" data-target="nomads"><i class="fa-solid fa-earth-americas"></i><span>Nomads & Remote</span></li>
+                <li class="nav-item" data-target="privacy"><i class="fa-solid fa-shield-halved"></i><span>Privacy & Cyber</span></li>
+                <li class="nav-item" data-target="health"><i class="fa-solid fa-heart-pulse"></i><span>Health & Fitness</span></li>
+                <li class="nav-item" data-target="creator"><i class="fa-solid fa-palette"></i><span>Creator Studio</span></li>
+                <li class="nav-item" data-target="academic"><i class="fa-solid fa-graduation-cap"></i><span>Career & Academic</span></li>
+                <li class="nav-item" data-target="skills"><i class="fa-solid fa-book-open"></i><span>Lifelong Skills</span></li>
+                
+                <li style="border-top: 1px dashed var(--panel-border); margin: 10px 20px;"></li>
+                
+                <li class="nav-item" data-target="osint"><i class="fa-solid fa-user-secret"></i><span>OSINT Scanner</span></li>
+                <li class="nav-item" data-target="web3"><i class="fa-brands fa-ethereum"></i><span>Web3 Whale Watch</span></li>
+                <li class="nav-item" data-target="metaskills"><i class="fa-solid fa-brain"></i><span>Metaskills Hub</span></li>
+                <li class="nav-item" data-target="security-fortress"><i class="fa-solid fa-shield-virus"></i><span>Security Fortress</span></li>
+                <li class="nav-item" data-target="global-radar"><i class="fa-solid fa-radar"></i><span>Global Radar</span></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal" id="info-modal"><div class="modal-content glass-panel"><span class="close-modal"><i class="fa-solid fa-times"></i></span><div id="modal-body"></div></div></div>
+    <div id="advanced-match-modal" class="modal-overlay hidden"><div class="modal-content glass-panel" id="advanced-match-content" style="max-width: 800px; width: 90%;"></div></div>
+
+
+    <!-- VAULT -->
+    <div id="master-vault-login" style="display:none; background: rgba(0,0,0,0.95); z-index: 10000; position:fixed; top:0;left:0;width:100%;height:100%; align-items:center; justify-content:center;">
+        <div style="border: 2px solid #ffd700; background: rgba(10,10,10,0.95); padding: 40px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%;">
+            <h2 style="color: #ffd700; margin-bottom: 20px;">THE SYNDICATE</h2>
+            <input type="password" id="master-pass" placeholder="5-DIGIT PIN" style="background:#000; color:#ffd700; padding:15px; width:100%; text-align:center; border-radius:6px; margin-bottom:20px;">
+            <button id="master-submit" class="tab-btn active" style="width:100%;">DECRYPT & ENTER</button>
+            <p id="master-error" style="display:none; color:red; margin-top:10px;">DENIED</p>
+        </div>
+    </div>
+    
+    <div id="master-vault" style="display:none; background: rgba(10,10,10,0.98); z-index: 9999; position:fixed; top:0;left:0;width:100%;height:100%;">
+        <div style="width: 320px; border-right: 1px solid rgba(255,215,0,0.3); display:flex; flex-direction:column;">
+            <div style="color: #ffd700; font-size: 1.3rem; padding: 25px 20px;">SYNDICATE TERMINAL</div>
+            <ul id="master-nav" style="flex:1; list-style:none; padding:0;"></ul>
+            <button id="master-exit" style="margin:20px; padding:15px; background:#ffd700; color:#000; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">EXIT</button>
+        </div>
+        <div style="flex:1; padding:40px; overflow-y:auto;">
+            <div id="vault-telemetry-header" class="telemetry-bar glass-panel" style="margin-bottom:20px; border-color:rgba(255,215,0,0.3);"></div>
+            <h2 id="master-cat-title" style="color:#ffd700; font-size: 2.2rem;">Category</h2>
+            <p id="master-cat-desc" style="color:#aaa; margin-bottom: 40px;">Desc</p>
+            <div id="master-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initSecurity();
+            initRouter();
+            initMobileMenu();
+
+            // Ensure state variables are declared before use
+            if (typeof currentClockTimezone === 'undefined') window.currentClockTimezone = 'Europe/Athens';
+
+            initWidgets(); 
+            if (localStorage.getItem('dashboard_access') === 'true') {
+                initDashboardCore();
+            }
+        });
+    </script>
     <script src="./js/secret-data.js"></script>
     <script src="./js/api.js"></script>
     <script src="./js/app.js"></script>
 </body>
-
 </html>
