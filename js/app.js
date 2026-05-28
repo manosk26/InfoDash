@@ -2454,7 +2454,7 @@ window.runWidget15 = () => {
     res.innerHTML = 'Generating programmatic structures...<br>';
     const cities = ['Athens', 'Thessaloniki', 'Patras', 'Heraklion', 'Larissa'];
     cities.forEach(c => {
-        res.innerHTML += `Generated URL: /best-${n.replace(/\s+/g,'-')}-in-${c.toLowerCase()}<br>`;
+        res.innerHTML += `Generated URL: /best-${n.toLowerCase().replace(/\s+/g,'-')}-in-${c.toLowerCase()}<br>`;
     });
 };
 
