@@ -119,7 +119,7 @@ function initSecurity() {
     const loginBtn = document.getElementById('login-btn');
     const loginError = document.getElementById('login-error');
 
-    const MASTER_PWD = "Manos16581";
+    const MASTER_PWD = "Manos16581!@#";
 
     console.log("Security Initialized. Checking access...");
     
