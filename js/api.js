@@ -2,6 +2,42 @@
 // We use real APIs where available (CoinGecko for Crypto) 
 // and logic generators based on statistical models for strict requirements (25 items each, strict daily bets)
 
+// Fallback-enabled fetch using public CORS proxies
+async function fetchWithProxy(targetUrl) {
+    const proxies = [
+        (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+        (url) => url // Direct fetch fallback
+    ];
+
+    let lastError = null;
+    for (const proxyFn of proxies) {
+        try {
+            const proxyUrl = proxyFn(targetUrl);
+            const res = await fetch(proxyUrl);
+            if (res.ok) {
+                // If it's a proxy, verify it's not returning HTML (e.g. Access Denied / cloudflare blocks)
+                if (proxyUrl !== targetUrl) {
+                    const clone = res.clone();
+                    const text = await clone.text();
+                    const trimmed = text.trim();
+                    if (trimmed.startsWith('<') || trimmed.toLowerCase().startsWith('<!doctype')) {
+                        console.warn(`Proxy returned HTML instead of JSON: ${proxyUrl}`);
+                        continue; // try next proxy
+                    }
+                }
+                return res;
+            }
+            console.warn(`Proxy failed with status ${res.status}: ${proxyUrl}`);
+        } catch (e) {
+            console.warn(`Proxy failed with error: ${e.message}`);
+            lastError = e;
+        }
+    }
+    throw lastError || new Error(`All proxies failed for URL: ${targetUrl}`);
+}
+
 // === 1. BETTING LOGIC (Real Daily Matches via OPAP API logic proxy) ===
 async function fetchPopularMatches() {
     // Top 13 recommended leagues for daily real matches + statistics
@@ -24,8 +60,7 @@ async function fetchPopularMatches() {
     const fetchLeague = async (league) => {
         try {
             const targetUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/${league.id}/scoreboard`;
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-            const res = await fetch(proxyUrl);
+            const res = await fetchWithProxy(targetUrl);
             if (!res.ok) return [];
             const data = await res.json();
             return data.events ? data.events.map(event => {
@@ -106,8 +141,7 @@ async function fetchMatchSummary(leagueName, eventId) {
 
     try {
         const targetUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/summary?event=${eventId}`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-        const res = await fetch(proxyUrl);
+        const res = await fetchWithProxy(targetUrl);
         if (!res.ok) return null;
         const data = await res.json();
         
@@ -228,8 +262,7 @@ async function fetchLotteryDraws(game) {
     try {
         // Fetch last 100 draws from real OPAP API via CORS Proxy
         const targetUrl = `https://api.opap.gr/draws/v3.0/${gameId}/last/100`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-        const res = await fetch(proxyUrl);
+        const res = await fetchWithProxy(targetUrl);
         if (!res.ok) throw new Error('OPAP API Error');
         const drawData = await res.json();
 
@@ -332,8 +365,7 @@ async function fetchCryptos() {
     try {
         // Coingecko Top 100 with all stats
         const targetUrl = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h,24h,7d';
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-        const res = await fetch(proxyUrl);
+        const res = await fetchWithProxy(targetUrl);
         if (!res.ok) throw new Error('CoinGecko API limit');
         const data = await res.json();
         
@@ -1749,8 +1781,7 @@ const LotteryEngine = {
         const gid = this.gameIds[game] || 5104;
         try {
             const targetUrl = `https://api.opap.gr/draws/v3.0/${gid}/last/200`;
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-            const res = await fetch(proxyUrl);
+            const res = await fetchWithProxy(targetUrl);
             const data = await res.json();
             
             this.currentData = data.filter(d => d.winningNumbers).map(d => ({

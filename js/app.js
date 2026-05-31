@@ -66,7 +66,7 @@ async function updateTelemetryHeader(specifiedCity = null) {
     
     if (!mainHeader && !vaultHeader) return;
 
-    const loadingHtml = '<div class="loader-glass" style="width:15px; height:15px; margin-right:10px;"></div> Intercepting Telemetry...';
+    const loadingHtml = '<div class="loader-spinner" style="width:15px; height:15px; margin-right:10px; display:inline-block; vertical-align:middle;"></div> Intercepting Telemetry...';
     if(mainHeader) mainHeader.innerHTML = loadingHtml;
     if(vaultHeader) vaultHeader.innerHTML = loadingHtml;
 
@@ -348,10 +348,14 @@ function initRouter() {
             
             if (targetView === 'global-radar') loadGlobalRadar();
 
-            // Close mobile menu if open
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar.classList.contains('active')) {
-                sidebar.classList.remove('active');
+            // Close mobile menus if open
+            const leftSidebar = document.getElementById('sidebar-left');
+            const rightSidebar = document.getElementById('sidebar-right');
+            if (leftSidebar && leftSidebar.classList.contains('active')) {
+                leftSidebar.classList.remove('active');
+            }
+            if (rightSidebar && rightSidebar.classList.contains('active')) {
+                rightSidebar.classList.remove('active');
             }
         });
     });
@@ -410,12 +414,29 @@ function initRouter() {
 
 // --- Mobile Menu ---
 function initMobileMenu() {
-    const openBtn = document.getElementById('mobile-menu-open');
-    const closeBtn = document.getElementById('mobile-menu-close');
-    const sidebar = document.getElementById('sidebar');
+    const leftOpen = document.getElementById('mobile-menu-open');
+    const leftClose = document.getElementById('mobile-left-close');
+    const leftSidebar = document.getElementById('sidebar-left');
 
-    openBtn.addEventListener('click', () => sidebar.classList.add('active'));
-    closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
+    const rightOpen = document.getElementById('mobile-hubs-open');
+    const rightClose = document.getElementById('mobile-right-close');
+    const rightSidebar = document.getElementById('sidebar-right');
+
+    if (leftOpen && leftClose && leftSidebar) {
+        leftOpen.addEventListener('click', () => {
+            leftSidebar.classList.add('active');
+            if (rightSidebar) rightSidebar.classList.remove('active'); // Close right if opening left
+        });
+        leftClose.addEventListener('click', () => leftSidebar.classList.remove('active'));
+    }
+
+    if (rightOpen && rightClose && rightSidebar) {
+        rightOpen.addEventListener('click', () => {
+            rightSidebar.classList.add('active');
+            if (leftSidebar) leftSidebar.classList.remove('active'); // Close left if opening right
+        });
+        rightClose.addEventListener('click', () => rightSidebar.classList.remove('active'));
+    }
 }
 
 // --- 1. Betting Data Loader ---
@@ -431,7 +452,7 @@ async function loadBettingMatches() {
         return;
     }
 
-    container.innerHTML = '<div class="loader-glass">Φόρτωση Πραγματικών Αγώνων & Στατιστικών...</div>';
+    container.innerHTML = '<div class="loader-glass"><div class="loader-spinner"></div>Φόρτωση Πραγματικών Αγώνων & Στατιστικών...</div>';
 
     try {
         const matches = await fetchPopularMatches();
@@ -697,7 +718,7 @@ async function loadCrypto() {
     const tableBody = document.querySelector('#cmc-crypto-table tbody');
     if (!tableBody) return;
     
-    tableBody.innerHTML = '<tr><td colspan="14" class="text-center p-2rem"><div class="loader-glass"></div> Φόρτωση Top 100 Cryto Assets...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="14" class="text-center p-2rem"><div class="loader-spinner"></div> Φόρτωση Top 100 Cryto Assets...</td></tr>';
     
     try {
         const data = await fetchCryptos();

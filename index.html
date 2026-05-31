@@ -55,6 +55,7 @@
                     <i class="fa-solid fa-infinity text-green"></i>
                     <h2>InfoDash<span>Hub</span></h2>
                 </div>
+                <button id="mobile-left-close" class="mobile-close-btn mobile-only" title="Κλείσιμο"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <ul class="nav-links">
@@ -74,6 +75,7 @@
         <main class="main-content">
             <header class="topbar">
                 <button id="mobile-menu-open" class="mobile-only" title="Άνοιγμα Μενού"><i class="fa-solid fa-bars"></i></button>
+                <button id="mobile-hubs-open" class="mobile-only" title="Specialized Hubs" style="margin-left: 10px; background: transparent; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer;"><i class="fa-solid fa-bolt" style="color:var(--accent-primary);"></i></button>
 
                 <div class="search-bar">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -304,8 +306,9 @@
         </main>
 
         <nav class="sidebar" id="sidebar-right">
-            <div class="sidebar-header" style="justify-content: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 1rem; margin-bottom: 1rem;">
-                <h2 style="font-size: 1.1rem; text-align: center;"><i class="fa-solid fa-bolt" style="color:var(--accent-primary);"></i> Specialized<span class="gradient-text"> Hubs</span></h2>
+            <div class="sidebar-header" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="font-size: 1.1rem;"><i class="fa-solid fa-bolt" style="color:var(--accent-primary);"></i> Specialized<span class="gradient-text"> Hubs</span></h2>
+                <button id="mobile-right-close" class="mobile-close-btn mobile-only" title="Κλείσιμο"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <ul class="nav-links">
                 <li class="nav-item" data-target="ai"><i class="fa-solid fa-robot"></i><span>AI & Automation</span></li>
