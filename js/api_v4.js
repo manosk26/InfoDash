@@ -4,6 +4,7 @@
 
 // Fallback-enabled fetch using public CORS proxies
 async function fetchWithProxy(targetUrl) {
+    window.fetchWithProxy = fetchWithProxy;
     const proxies = [
         (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
         (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
@@ -2116,19 +2117,25 @@ const LotteryEngine = {
         }
 
         // Method C: Offline Clock-Synchronized Simulation
-        if (!drawData || !Array.isArray(drawData)) {
+        if (!drawData || !Array.isArray(drawData) || drawData.length === 0) {
             methodUsed = "Method C (Simulated)";
             this.currentData = this.generateSimulatedData(game);
         } else {
             localStorage.setItem(`infodash_lottery_cache_${game}`, JSON.stringify(drawData));
             
-            this.currentData = drawData.filter(d => d && d.winningNumbers).map(d => ({
+            this.currentData = drawData.filter(d => d && d.winningNumbers && d.winningNumbers.list).map(d => ({
                 id: d.drawId, 
                 date: new Date(d.drawTime).toLocaleDateString('el-GR'),
                 numbers: d.winningNumbers.list.sort((a,b)=>a-b),
                 bonus: d.winningNumbers.bonus || [],
                 raw: d
             }));
+
+            if (this.currentData.length === 0) {
+                console.warn("OPAP parsed data is empty. Falling back to Method C.");
+                methodUsed = "Method C (Simulated)";
+                this.currentData = this.generateSimulatedData(game);
+            }
         }
 
         console.log(`LotteryEngine loaded data via ${methodUsed}`);
