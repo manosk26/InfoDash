@@ -63,7 +63,7 @@
                 <li class="nav-item" data-target="betting"><i class="fa-solid fa-futbol"></i><span>Στοίχημα & Αγώνες</span></li>
                 <li class="nav-item" data-target="lottery"><i class="fa-solid fa-money-bill-1-wave"></i><span>Τζόκερ / Eurojackpot</span></li>
                 <li class="nav-item" data-target="crypto"><i class="fa-brands fa-bitcoin"></i><span>Crypto Markets</span></li>
-                <li class="nav-item" data-target="finance"><i class="fa-solid fa-chart-line"></i><span>Finance & Trends</span></li>
+                <li class="nav-item" data-target="finance"><i class="fa-solid fa-sack-dollar"></i><span>Wealth & Income</span></li>
                 <li class="nav-item" data-target="lifehacks"><i class="fa-solid fa-rocket"></i><span>LifeHack & Productivity</span></li>
                 <li class="nav-item" data-target="science"><i class="fa-solid fa-globe"></i><span>Επιστήμη & Δεδομένα</span></li>
                 <li class="nav-item" data-target="links"><i class="fa-solid fa-link"></i><span>Directory (Χρήσιμα)</span></li>
@@ -162,59 +162,33 @@
                 <!-- HUBS (Empty containers for injection) -->
                 <section id="betting-view" class="view-section hidden"><div class="section-header"><h1>Στοίχημα & <span class="gradient-text">Live Αγώνες</span></h1></div><div class="filters-bar" id="betting-filters"></div><div id="matches-container" class="matches-grid"></div></section>
                 <section id="lottery-view" class="view-section hidden">
-    <div class="section-header">
-        <h1>Mega <span class="gradient-text">Lottery Analytics</span></h1>
-        <p>Advanced OPAP Intelligence Engine</p>
-    </div>
-    
-    <div class="lottery-tabs" style="display:flex; gap:10px; margin-bottom:1rem; border-bottom: 1px solid var(--panel-border); padding-bottom:10px;">
-        <button class="tab-btn active" data-lottery="joker" style="font-size:1.1rem; padding:0.5rem 2rem;">Joker</button>
-        <button class="tab-btn" data-lottery="eurojackpot" style="font-size:1.1rem; padding:0.5rem 2rem;">Eurojackpot</button>
-        <button class="tab-btn" data-lottery="lotto" style="font-size:1.1rem; padding:0.5rem 2rem;">Lotto</button>
-        <!-- Game status indicator -->
-        <span id="lottery-status-indicator" style="margin-left:auto; display:flex; align-items:center; color:var(--text-secondary); font-size:0.9rem;">
-            <i class="fa-solid fa-circle-nodes" style="margin-right:5px; color:var(--accent-primary);"></i> Engine Connected
-        </span>
-    </div>
+                    <div class="section-header">
+                        <h1>Mega <span class="gradient-text">Lottery Analytics</span></h1>
+                        <p>Eurojackpot / Joker / Lotto Intelligent Suite</p>
+                    </div>
+                    
+                    <div class="lottery-tabs" style="display:flex; gap:10px; margin-bottom:1.5rem; border-bottom: 1px solid var(--panel-border); padding-bottom:10px;">
+                        <button class="tab-btn active" data-game="eurojackpot" style="font-size:1.1rem; padding:0.5rem 2rem;">Eurojackpot</button>
+                        <button class="tab-btn" data-game="joker" style="font-size:1.1rem; padding:0.5rem 2rem;">Joker</button>
+                        <button class="tab-btn" data-game="lotto" style="font-size:1.1rem; padding:0.5rem 2rem;">Lotto</button>
+                        <!-- Game status indicator -->
+                        <span id="lottery-status-indicator" style="margin-left:auto; display:flex; align-items:center; color:var(--text-secondary); font-size:0.9rem;">
+                            <i class="fa-solid fa-circle-nodes" style="margin-right:5px; color:var(--accent-primary);"></i> Engine Connected
+                        </span>
+                    </div>
 
-    <!-- The 18 Categories Navigation + Content Grid -->
-    <div class="lottery-mega-grid">
-        <!-- Sidebar Navigation (18 Items) -->
-        <div class="lottery-sub-tabs glass-panel" id="lottery-nav">
-            <button class="active" data-cat="latest">Τελευταία</button>
-            <button data-cat="predictions" style="border: 1px solid rgba(139, 92, 246, 0.4); color: #c084fc;"><i class="fa-solid fa-brain"></i> Αλγόριθμοι & AI</button>
-            <button data-cat="history">Προηγούμενες</button>
-            <button data-cat="tables">Πινακάκια</button>
-            <button data-cat="board">Πίνακας</button>
-            <button data-cat="weird">Παράξενες</button>
-            <button data-cat="numbers">Αριθμοί</button>
-            <button data-cat="hotcold">Hot&Cold</button>
-            <button data-cat="stats">Στατιστικά</button>
-            <button data-cat="check">Ελεγχος</button>
-            <button data-cat="pairs">Δυάδες</button>
-            <button data-cat="consecutive">Συνεχόμενα</button>
-            <button data-cat="tens">Δεκάδες</button>
-            <button data-cat="endings">Λήγοντες</button>
-            <button data-cat="sum">Αθροισμα</button>
-            <button data-cat="distances">Αποστάσεις</button>
-            <button data-cat="similar">Παρόμοιοι</button>
-            <button data-cat="systems">Συστήματα</button>
-            <button data-cat="jackpot">ΤΖΑΚΠΟΤ</button>
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="lottery-content-area glass-panel" id="lottery-engine-content" style="padding:1.5rem; position:relative;">
-            <div id="lottery-loader" class="loader-glass" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center; z-index:10;">
-                <i class="fa-solid fa-microchip fa-spin fa-2x" style="color:var(--accent-primary); margin-bottom:10px;"></i>
-                <span id="lottery-loader-text">Ανάλυση Κληρώσεων...</span>
-            </div>
-            
-            <div id="lottery-view-container" style="opacity:0; transition: opacity 0.3s; min-height:400px;">
-                <!-- Dynamic Content Injected Here by LotteryEngine -->
-            </div>
-        </div>
-    </div>
-</section>
+                    <!-- Main Content Area -->
+                    <div class="lottery-content-area glass-panel" style="padding:1.5rem; position:relative; min-height: 500px;">
+                        <div id="lottery-loader" class="loader-glass" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center; z-index:10;">
+                            <i class="fa-solid fa-microchip fa-spin fa-2x" style="color:var(--accent-primary); margin-bottom:10px;"></i>
+                            <span id="lottery-loader-text">Ανάκτηση & Ανάλυση Δεδομένων...</span>
+                        </div>
+                        
+                        <div id="lottery-view-container" style="opacity:0; transition: opacity 0.3s; min-height:400px;">
+                            <!-- Dynamic Content Injected Here -->
+                        </div>
+                    </div>
+                </section>
                 <section id="crypto-view" class="view-section hidden">
     <div class="section-header">
         <h1>Crypto <span class="gradient-text">Top 100 Intelligence</span></h1>
@@ -333,7 +307,7 @@
 
     <!-- MODALS -->
     <div class="modal" id="info-modal"><div class="modal-content glass-panel"><span class="close-modal"><i class="fa-solid fa-times"></i></span><div id="modal-body"></div></div></div>
-    <div id="advanced-match-modal" class="modal-overlay hidden"><div class="modal-content glass-panel" id="advanced-match-content" style="max-width: 800px; width: 90%;"></div></div>
+    <div id="advanced-match-modal" class="modal-overlay hidden"><div class="modal-content glass-panel" id="advanced-match-content" style="max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; position: relative;"></div></div>
  
     <!-- LOTTERY CODE VIEW MODAL -->
     <div id="lottery-code-modal" class="modal-overlay hidden">
@@ -569,8 +543,8 @@ class OPAPLotteryMLPredictor:
             }
         });
     </script>
-    <script src="./js/secret-data.js"></script>
-    <script src="./js/api.js"></script>
-    <script src="./js/app.js"></script>
+    <script src="./js/secret-data.js?v=4"></script>
+    <script src="./js/api_v4.js"></script>
+    <script src="./js/app_v4.js"></script>
 </body>
 </html>
