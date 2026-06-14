@@ -449,6 +449,46 @@
                 <section id="ai-view" class="view-section hidden"><div id="ai-tabs" class="filters-bar"></div><div id="ai-content"></div></section>
                 <section id="nomads-view" class="view-section hidden"><div id="nomads-tabs" class="filters-bar"></div><div id="nomads-content"></div></section>
                 <section id="privacy-view" class="view-section hidden"><div id="privacy-tabs" class="filters-bar"></div><div id="privacy-content"></div></section>
+                <section id="top-sites-view" class="view-section hidden">
+                      <div class="section-header">
+                          <h1>Top Global <span class="gradient-text">Sites</span></h1>
+                          <p>Τα 30 δημοφιλέστερα και κορυφαία sites παγκοσμίως από 30 διαφορετικές κατηγορίες, με ελληνική περιγραφή.</p>
+                      </div>
+
+                      <!-- Search bar container -->
+                      <div class="top-sites-search-container" style="margin-bottom: 2rem; display: flex; gap: 10px; align-items: center; max-width: 650px;">
+                          <div class="search-bar" style="width: 100%; max-width: none; margin: 0;">
+                              <i class="fa-solid fa-magnifying-glass"></i>
+                              <input type="text" id="top-sites-search" placeholder="Αναζήτηση σε 900+ sites (π.χ. Google, Binance, OpenAI)..." oninput="window.filterTopSites(this.value)">
+                          </div>
+                          <button id="top-sites-clear-search-btn" class="tab-btn active hidden" onclick="window.clearTopSitesSearch()" style="padding: 0.75rem 1.5rem; border-radius: 30px; white-space: nowrap;"><i class="fa-solid fa-times"></i> Καθαρισμός</button>
+                      </div>
+
+                      <!-- Two-column split layout -->
+                      <div id="top-sites-main-layout" style="display: flex; gap: 2rem; align-items: flex-start;">
+                          <!-- Left sidebar with category selection list -->
+                          <div id="top-sites-categories-sidebar" style="width: 320px; flex-shrink: 0; background: rgba(0,0,0,0.25); border: 1px solid var(--panel-border); border-radius: var(--border-radius-lg); padding: 1.25rem; display: flex; flex-direction: column; gap: 8px; max-height: calc(100vh - 280px); overflow-y: auto;">
+                              <div style="font-family: var(--font-heading); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 8px; padding-left: 10px; font-weight: 600;">Κατηγορίες (30)</div>
+                              <div id="top-sites-categories-list" style="display: flex; flex-direction: column; gap: 6px;">
+                                  <!-- Category buttons dynamically loaded here -->
+                              </div>
+                          </div>
+
+                          <!-- Right panel with site grid -->
+                          <div style="flex: 1; min-width: 0;">
+                              <div id="top-sites-active-category-title-container" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                  <h2 id="top-sites-active-category-title" style="font-size: 1.5rem; color: white; display: flex; align-items: center; gap: 10px; margin: 0;">
+                                      <i id="top-sites-active-category-icon" class="fa-solid fa-earth-americas text-green"></i>
+                                      <span id="top-sites-active-category-name">Φόρτωση...</span>
+                                  </h2>
+                                  <span id="top-sites-results-count" style="font-size: 0.85rem; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 12px; border: 1px solid var(--panel-border);">-- sites</span>
+                              </div>
+                              <div id="top-sites-grid" class="recommendations-grid">
+                                  <!-- Sites cards dynamically loaded here -->
+                              </div>
+                          </div>
+                      </div>
+                  </section>
                 <section id="health-view" class="view-section hidden"><div id="health-tabs" class="filters-bar"></div><div id="health-content"></div></section>
                 <section id="creator-view" class="view-section hidden"><div id="creator-tabs" class="filters-bar"></div><div id="creator-content"></div></section>
                 <section id="academic-view" class="view-section hidden"><div id="academic-tabs" class="filters-bar"></div><div id="academic-content"></div></section>
@@ -797,6 +837,7 @@ class OPAPLotteryMLPredictor:
     </script>
     <script src="./js/secret-data.js?v=4"></script>
     <script src="./js/metaphysical_hub.js?v=4"></script>
+    <script src="./js/top_sites_db.js?v=4"></script>
     <script src="./js/api_v4.js?v=4"></script>
     <script src="./js/app_v4.js?v=4"></script>
 </body>

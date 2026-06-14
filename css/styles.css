@@ -2002,4 +2002,94 @@ h6 {
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
 }
 
+/* =========================================================================
+   Top Global Sites Layout and Styling
+   ========================================================================= */
+
+#top-sites-categories-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+#top-sites-categories-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#top-sites-categories-sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+#top-sites-categories-sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.top-sites-cat-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-secondary);
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.top-sites-cat-btn i {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+    color: var(--text-secondary);
+    transition: var(--transition);
+}
+
+.top-sites-cat-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    transform: translateX(4px);
+}
+
+.top-sites-cat-btn:hover i {
+    color: var(--accent-primary);
+}
+
+.top-sites-cat-btn.active {
+    background: var(--accent-gradient);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.top-sites-cat-btn.active i {
+    color: white;
+}
+
+@media (max-width: 1024px) {
+    #top-sites-main-layout {
+        flex-direction: column;
+    }
+    #top-sites-categories-sidebar {
+        width: 100% !important;
+        max-height: 200px !important;
+    }
+    #top-sites-categories-list {
+        flex-direction: row !important;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 5px;
+    }
+    .top-sites-cat-btn {
+        width: auto !important;
+        flex-shrink: 0;
+    }
+}
+
+
 

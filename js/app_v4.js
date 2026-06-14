@@ -124,6 +124,10 @@ window.changeWeatherLocation = () => {
 function initSecurity() {
     console.log("Security Initialized (Passcode bypassed).");
     localStorage.setItem('dashboard_access', 'true');
+    const gate = document.getElementById('login-gate');
+    if (gate) {
+        gate.classList.add('hidden');
+    }
 }
 
 // --- Hub Configuration for Tabs ---
@@ -6047,21 +6051,106 @@ window.runGlobalSyncAndVerify = async function() {
     }
 };
 
-// --- Top Global Sites Loader ---
+// --- Top Global Sites Loader & Interactive Dashboard ---
+let currentSelectedTopSitesCategory = null;
+
 async function loadTopSites() {
+    // If no category is selected, default to the first one in the database
+    if (!currentSelectedTopSitesCategory && window.TOP_SITES_CATEGORIES && window.TOP_SITES_CATEGORIES.length > 0) {
+        currentSelectedTopSitesCategory = window.TOP_SITES_CATEGORIES[0].id;
+    }
+    
+    // Clear search input on load/refresh to ensure consistency
+    const searchInput = document.getElementById('top-sites-search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    const clearBtn = document.getElementById('top-sites-clear-search-btn');
+    if (clearBtn) {
+        clearBtn.classList.add('hidden');
+    }
+    const sidebar = document.getElementById('top-sites-categories-sidebar');
+    if (sidebar) {
+        sidebar.style.display = 'flex';
+    }
+
+    renderTopSitesCategoriesList();
+    renderTopSitesGrid();
+}
+
+function renderTopSitesCategoriesList() {
+    const listContainer = document.getElementById('top-sites-categories-list');
+    if (!listContainer || !window.TOP_SITES_CATEGORIES) return;
+
+    listContainer.innerHTML = window.TOP_SITES_CATEGORIES.map(cat => `
+        <button class="top-sites-cat-btn ${currentSelectedTopSitesCategory === cat.id ? 'active' : ''}" onclick="window.selectTopSitesCategory('${cat.id}')">
+            <i class="${cat.icon}"></i>
+            <span>${cat.name}</span>
+        </button>
+    `).join('');
+}
+
+function selectTopSitesCategory(catId) {
+    currentSelectedTopSitesCategory = catId;
+    
+    // Clear search query
+    const searchInput = document.getElementById('top-sites-search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    const clearBtn = document.getElementById('top-sites-clear-search-btn');
+    if (clearBtn) {
+        clearBtn.classList.add('hidden');
+    }
+    const sidebar = document.getElementById('top-sites-categories-sidebar');
+    if (sidebar) {
+        sidebar.style.display = 'flex';
+    }
+
+    renderTopSitesCategoriesList();
+    renderTopSitesGrid();
+}
+
+function renderTopSitesGrid(filteredSites = null) {
     const grid = document.getElementById('top-sites-grid');
+    const titleName = document.getElementById('top-sites-active-category-name');
+    const titleIcon = document.getElementById('top-sites-active-category-icon');
+    const resultsCount = document.getElementById('top-sites-results-count');
+    
     if (!grid) return;
-    
-    grid.innerHTML = '<div style="text-align:center; padding:40px; color:#aaa; grid-column: 1 / -1;"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--accent-primary); margin-bottom:10px;"></i><br>Φόρτωση κορυφαίων ιστοσελίδων...</div>';
-    
+
     try {
-        const sites = getTopGlobalSites();
-        grid.innerHTML = sites.map(site => `
-            <div class="glass-panel" style="padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; min-height:200px; transition: transform 0.2s, border-color 0.2s; cursor:pointer;" onmouseover="this.style.borderColor='var(--accent-primary)'; this.style.transform='translateY(-5px)';" onmouseout="this.style.borderColor='var(--panel-border)'; this.style.transform='translateY(0)';" onclick="window.open('${site.url}', '_blank')">
+        let sitesToRender = [];
+        let isSearchMode = filteredSites !== null;
+
+        if (isSearchMode) {
+            sitesToRender = filteredSites;
+            if (titleName) titleName.innerText = 'Αποτελέσματα Αναζήτησης';
+            if (titleIcon) titleIcon.className = 'fa-solid fa-magnifying-glass text-green';
+        } else {
+            const catObj = window.TOP_SITES_CATEGORIES.find(c => c.id === currentSelectedTopSitesCategory);
+            if (catObj) {
+                if (titleName) titleName.innerText = catObj.name;
+                if (titleIcon) titleIcon.className = `${catObj.icon} text-green`;
+            }
+            sitesToRender = window.TOP_SITES_DATA[currentSelectedTopSitesCategory] || [];
+        }
+
+        if (resultsCount) {
+            resultsCount.innerText = `${sitesToRender.length} sites`;
+        }
+
+        if (sitesToRender.length === 0) {
+            grid.innerHTML = '<div style="text-align:center; padding:40px; color:#aaa; grid-column: 1 / -1;"><i class="fa-solid fa-magnifying-glass fa-2x" style="margin-bottom:10px; color:var(--accent-primary);"></i><br>Δεν βρέθηκαν αποτελέσματα για την αναζήτησή σας.</div>';
+            return;
+        }
+
+        grid.innerHTML = sitesToRender.map(site => `
+            <div class="glass-panel" style="padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; min-height:190px; transition: transform 0.2s, border-color 0.2s; cursor:pointer;" onmouseover="this.style.borderColor='var(--accent-primary)'; this.style.transform='translateY(-5px)';" onmouseout="this.style.borderColor='var(--panel-border)'; this.style.transform='translateY(0)';" onclick="window.open('${site.url}', '_blank')">
                 <div>
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
                         <span style="font-size:0.75rem; background:rgba(59,130,246,0.1); color:var(--accent-primary); padding:4px 10px; border-radius:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">${site.category}</span>
-                        <i class="${site.icon}" style="font-size:1.5rem; color:var(--text-secondary);"></i>
+                        <i class="${site.icon}" style="font-size:1.4rem; color:var(--text-secondary);"></i>
                     </div>
                     <h3 style="color:#fff; margin:0 0 8px 0; font-size:1.15rem; font-weight:600;">${site.name}</h3>
                     <p style="color:var(--text-secondary); font-size:0.85rem; line-height:1.45; margin:0;">${site.desc}</p>
@@ -6071,12 +6160,57 @@ async function loadTopSites() {
                 </div>
             </div>
         `).join('');
-    } catch(e) {
-        console.error("Error loading top global sites:", e);
-        grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--danger); grid-column: 1 / -1;"><i class="fa-solid fa-triangle-exclamation fa-2x"></i><br>Αποτυχία φόρτωσης. Παρακαλώ δοκιμάστε ξανά.</div>';
+    } catch (e) {
+        console.error("Error rendering top sites grid:", e);
+        grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--danger); grid-column: 1 / -1;"><i class="fa-solid fa-triangle-exclamation fa-2x"></i><br>Αποτυχία εμφάνισης δεδομένων.</div>';
     }
 }
+
+function filterTopSites(query) {
+    const clearBtn = document.getElementById('top-sites-clear-search-btn');
+    const sidebar = document.getElementById('top-sites-categories-sidebar');
+    
+    if (!query || query.trim() === '') {
+        if (clearBtn) clearBtn.classList.add('hidden');
+        if (sidebar) sidebar.style.display = 'flex';
+        renderTopSitesCategoriesList(); // restore active state highlights
+        renderTopSitesGrid();
+        return;
+    }
+
+    if (clearBtn) clearBtn.classList.remove('hidden');
+    if (sidebar) sidebar.style.display = 'none'; // hide sidebar when searching globally
+
+    const cleanedQuery = query.toLowerCase().trim();
+    const allSites = [];
+    for (let cat in window.TOP_SITES_DATA) {
+        allSites.push(...window.TOP_SITES_DATA[cat]);
+    }
+
+    const matched = allSites.filter(site => {
+        return site.name.toLowerCase().includes(cleanedQuery) || 
+               site.desc.toLowerCase().includes(cleanedQuery) ||
+               site.category.toLowerCase().includes(cleanedQuery);
+    });
+
+    renderTopSitesGrid(matched);
+}
+
+function clearTopSitesSearch() {
+    const searchInput = document.getElementById('top-sites-search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    filterTopSites('');
+}
+
+// Bind to window object for access via inline onclick attributes
 window.loadTopSites = loadTopSites;
+window.renderTopSitesCategoriesList = renderTopSitesCategoriesList;
+window.selectTopSitesCategory = selectTopSitesCategory;
+window.renderTopSitesGrid = renderTopSitesGrid;
+window.filterTopSites = filterTopSites;
+window.clearTopSitesSearch = clearTopSitesSearch;
 
 // --- Auto-Refresh Interval Setup (Every 60 Seconds) ---
 let autoRefreshInterval = null;
