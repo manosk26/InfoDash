@@ -122,11 +122,48 @@ window.changeWeatherLocation = () => {
 
 // --- Security Management ---
 function initSecurity() {
-    console.log("Security Initialized (Passcode bypassed).");
-    localStorage.setItem('dashboard_access', 'true');
+    const isAuthorized = localStorage.getItem('dashboard_access') === 'true';
     const gate = document.getElementById('login-gate');
-    if (gate) {
-        gate.classList.add('hidden');
+    
+    if (isAuthorized) {
+        if (gate) {
+            gate.classList.add('hidden');
+        }
+        console.log("Security check: Access granted from previous session.");
+    } else {
+        if (gate) {
+            gate.classList.remove('hidden');
+        }
+        console.log("Security check: Access denied. Waiting for passcode entry.");
+    }
+
+    const loginForm = document.getElementById('login-form');
+    const loginPassword = document.getElementById('login-password');
+    const loginError = document.getElementById('login-error');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (loginPassword && loginPassword.value === 'Manos16581!@#') {
+                localStorage.setItem('dashboard_access', 'true');
+                if (gate) {
+                    gate.classList.add('hidden');
+                }
+                if (loginError) {
+                    loginError.classList.add('hidden');
+                }
+                console.log("Correct passcode entered. Dashboard initialized.");
+                initDashboardCore();
+            } else {
+                if (loginError) {
+                    loginError.classList.remove('hidden');
+                }
+                if (loginPassword) {
+                    loginPassword.value = '';
+                    loginPassword.focus();
+                }
+            }
+        });
     }
 }
 
