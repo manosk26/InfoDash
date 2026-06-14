@@ -64,10 +64,13 @@
                 <li class="nav-item" data-target="lottery"><i class="fa-solid fa-money-bill-1-wave"></i><span>Τζόκερ / Eurojackpot</span></li>
                 <li class="nav-item" data-target="crypto"><i class="fa-brands fa-bitcoin"></i><span>Crypto Markets</span></li>
                 <li class="nav-item" data-target="finance"><i class="fa-solid fa-sack-dollar"></i><span>Wealth & Income</span></li>
+                <li class="nav-item" data-target="wealthhub" style="border-top: 1px dashed rgba(255, 215, 0, 0.3); margin-top: 5px; padding-top: 5px;"><i class="fa-solid fa-wallet" style="color: #ffd700;"></i><span style="color: #ffd700; font-weight: bold;">Wealth Flow Hub</span></li>
+                <li class="nav-item" data-target="esoteric" style="border-top: 1px dashed #a78bfa; margin-top: 5px; padding-top: 5px;"><i class="fa-solid fa-eye" style="color: #a78bfa;"></i><span style="color: #a78bfa; font-weight: bold;">Quantum & Esoteric Hub</span></li>
                 <li class="nav-item" data-target="lifehacks"><i class="fa-solid fa-rocket"></i><span>LifeHack & Productivity</span></li>
                 <li class="nav-item" data-target="science"><i class="fa-solid fa-globe"></i><span>Επιστήμη & Δεδομένα</span></li>
                 <li class="nav-item" data-target="links"><i class="fa-solid fa-link"></i><span>Directory (Χρήσιμα)</span></li>
                 <li class="nav-item" data-target="leisure"><i class="fa-solid fa-gamepad"></i><span>Leisure & Retr<span ondblclick="window.openSyndicateAccess(); event.stopPropagation();">o</span></span></li>
+                <li class="nav-item" data-target="top-sites"><i class="fa-solid fa-earth-americas"></i><span>Top Global Sites</span></li>
             </ul>
         </nav>
 
@@ -84,6 +87,11 @@
                 </div>
 
                 <div class="topbar-widgets">
+                    <!-- GLOBAL SYNC BUTTON -->
+                    <button id="global-sync-btn" onclick="window.runGlobalSyncAndVerify()" class="widget glass-panel" style="background: rgba(13, 17, 33, 0.8); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--accent-primary); cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold; font-family: var(--font-heading);" title="Συγχρονισμός & Επαλήθευση">
+                        <i id="sync-icon" class="fa-solid fa-rotate"></i>
+                        <span>Συγχρονισμός</span>
+                    </button>
                     <!-- VPN WIDGET -->
                     <div class="widget vpn-widget glass-panel">
                         <i class="fa-solid fa-shield-halved text-green"></i>
@@ -160,7 +168,121 @@
                 </section>
 
                 <!-- HUBS (Empty containers for injection) -->
-                <section id="betting-view" class="view-section hidden"><div class="section-header"><h1>Στοίχημα & <span class="gradient-text">Live Αγώνες</span></h1></div><div class="filters-bar" id="betting-filters"></div><div id="matches-container" class="matches-grid"></div></section>
+                <section id="betting-view" class="view-section hidden">
+                    <div class="section-header">
+                        <h1>Στοίχημα & <span class="gradient-text">Live Αγώνες</span></h1>
+                        <p>Live αποτελέσματα αγώνων, στατιστικά, καθώς και διαδραστικοί αλγόριθμοι Poisson & Dixon-Coles για προβλέψεις.</p>
+                    </div>
+
+                    <div class="lottery-tabs" style="display:flex; gap:10px; margin-bottom:1.5rem; border-bottom: 1px solid var(--panel-border); padding-bottom:10px;">
+                        <button class="tab-btn active" id="btn-show-live-matches" onclick="window.switchBettingTab('live')" style="font-size:1rem; padding:0.5rem 1.5rem;">Live Αγώνες</button>
+                        <button class="tab-btn" id="btn-show-simulator" onclick="window.switchBettingTab('sim')" style="font-size:1rem; padding:0.5rem 1.5rem;">AI Προσομοιωτής Ακριβούς Σκορ</button>
+                    </div>
+
+                    <!-- Live Content Tab -->
+                    <div id="betting-live-content">
+                        <div class="filters-bar" id="betting-filters" style="margin-bottom: 1.5rem;"></div>
+                        <div id="matches-container" class="matches-grid"></div>
+                    </div>
+
+                    <!-- Simulator Tab -->
+                    <div id="betting-simulator-content" class="hidden">
+                        <div class="grid-display" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                            <!-- Inputs Form -->
+                            <div class="glass-panel" style="padding:1.5rem;">
+                                <h3 style="margin-bottom:1.25rem;"><i class="fa-solid fa-sliders text-orange"></i> Στοιχεία Προσομοίωσης</h3>
+                                
+                                <div style="display:flex; flex-direction:column; gap:12px;">
+                                    <div>
+                                        <label style="font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:4px;">Όνομα Γηπεδούχου</label>
+                                        <input type="text" id="sim-home-name" value="Home FC" style="width:100%; padding:8px; background:#000; border:1px solid var(--panel-border); color:white; border-radius:6px; outline:none;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:4px;">Expected Goals (xG) Γηπεδούχου</label>
+                                        <input type="number" id="sim-home-xg" value="1.6" step="0.1" min="0" style="width:100%; padding:8px; background:#000; border:1px solid var(--panel-border); color:white; border-radius:6px; outline:none;">
+                                    </div>
+                                    <div style="border-top: 1px dashed rgba(255,255,255,0.05); margin:8px 0;"></div>
+                                    <div>
+                                        <label style="font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:4px;">Όνομα Φιλοξενούμενης</label>
+                                        <input type="text" id="sim-away-name" value="Away FC" style="width:100%; padding:8px; background:#000; border:1px solid var(--panel-border); color:white; border-radius:6px; outline:none;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:4px;">Expected Goals (xG) Φιλοξενούμενης</label>
+                                        <input type="number" id="sim-away-xg" value="1.1" step="0.1" min="0" style="width:100%; padding:8px; background:#000; border:1px solid var(--panel-border); color:white; border-radius:6px; outline:none;">
+                                    </div>
+                                </div>
+
+                                <button onclick="window.runBettingSimulation()" class="tab-btn active" style="width:100%; padding:12px; font-weight:bold; font-size:0.95rem; border-radius:30px; margin-top:1.5rem; border:none; cursor:pointer;">
+                                    Υπολογισμός Προβλέψεων & Heatmap <i class="fa-solid fa-calculator" style="margin-left:3px;"></i>
+                                </button>
+                            </div>
+
+                            <!-- Results Area -->
+                            <div id="sim-results-area" class="hidden" style="display:flex; flex-direction:column; gap:1.5rem;">
+                                <!-- Probabilities -->
+                                <div class="glass-panel" style="padding:1.5rem;">
+                                    <h3 style="margin-bottom:1rem;"><i class="fa-solid fa-chart-pie text-green"></i> Πιθανότητες Αποτελέσματος</h3>
+                                    
+                                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align:center; margin-bottom:1.25rem;">
+                                        <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:8px;">
+                                            <span style="font-size:0.75rem; color:var(--text-secondary);">Νίκη Γηπεδούχου</span>
+                                            <div id="sim-res-win-h" style="font-size:1.4rem; font-weight:bold; color:white; margin-top:4px;">0.0%</div>
+                                        </div>
+                                        <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:8px;">
+                                            <span style="font-size:0.75rem; color:var(--text-secondary);">Ισοπαλία</span>
+                                            <div id="sim-res-draw" style="font-size:1.4rem; font-weight:bold; color:white; margin-top:4px;">0.0%</div>
+                                        </div>
+                                        <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:8px;">
+                                            <span style="font-size:0.75rem; color:var(--text-secondary);">Νίκη Φιλοξενούμενης</span>
+                                            <div id="sim-res-win-a" style="font-size:1.4rem; font-weight:bold; color:white; margin-top:4px;">0.0%</div>
+                                        </div>
+                                    </div>
+
+                                    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 10px; text-align:center;">
+                                        <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:8px;">
+                                            <span style="font-size:0.75rem; color:var(--text-secondary);">Over 2.5 γκολ</span>
+                                            <div id="sim-res-o25" style="font-size:1.2rem; font-weight:bold; color:white; margin-top:4px;">0.0%</div>
+                                        </div>
+                                        <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:8px;">
+                                            <span style="font-size:0.75rem; color:var(--text-secondary);">Goal / Goal (BTTS)</span>
+                                            <div id="sim-res-btts" style="font-size:1.2rem; font-weight:bold; color:white; margin-top:4px;">0.0%</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Top Correct Scores -->
+                                <div class="glass-panel" style="padding:1.5rem;">
+                                    <h3 style="margin-bottom:1rem;"><i class="fa-solid fa-list-ol text-blue"></i> Top 3 Ακριβή Σκόρ (Poisson)</h3>
+                                    <div id="sim-top-scores" style="display:flex; flex-direction:column; gap:8px;">
+                                        <!-- Top scores injected here -->
+                                    </div>
+                                </div>
+                                
+                                <!-- Heatmap & Value Bet Grid -->
+                                <div id="sim-heatmap-section" class="glass-panel" style="padding:1.5rem; display:flex; flex-direction:column; gap:1.5rem;">
+                                    <div>
+                                        <h3 style="margin-bottom:1rem;"><i class="fa-solid fa-table-cells text-purple"></i> Κατανομή Πιθανοτήτων Σκόρ (Heatmap)</h3>
+                                        <div id="sim-heatmap-grid" style="display:grid; grid-template-columns: repeat(6, 1fr); gap:6px; min-width: 300px;">
+                                            <!-- 6x6 grid cells injected here -->
+                                        </div>
+                                    </div>
+
+                                    <div style="border-top:1px solid var(--panel-border); padding-top:1.5rem;">
+                                        <h3 style="margin-bottom:1rem;"><i class="fa-solid fa-calculator text-yellow"></i> AI Value Bet Calculator</h3>
+                                        <div style="display:flex; gap:15px; align-items:center; flex-wrap:wrap;">
+                                            <div style="display:flex; align-items:center; gap:8px;">
+                                                <span style="font-size:0.85rem; color:var(--text-secondary);">Απόδοση:</span>
+                                                <input type="number" id="sim-val-odds" value="2.10" step="0.01" min="1" style="width:100px; padding:6px; background:#000; border:1px solid var(--panel-border); color:white; border-radius:4px; outline:none; text-align:center;">
+                                            </div>
+                                            <button onclick="window.checkSimValueBet()" class="tab-btn active" style="font-size:0.8rem; padding:8px 16px; border-radius:20px;">Έλεγχος Value Bet</button>
+                                            <div id="sim-val-result" style="font-weight:bold; font-size:0.95rem;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
                 <section id="lottery-view" class="view-section hidden">
                     <div class="section-header">
                         <h1>Mega <span class="gradient-text">Lottery Analytics</span></h1>
@@ -227,6 +349,98 @@
                 <!-- DYNAMIC HUBS -->
                 <section id="lifehacks-view" class="view-section hidden"><div id="lifehacks-tabs" class="filters-bar"></div><div id="lifehacks-content"></div></section>
                 <section id="finance-view" class="view-section hidden"><div id="finance-tabs" class="filters-bar"></div><div id="finance-content"></div></section>
+                
+                <!-- WEALTH FLOW & ESOTERIC HUBS -->
+                <section id="wealthhub-view" class="view-section hidden">
+                    <div class="section-header">
+                        <h1>Wealth <span class="gradient-text">Flow Hub</span></h1>
+                        <p>Οδηγοί, πλατφόρμες και μέθοδοι για τη δημιουργία παθητικού και ενεργνού εισοδήματος.</p>
+                    </div>
+                    
+                    <div style="display:flex; gap:10px; margin-bottom:1.5rem; border-bottom: 1px solid var(--panel-border); padding-bottom:10px; flex-wrap:wrap; align-items:center;">
+                        <button class="tab-btn active" id="btn-show-programs" onclick="window.switchWealthTab('programs')" style="font-size:1rem; padding:0.5rem 1.5rem;">Εφαρμογές (Autopilot)</button>
+                        <button class="tab-btn" id="btn-show-websites" onclick="window.switchWealthTab('websites')" style="font-size:1rem; padding:0.5rem 1.5rem;">Ιστοσελίδες (Manual)</button>
+                        <button class="tab-btn" id="btn-show-methods" onclick="window.switchWealthTab('methods')" style="font-size:1rem; padding:0.5rem 1.5rem;">Μέθοδοι & Arbitrage</button>
+                        
+                        <input type="text" placeholder="Αναζήτηση μεθόδου..." oninput="window.filterWealthItems(this.value)" style="margin-left:auto; padding:8px 15px; background:rgba(0,0,0,0.5); border:1px solid var(--panel-border); color:white; border-radius:20px; outline:none; font-size:0.85rem; width:220px;">
+                    </div>
+
+                    <div id="wealth-items-grid" class="recommendations-grid"></div>
+                </section>
+
+                <section id="esoteric-view" class="view-section hidden">
+                    <div class="section-header">
+                        <h1>Quantum & <span class="gradient-text">Esoteric Hub</span></h1>
+                        <p>Ένα πρωτοποριακό ψυχοακουστικό τερματικό και εσωτεριστικό κέντρο ελέγχου.</p>
+                    </div>
+
+                    <div class="lottery-tabs" style="display:flex; gap:10px; margin-bottom:1.5rem; border-bottom: 1px solid var(--panel-border); padding-bottom:10px;">
+                        <button class="tab-btn active" id="btn-eso-solfeggio" onclick="window.switchEsotericTab('solfeggio')" style="font-size:1rem; padding:0.5rem 1.5rem;">Συχνότητες Solfeggio & Ήχοι</button>
+                        <button class="tab-btn" id="btn-eso-scripts" onclick="window.switchEsotericTab('scripts')" style="font-size:1rem; padding:0.5rem 1.5rem;">100 Μεταφυσικά & Ενεργειακά Scripts</button>
+                    </div>
+
+                    <!-- Panel 1: Solfeggio & Audio -->
+                    <div id="eso-panel-solfeggio" class="eso-panel glass-panel" style="padding:1.5rem;">
+                        <div id="solfeggio-status" style="font-weight:bold; margin-bottom:1.5rem; color:#ffd700; font-size:1.1rem; display:flex; align-items:center;">
+                            <span style="display:inline-block; width:8px; height:8px; background:gray; border-radius:50%; margin-right:8px;"></span> Ανενεργό (Επιλέξτε συχνότητα παρακάτω)
+                        </div>
+                        <div id="solfeggio-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                            <!-- Solfeggio cards injected here -->
+                        </div>
+                        
+                        <div style="margin-top:2rem; border-top:1px solid var(--panel-border); padding-top:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.9rem; color:var(--text-secondary);">Γενικός έλεγχος αναπαραγωγής Solfeggio:</span>
+                            <button onclick="window.stopSolfeggio()" class="tab-btn active" style="background:var(--danger); border-color:var(--danger); font-size:0.8rem; padding:8px 16px; border-radius:20px;">
+                                STOP ALL SOLFEGGIO <i class="fa-solid fa-stop" style="margin-left:3px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Panel 2: 100 Metaphysical Scripts -->
+                    <div id="eso-panel-scripts" class="eso-panel hidden glass-panel" style="padding:1.5rem;">
+                        <div style="margin-bottom:1.5rem;">
+                            <input type="text" id="eso-scripts-search" placeholder="Αναζήτηση script από τα 100 διαθέσιμα (π.χ. Tarot, Moon, Fehu)..." oninput="window.filterEsotericScripts()" style="width:100%; padding:12px; background:rgba(0,0,0,0.5); border:1px solid rgba(167,139,250,0.3); color:white; border-radius:8px; outline:none; font-size:0.9rem;">
+                        </div>
+
+                        <!-- Categories -->
+                        <div style="display:flex; gap:8px; margin-bottom:1.5rem; flex-wrap:wrap;">
+                            <button class="tab-btn active" id="btn-eso-cat-1" onclick="window.selectEsotericCategory(1)" style="font-size:0.8rem; padding:6px 12px;">1. Αστρολογία</button>
+                            <button class="tab-btn" id="btn-eso-cat-2" onclick="window.selectEsotericCategory(2)" style="font-size:0.8rem; padding:6px 12px;">2. Μαντεία & Αλγόριθμοι</button>
+                            <button class="tab-btn" id="btn-eso-cat-3" onclick="window.selectEsotericCategory(3)" style="font-size:0.8rem; padding:6px 12px;">3. Ήχοι & Συχνότητες</button>
+                            <button class="tab-btn" id="btn-eso-cat-4" onclick="window.selectEsotericCategory(4)" style="font-size:0.8rem; padding:6px 12px;">4. Πειράματα & ESP</button>
+                            <button class="tab-btn" id="btn-eso-cat-5" onclick="window.selectEsotericCategory(5)" style="font-size:0.8rem; padding:6px 12px;">5. Υποσυνείδητο & Manifestation</button>
+                        </div>
+
+                        <div style="display:flex; gap:1.5rem; flex-direction:row; min-height:500px; flex-wrap:wrap;">
+                            <!-- Sidebar list -->
+                            <div id="eso-scripts-list" style="width:280px; display:flex; flex-direction:column; gap:6px; max-height:500px; overflow-y:auto; padding-right:10px; border-right:1px solid rgba(255,255,255,0.05); flex-shrink:0;">
+                                <!-- Script buttons injected here -->
+                            </div>
+
+                            <!-- Main details area -->
+                            <div style="flex:1; display:flex; flex-direction:column; min-width:300px;">
+                                <div style="border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:10px; margin-bottom:1.5rem;">
+                                    <span id="selected-script-number" style="font-size:0.8rem; color:#ffd700; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">SCRIPT #1</span>
+                                    <h2 id="selected-script-title" style="margin:0.25rem 0 0.5rem 0; color:white; font-size:1.6rem;">Script Title</h2>
+                                    <p id="selected-script-desc" style="color:var(--text-secondary); font-size:0.85rem; line-height:1.4; margin:0;"></p>
+                                </div>
+
+                                <!-- Sandbox Playground -->
+                                <div id="eso-script-playground" style="flex:1; min-height:280px; display:flex; flex-direction:column; justify-content:center;">
+                                    <!-- Interactive script content injected here -->
+                                </div>
+
+                                <!-- Audio status footer -->
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2rem; padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; border:1px solid rgba(167,139,250,0.2);">
+                                    <span style="font-size:0.85rem; color:var(--text-primary);">Ενεργός Ήχος Script: <b id="eso-script-status" style="color:#ffd700; margin-left:5px;">Ανενεργό</b></span>
+                                    <button onclick="window.MetaphysicalHub.stopAudio()" class="tab-btn active" style="padding:6px 12px; font-size:0.75rem; border-radius:20px; background:var(--danger); border-color:var(--danger); font-weight:bold;">
+                                        STOP AUDIO <i class="fa-solid fa-volume-xmark" style="margin-left:3px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
                 <section id="edgeanalytics-view" class="view-section hidden"><div id="edgeanalytics-tabs" class="filters-bar"></div><div id="edgeanalytics-content"></div></section>
                 <section id="science-view" class="view-section hidden"><div id="science-tabs" class="filters-bar"></div><div id="science-content"></div></section>
                 <section id="leisure-view" class="view-section hidden"><div id="leisure-tabs" class="filters-bar"></div><div id="leisure-content"></div></section>
@@ -243,9 +457,16 @@
                 <!-- PHASE 4 / EXTREME VIEWS -->
                 <section id="osint-view" class="view-section hidden"><div id="osint-tabs" class="filters-bar"></div><div id="osint-content"></div></section>
                 <section id="web3-view" class="view-section hidden"><div id="web3-tabs" class="filters-bar"></div><div id="web3-content"></div></section>
-                <section id="metaskills-view" class="view-section hidden"><div id="metaskills-tabs" class="filters-bar"></div><div id="metaskills-content"></div></section>
+                 <section id="metaskills-view" class="view-section hidden"><div id="metaskills-tabs" class="filters-bar"></div><div id="metaskills-content"></div></section>
+                 <section id="top-sites-view" class="view-section hidden">
+                     <div class="section-header">
+                         <h1>Top Global <span class="gradient-text">Sites</span></h1>
+                         <p>Τα 30 δημοφιλέστερα και κορυφαία sites παγκοσμίως από 30 διαφορετικές κατηγορίες, με ελληνική περιγραφή.</p>
+                     </div>
+                     <div id="top-sites-grid" class="recommendations-grid"></div>
+                 </section>
 
-                <!-- EXTREME HUB SECTIONS -->
+                 <!-- EXTREME HUB SECTIONS -->
                 <section id="security-fortress-view" class="view-section hidden">
                     <div class="section-header"><h1>Security <span class="gradient-text">Fortress</span></h1><p>Mission Control for Cyber Protection.</p></div>
                     <div class="security-tools-grid">
@@ -511,6 +732,37 @@ class OPAPLotteryMLPredictor:
         </div>
     </div>
 
+    <!-- SYNC & VERIFY MODAL -->
+    <div id="sync-verify-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 8, 17, 0.95); z-index: 10005; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+        <div class="glass-panel" style="width: 90%; max-width: 650px; padding: 2rem; border-color: rgba(59, 130, 246, 0.3); position: relative; box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+                <h2 style="color: white; margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                    <i id="modal-sync-icon" class="fa-solid fa-rotate" style="color: var(--accent-primary);"></i>
+                    Συγχρονισμός & Επαλήθευση Συστημάτων
+                </h2>
+                <button onclick="window.closeSyncVerifyModal()" style="background: transparent; border: none; color: #888; font-size: 1.5rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="sync-checklist" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; max-height: 300px; overflow-y: auto; padding-right: 5px;">
+                <!-- Sync items injected dynamically -->
+            </div>
+            
+            <div id="sync-coupon-data" style="display: none; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem; margin-top: 1rem;">
+                <h3 style="color: white; font-size: 1rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-receipt" style="color: var(--success);"></i>
+                    Live Κουπόνι Πάμε Στοίχημα (ΟΠΑΠ)
+                </h3>
+                <div id="sync-coupon-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; padding-right: 5px;">
+                    <!-- Matches injected dynamically -->
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+                <button onclick="window.closeSyncVerifyModal()" class="tab-btn active" style="padding: 10px 24px; border-radius: 20px;">Κλείσιμο</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         localStorage.setItem('dashboard_access', 'true');
         document.addEventListener('DOMContentLoaded', () => {
@@ -544,7 +796,8 @@ class OPAPLotteryMLPredictor:
         });
     </script>
     <script src="./js/secret-data.js?v=4"></script>
-    <script src="./js/api_v4.js"></script>
-    <script src="./js/app_v4.js"></script>
+    <script src="./js/metaphysical_hub.js?v=4"></script>
+    <script src="./js/api_v4.js?v=4"></script>
+    <script src="./js/app_v4.js?v=4"></script>
 </body>
 </html>

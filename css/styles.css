@@ -1921,3 +1921,85 @@ h6 {
     transform: translateY(-1px);
 }
 
+/* =========================================================================
+   PREMIUM LOGO & ESOTERIC HUB STYLING ENHANCEMENTS
+   ========================================================================= */
+
+.logo h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #ffd700, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+    animation: logoGlow 4s ease-in-out infinite alternate;
+}
+
+.logo i {
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, #ffd700, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.6));
+    animation: logoPulse 2.5s ease-in-out infinite alternate;
+}
+
+.logo span {
+    color: #fff;
+    font-weight: 300;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+@keyframes logoPulse {
+    from {
+        transform: scale(1);
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+    }
+    to {
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.8));
+    }
+}
+
+@keyframes logoGlow {
+    0% {
+        filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.4));
+    }
+    100% {
+        filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.7));
+    }
+}
+
+/* Esoteric layout fixes - prevent truncation & show graphics clearly */
+#eso-scripts-list {
+    max-height: 650px !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(167, 139, 250, 0.4) rgba(255, 255, 255, 0.02) !important;
+}
+
+#eso-scripts-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+#eso-scripts-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+#eso-scripts-list::-webkit-scrollbar-thumb {
+    background-color: rgba(167, 139, 250, 0.4);
+    border-radius: 3px;
+}
+
+#eso-script-playground {
+    min-height: 400px !important;
+    overflow-y: auto !important;
+    padding: 1rem;
+    border-radius: var(--border-radius-md);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(167, 139, 250, 0.15);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+

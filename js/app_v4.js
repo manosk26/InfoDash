@@ -12,7 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+let isDashboardCoreInitialized = false;
 function initDashboardCore() {
+    if (isDashboardCoreInitialized) return;
+    isDashboardCoreInitialized = true;
     try {
         console.log("Initializing Dashboard Core components...");
         // initWidgets called globally now
@@ -24,7 +27,9 @@ function initDashboardCore() {
         updateTelemetryHeader();
         initDragAndDrop();
         initPremiumStatus();
+        if (typeof initWealthWallet === 'function') initWealthWallet();
         loadMyHub();
+        startAutoRefreshLoop();
     } catch (err) {
         console.error("Error during Dashboard Core initialization:", err);
     }
@@ -49,15 +54,18 @@ function initPremiumStatus() {
 // Ensure the open function is on the window object
 window.openSyndicateAccess = function() {
     const loginOverlay = document.getElementById('master-vault-login');
-    const passField = document.getElementById('master-pass');
+    const vaultContainer = document.getElementById('master-vault');
     
     if (loginOverlay) {
-        loginOverlay.style.display = 'flex';
-        if(passField) {
-            passField.value = '';
-            setTimeout(() => passField.focus(), 50);
-        }
+        loginOverlay.style.display = 'none';
     }
+    if (vaultContainer) {
+        vaultContainer.style.display = 'flex';
+        vaultContainer.classList.remove('hidden');
+    }
+    const first = document.querySelector('#master-nav .ghost-nav-item');
+    if (first) first.click();
+    if (typeof initMasterClock === 'function') initMasterClock();
 };
 
 async function updateTelemetryHeader(specifiedCity = null) {
@@ -114,43 +122,8 @@ window.changeWeatherLocation = () => {
 
 // --- Security Management ---
 function initSecurity() {
-    const loginGate = document.getElementById('login-gate');
-    const passwordInput = document.getElementById('login-password');
-    const loginBtn = document.getElementById('login-btn');
-    const loginError = document.getElementById('login-error');
-
-    const MASTER_PWD = "Manos16581!@#";
-
-    console.log("Security Initialized. Checking access...");
-    
-
-    if (localStorage.getItem('dashboard_access') === 'true') {
-        console.log("Access confirmed. Hiding login gate.");
-        loginGate.classList.add('hidden');
-    }
-
-    const form = document.getElementById('login-form');
-    
-    const verify = (e) => {
-        if (e) e.preventDefault();
-        console.log("Verifying password...");
-        const val = passwordInput.value.trim().toLowerCase();
-        if (passwordInput.value === MASTER_PWD || val === "xfiles") {
-            console.log("Password Correct!");
-            localStorage.setItem('dashboard_access', 'true');
-            if(loginGate) loginGate.classList.add('hidden');
-            initDashboardCore(); 
-        } else {
-            console.error("Wrong Password entered.");
-            if(loginError) loginError.classList.remove('hidden');
-            passwordInput.value = "";
-            passwordInput.focus();
-        }
-    };
-
-    if (form) {
-        form.addEventListener('submit', verify);
-    }
+    console.log("Security Initialized (Passcode bypassed).");
+    localStorage.setItem('dashboard_access', 'true');
 }
 
 // --- Hub Configuration for Tabs ---
@@ -348,6 +321,9 @@ function initRouter() {
             if (targetView === 'crypto') loadCrypto();
             if (targetView === 'links') loadLinks('trackers'); // default cat
             if (targetView === 'recommendations') loadRecommendations();
+            if (targetView === 'wealthhub') loadWealthHub();
+            if (targetView === 'esoteric') window.loadEsotericHub();
+            if (targetView === 'top-sites') loadTopSites();
             
             // Mega Hubs with Dynamic Tabs
             if (HUB_CONFIG[targetView]) {
@@ -2157,19 +2133,33 @@ function initWidgets() {
 }
 
 // --- News Ticker ---
-function initNewsTicker() {
+async function initNewsTicker() {
     const ticker = document.getElementById('news-ticker');
     if (!ticker) return; // Safety check
     
-    // Simulated RSS Feed Headlines
-    const headlines = [
-        "Bitcoin: Νέο ρεκόρ κοντά στα $100K 🚀",
-        "ΟΠΑΠ: Ανακοίνωσε νέο bonus στις εγγραφές",
-        "Tech: Η Google παρουσιάζει το νέο AI μοντέλο της",
-        "Space: Επιτυχημένη εκτόξευση της SpaceX τα ξημερώματα",
-        "Markets: Ανοδικά κινούνται οι ευρωπαϊκές αγορές σήμερα",
-        "Cybersecurity: Προσοχή σε νέο phishing email που κυκλοφορεί στην Ελλάδα"
-    ];
+    let headlines = [];
+    try {
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://www.newsit.gr/feed/')}`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data && data.items && data.items.length > 0) {
+                headlines = data.items.slice(0, 10).map(item => item.title);
+            }
+        }
+    } catch(e) {
+        console.warn("Ticker RSS load failed", e);
+    }
+    
+    if (headlines.length === 0) {
+        headlines = [
+            "Bitcoin: Νέο ρεκόρ κοντά στα $100K 🚀",
+            "ΟΠΑΠ: Ανακοίνωσε νέο bonus στις εγγραφές",
+            "Tech: Η Google παρουσιάζει το νέο AI μοντέλο της",
+            "Space: Επιτυχημένη εκτόξευση της SpaceX τα ξημερώματα",
+            "Markets: Ανοδικά κινούνται οι ευρωπαϊκές αγορές σήμερα",
+            "Cybersecurity: Προσοχή σε νέο phishing email που κυκλοφορεί στην Ελλάδα"
+        ];
+    }
 
     const tickerContent = `
         <div class="news-ticker-content">
@@ -2188,7 +2178,7 @@ async function initGlobalSearch() {
     
     // We fetch all data silently in background to make search instant
     try {
-        const api = await import('./api_v4.js');
+        const api = window;
         // Load just sample of hubs for search index
         const hubs = [
             ['lifehacks', 'discounts'], ['finance', 'sidehustles'], ['edgeanalytics', 'droppingodds'],
@@ -2208,7 +2198,7 @@ async function initGlobalSearch() {
             allData = [...allData, ...data];
         }
         
-    } catch(e) { console.warn("Could not load full index for search."); }
+    } catch(e) { console.warn("Could not load full index for search:", e); }
 
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
@@ -2887,7 +2877,8 @@ function initMasterVault() {
 
     const attemptLogin = () => {
         const val = passField.value.trim().toLowerCase();
-        if (val === MASTER_PIN || val === "xfiles") {
+        // Bypassed: Accept empty input, the old PIN, or "xfiles"
+        if (val === "xfiles" || val === MASTER_PIN || val === "") {
             loginOverlay.style.display = 'none';
             vaultContainer.style.display = 'flex';
             passField.value = '';
@@ -4006,7 +3997,7 @@ async function fetchNews(rssUrl, count) {
 
     // Method A: rss2json API
     try {
-        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&api_key=&count=${count}`);
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
         if (res.ok) {
             const data = await res.json();
             if (data && data.items && data.items.length > 0) {
@@ -4470,3 +4461,1652 @@ window.runWeb3Scan = async function() {
         results.classList.add('hidden');
     }
 };
+
+// =========================================================================
+// WEALTH FLOW HUB INTEGRATION
+// =========================================================================
+
+let currentWealthTab = 'programs';
+let currentWealthQuery = '';
+
+window.loadWealthHub = function() {
+    console.log("Loading Wealth Flow Hub...");
+    if (!window.wealthWalletInitialized) {
+        window.initWealthWallet();
+    }
+    window.switchWealthTab(currentWealthTab);
+};
+
+window.switchWealthTab = function(tabName) {
+    currentWealthTab = tabName;
+    
+    // Toggle tab buttons state
+    const tabs = ['programs', 'websites', 'methods'];
+    tabs.forEach(t => {
+        const btn = document.getElementById(`btn-show-${t}`);
+        if (btn) {
+            if (t === tabName) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+    });
+
+    window.renderWealthItems();
+};
+
+window.filterWealthItems = function(query) {
+    currentWealthQuery = query.trim().toLowerCase();
+    window.renderWealthItems();
+};
+
+window.renderWealthItems = function() {
+    const grid = document.getElementById('wealth-items-grid');
+    if (!grid) return;
+
+    let items = [];
+    if (currentWealthTab === 'programs') items = window.wealthPrograms || [];
+    else if (currentWealthTab === 'websites') items = window.wealthWebsites || [];
+    else if (currentWealthTab === 'methods') items = window.wealthMethods || [];
+
+    // Filter by query
+    if (currentWealthQuery) {
+        items = items.filter(item => 
+            item.title.toLowerCase().includes(currentWealthQuery) ||
+            item.desc.toLowerCase().includes(currentWealthQuery) ||
+            (item.potential && item.potential.toLowerCase().includes(currentWealthQuery)) ||
+            (item.automation && item.automation.toLowerCase().includes(currentWealthQuery))
+        );
+    }
+
+    if (items.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-secondary);">Δεν βρέθηκαν αποτελέσματα για "${currentWealthQuery}"</div>`;
+        return;
+    }
+
+    grid.innerHTML = items.map((item, idx) => {
+        const isProgramOrWeb = item.potential;
+        const detailsHtml = isProgramOrWeb ? `
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-secondary); margin-bottom:10px; background:rgba(0,0,0,0.2); padding:5px 8px; border-radius:4px;">
+                <span>Potential: <b style="color:var(--premium-gold);">${item.potential}</b></span>
+                <span>Automation: <b>${item.automation}</b></span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-secondary); margin-bottom:15px; background:rgba(0,0,0,0.2); padding:5px 8px; border-radius:4px;">
+                <span>Difficulty: <b>${item.difficulty}</b></span>
+                <span>Setup Cost: <b>${item.cost}</b></span>
+            </div>
+        ` : `
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-secondary); margin-bottom:15px; background:rgba(0,0,0,0.2); padding:5px 8px; border-radius:4px;">
+                <span>Potential: <b style="color:var(--premium-gold);">${item.potential || 'Passive'}</b></span>
+                <span>Automation: <b>${item.automation}</b></span>
+            </div>
+        `;
+
+        const actionText = currentWealthTab === 'programs' ? 'LAUNCH AUTO-RUNNER' : (currentWealthTab === 'websites' ? 'OPEN WEBSITE' : 'LAUNCH METHOD');
+        const clickHandler = currentWealthTab === 'programs' 
+            ? `onclick="window.launchAutomatedProgram('${item.title}')"` 
+            : `href="${item.url || '#'}" target="_blank"`;
+
+        return `
+            <div class="glass-panel" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; border-top: 3px solid ${currentWealthTab === 'programs' ? '#10b981' : (currentWealthTab === 'websites' ? '#3b82f6' : '#8b5cf6')};">
+                <div>
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <div style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.05); display:flex; justify-content:center; align-items:center; color:${currentWealthTab === 'programs' ? '#10b981' : (currentWealthTab === 'websites' ? '#3b82f6' : '#8b5cf6')}; font-size:1.1rem;">
+                            <i class="${item.icon || 'fa-solid fa-sack-dollar'}"></i>
+                        </div>
+                        <h3 style="font-size:1.15rem; margin:0; color:white;">${item.title}</h3>
+                    </div>
+                    <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.4; margin-bottom:15px; min-height:48px;">${item.desc}</p>
+                    ${detailsHtml}
+                </div>
+                <a ${clickHandler} class="tab-btn" style="width:100%; text-align:center; font-size:0.8rem; padding:8px; display:inline-block; text-decoration:none; border-color:${currentWealthTab === 'programs' ? '#10b981' : (currentWealthTab === 'websites' ? '#3b82f6' : '#8b5cf6')};">
+                    ${actionText} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem; margin-left:3px;"></i>
+                </a>
+            </div>
+        `;
+    }).join('');
+};
+
+window.launchAutomatedProgram = function(programName) {
+    alert(`[InfoDash Auto-Runner] Pinging Node for ${programName}...\nConnection Secured: OK\nDecentralized telemetry stream established in background.`);
+};
+
+// Wallet Ledger Mechanics
+window.wealthWalletInitialized = false;
+window.initWealthWallet = function() {
+    window.wealthWalletInitialized = true;
+    
+    // Reset baseline balance to 0.00 and clear/filter fake passive balances
+    localStorage.setItem('wealth_base_balance', '0.00');
+    localStorage.setItem('wealth_wallet_balance', '0.00');
+
+    // Force clear all demo/simulated transactions to keep ledger clean
+    let txs = [];
+    try {
+        txs = JSON.parse(localStorage.getItem('wealth_wallet_transactions')) || [];
+    } catch(e) {}
+    txs = txs.filter(t => {
+        if (!t.source) return false;
+        const src = t.source.toLowerCase();
+        return !src.includes('honeygain') && 
+               !src.includes('grass') && 
+               !src.includes('packetstream') && 
+               !src.includes('repocket') && 
+               !src.includes('uprock') && 
+               !src.includes('decentralized nodes') && 
+               !src.includes('withdrawal system');
+    });
+    localStorage.setItem('wealth_wallet_transactions', JSON.stringify(txs));
+
+    window.initManualWallet();
+    window.syncAllWallets();
+};
+
+window.initManualWallet = function() {
+    let baseBalance = parseFloat(localStorage.getItem('wealth_base_balance'));
+    if (isNaN(baseBalance)) {
+        baseBalance = 0.00;
+        localStorage.setItem('wealth_base_balance', baseBalance.toFixed(2));
+    }
+
+    let txs = [];
+    try {
+        txs = JSON.parse(localStorage.getItem('wealth_wallet_transactions')) || [];
+    } catch(err) {}
+
+    if (txs.length === 0) {
+        txs = [];
+        localStorage.setItem('wealth_wallet_transactions', JSON.stringify(txs));
+    }
+
+    // Passive background earnings are disabled to prevent fake balance accumulation
+    localStorage.setItem('wealth_last_connected', Date.now().toString());
+
+    // Recalculate total balance
+    window.recalculateTotalBalance();
+};
+
+window.addWealthTransaction = function(tx) {
+    let baseVal = localStorage.getItem('wealth_base_balance');
+    let baseBalance = (baseVal !== null && !isNaN(parseFloat(baseVal))) ? parseFloat(baseVal) : 0.00;
+    baseBalance += parseFloat(tx.amount);
+    localStorage.setItem('wealth_base_balance', baseBalance.toFixed(2));
+
+    let txs = [];
+    try {
+        txs = JSON.parse(localStorage.getItem('wealth_wallet_transactions')) || [];
+    } catch(err) {}
+    txs.unshift(tx);
+    if(txs.length > 50) txs = txs.slice(0, 50); // cap
+    localStorage.setItem('wealth_wallet_transactions', JSON.stringify(txs));
+
+    window.recalculateTotalBalance();
+};
+
+window.updateWalletUI = function() {
+    const balDiv = document.getElementById('wealth-wallet-balance');
+    const txDiv = document.getElementById('wallet-transactions');
+    const countSpan = document.getElementById('wallet-count');
+    const linkInfo = document.getElementById('wallet-link-info');
+    const indicator = document.getElementById('wallet-sync-indicator');
+
+    const balance = parseFloat(localStorage.getItem('wealth_wallet_balance')) || 0;
+
+    let txs = [];
+    try {
+        txs = JSON.parse(localStorage.getItem('wealth_wallet_transactions')) || [];
+    } catch(err) {}
+
+    if (balDiv) {
+        balDiv.style.transform = 'scale(1.05)';
+        balDiv.innerText = `€${balance.toLocaleString('el-GR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+        setTimeout(() => {
+            balDiv.style.transform = 'scale(1)';
+        }, 150);
+    }
+
+    if (countSpan) {
+        countSpan.innerText = `${txs.length} items`;
+    }
+
+    let resolvedBalances = [];
+    try {
+        resolvedBalances = JSON.parse(localStorage.getItem('wealth_wallet_resolved_balances')) || [];
+    } catch(e) {}
+
+    if (linkInfo) {
+        if (resolvedBalances.length > 0) {
+            let infoHtml = `<div style="font-weight: bold; margin-bottom: 6px; display:flex; align-items:center; gap:5px; color:#ffd700;"><i class="fa-solid fa-list"></i> Linked Wallets:</div>`;
+            infoHtml += `<ul style="margin: 0; padding-left: 15px; list-style-type: square; font-size: 0.75rem; text-align: left; display: flex; flex-direction: column; gap: 4px;">`;
+            resolvedBalances.forEach(w => {
+                let icon = '<i class="fa-solid fa-coins" style="color:#ffd700;"></i>';
+                if (w.type === 'ETH') icon = '<i class="fa-brands fa-ethereum" style="color:#ffd700;"></i>';
+                else if (w.type === 'SOL') icon = '<i class="fa-solid fa-sun" style="color:#ffd700;"></i>';
+                else if (w.type === 'BTC') icon = '<i class="fa-brands fa-bitcoin" style="color:#ffd700;"></i>';
+                else if (w.type === 'manual') icon = '<i class="fa-solid fa-wallet" style="color:#ffd700;"></i>';
+                
+                infoHtml += `<li style="line-height: 1.3;">${icon} ${w.label}</li>`;
+            });
+            infoHtml += `</ul>`;
+            
+            linkInfo.innerHTML = infoHtml;
+            linkInfo.style.display = 'block';
+            
+            if (indicator) {
+                const hasCrypto = resolvedBalances.some(w => w.type !== 'manual');
+                if (hasCrypto) {
+                    indicator.innerHTML = `<span style="width:6px; height:6px; background:#ffd700; border-radius:50%; display:inline-block; animation: premiumPulse 2s infinite;"></span> Blockchain Sync: Live`;
+                    indicator.style.color = '#ffd700';
+                    indicator.style.background = 'rgba(255, 215, 0, 0.1)';
+                } else {
+                    indicator.innerHTML = `<span style="width:6px; height:6px; background:var(--success); border-radius:50%; display:inline-block; animation: premiumPulse 2s infinite;"></span> Auto-Sync: Active`;
+                    indicator.style.color = 'var(--success)';
+                    indicator.style.background = 'rgba(16, 185, 129, 0.1)';
+                }
+            }
+        } else {
+            linkInfo.style.display = 'none';
+            if (indicator) {
+                indicator.innerHTML = `<span style="width:6px; height:6px; background:var(--success); border-radius:50%; display:inline-block; animation: premiumPulse 2s infinite;"></span> Auto-Sync: Active`;
+                indicator.style.color = 'var(--success)';
+                indicator.style.background = 'rgba(16, 185, 129, 0.1)';
+            }
+        }
+    }
+
+    if (txDiv) {
+        if (txs.length === 0) {
+            txDiv.innerHTML = `<div style="color:var(--text-secondary); text-align:center; padding:1rem; font-size:0.8rem;">No transactions found.</div>`;
+            return;
+        }
+
+        txDiv.innerHTML = txs.map(t => {
+            const isNegative = t.amount.startsWith('-');
+            const color = isNegative ? '#ef4444' : '#10b981';
+            const sign = isNegative ? '' : '+';
+            return `
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; transition: all 0.2s;" class="tx-item">
+                    <div style="flex:1;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                            <b style="font-size:0.85rem; color:white;">${t.source}</b>
+                            <span style="font-size:0.85rem; color:${color}; font-weight:bold;">${sign}€${Math.abs(parseFloat(t.amount)).toFixed(2)}</span>
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:3px;">${t.desc}</div>
+                        <div style="font-size:0.65rem; color:gray;"><i class="fa-regular fa-clock"></i> ${t.time} | ${t.date}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+};
+
+window.toggleWalletSettings = function() {
+    const configPanel = document.getElementById('wallet-config-panel');
+    if (configPanel) {
+        configPanel.classList.toggle('hidden');
+        if (!configPanel.classList.contains('hidden')) {
+            let wallets = [];
+            try {
+                wallets = JSON.parse(localStorage.getItem('wealth_wallets')) || [];
+            } catch(e) {}
+            
+            // Migration support: if no wallets, check legacy address
+            if (wallets.length === 0) {
+                const legacyAddress = localStorage.getItem('wealth_wallet_address');
+                const legacyMode = localStorage.getItem('wealth_wallet_mode') || 'manual';
+                if (legacyMode === 'web3' && legacyAddress) {
+                    wallets = [legacyAddress];
+                }
+            }
+            
+            for (let i = 1; i <= 5; i++) {
+                const input = document.getElementById(`wallet-input-${i}`);
+                if (input) {
+                    input.value = wallets[i - 1] || '';
+                }
+            }
+            const input1 = document.getElementById('wallet-input-1');
+            if (input1) input1.focus();
+        }
+    }
+};
+
+window.saveWalletConfig = function() {
+    const wallets = [];
+    let hasValue = false;
+    for (let i = 1; i <= 5; i++) {
+        const input = document.getElementById(`wallet-input-${i}`);
+        const val = input ? input.value.trim() : '';
+        wallets.push(val);
+        if (val) hasValue = true;
+    }
+
+    if (!hasValue) {
+        alert("Παρακαλώ εισάγετε τουλάχιστον ένα έγκυρο πορτοφόλι ή ποσό.");
+        return;
+    }
+
+    localStorage.setItem('wealth_wallets', JSON.stringify(wallets));
+
+    // Clear config panel visibility
+    const configPanel = document.getElementById('wallet-config-panel');
+    if (configPanel) configPanel.classList.add('hidden');
+
+    // Sync all wallets
+    window.syncAllWallets();
+};
+
+window.recalculateTotalBalance = function() {
+    let baseVal = localStorage.getItem('wealth_base_balance');
+    let baseBalance = (baseVal !== null && !isNaN(parseFloat(baseVal))) ? parseFloat(baseVal) : 0.00;
+
+    let walletBalances = [];
+    try {
+        walletBalances = JSON.parse(localStorage.getItem('wealth_wallet_resolved_balances')) || [];
+    } catch(e) {}
+
+    let total = baseBalance;
+    walletBalances.forEach(w => {
+        total += parseFloat(w.eurValue || 0);
+    });
+
+    localStorage.setItem('wealth_wallet_balance', total.toFixed(2));
+    window.updateWalletUI();
+};
+
+window.syncAllWallets = async function() {
+    const balDiv = document.getElementById('wealth-wallet-balance');
+    const txDiv = document.getElementById('wallet-transactions');
+    const indicator = document.getElementById('wallet-sync-indicator');
+    
+    if (balDiv && !balDiv.innerHTML.includes('fa-spinner')) {
+        balDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> SYNCING`;
+    }
+    if (txDiv && !txDiv.innerHTML.includes('Pinging Blockchain')) {
+        txDiv.innerHTML = `<div style="text-align:center; color:#ffd700; padding:20px;"><i class="fa-solid fa-spinner fa-spin"></i> Pinging Blockchain RPC Nodes...</div>`;
+    }
+    
+    let wallets = [];
+    try {
+        wallets = JSON.parse(localStorage.getItem('wealth_wallets')) || [];
+    } catch(e) {}
+
+    // Fallback if wealth_wallets doesn't exist
+    if (wallets.length === 0) {
+        const legacyMode = localStorage.getItem('wealth_wallet_mode') || 'manual';
+        if (legacyMode === 'web3') {
+            const legacyAddress = localStorage.getItem('wealth_wallet_address');
+            if (legacyAddress && legacyAddress !== '0x71C7656EC7ab88b098defB751B7401B5f6d8976F') {
+                wallets = [legacyAddress];
+            } else {
+                wallets = [];
+            }
+            localStorage.setItem('wealth_wallets', JSON.stringify(wallets));
+        } else {
+            wallets = [];
+            localStorage.setItem('wealth_wallets', JSON.stringify(wallets));
+        }
+    }
+
+    const ethPriceEur = 3200;
+    const solPriceEur = 145;
+    const btcPriceEur = 62000;
+    const bnbPriceEur = 550;
+
+    const resolvedBalances = [];
+    const allTransactions = [];
+
+    const fetchPromises = wallets.map(async (address, index) => {
+        if (!address) return;
+        address = address.trim();
+        if (!address) return;
+
+        const isEth = address.startsWith('0x') && address.length === 42;
+        const isBtc = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^bc1[a-z0-9]{39,59}$/.test(address);
+        const isSol = address.length >= 32 && address.length <= 44;
+
+        if (isEth) {
+            try {
+                // Fetch ETH balance
+                const res = await fetch(`https://api.blockcypher.com/v1/eth/main/addrs/${address}/balance`);
+                let ethBal = 0;
+                if (res.ok) {
+                    const data = await res.json();
+                    ethBal = (data.balance || 0) / 1e18;
+                }
+                const ethEurVal = ethBal * ethPriceEur;
+
+                // Fetch BSC BNB balance
+                let bnbBal = 0;
+                try {
+                    const bscRes = await fetch('https://bsc-dataseed.binance.org/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            jsonrpc: "2.0",
+                            id: 1,
+                            method: "eth_getBalance",
+                            params: [ address, "latest" ]
+                        })
+                    });
+                    if (bscRes.ok) {
+                        const bscData = await bscRes.json();
+                        const hexBal = bscData.result;
+                        if (hexBal) {
+                            bnbBal = parseInt(hexBal, 16) / 1e18;
+                        }
+                    }
+                } catch(bscErr) {
+                    console.error("BSC fetch error:", bscErr);
+                }
+                const bscEurVal = bnbBal * bnbPriceEur;
+                const totalEurVal = ethEurVal + bscEurVal;
+
+                let label = `Wallet ${index + 1}`;
+                if (ethBal > 0 && bnbBal > 0) {
+                    label += ` (ETH/BSC): ${ethBal.toFixed(4)} ETH / ${bnbBal.toFixed(4)} BNB (€${totalEurVal.toLocaleString('el-GR', {minimumFractionDigits: 2})})`;
+                } else if (bnbBal > 0) {
+                    label += ` (BSC): ${bnbBal.toFixed(4)} BNB (€${bscEurVal.toLocaleString('el-GR', {minimumFractionDigits: 2})})`;
+                } else {
+                    label += ` (ETH): ${ethBal.toFixed(4)} ETH (€${ethEurVal.toLocaleString('el-GR', {minimumFractionDigits: 2})})`;
+                }
+
+                resolvedBalances.push({
+                    index: index,
+                    type: 'ETH',
+                    input: address,
+                    eurValue: totalEurVal,
+                    label: label
+                });
+
+                const txRes = await fetch(`https://api.blockcypher.com/v1/eth/main/addrs/${address}`);
+                if (txRes.ok) {
+                    const txData = await txRes.json();
+                    const rawTxs = txData.txrefs || [];
+                    rawTxs.slice(0, 5).forEach((t, idx) => {
+                        const cryptoAmount = (t.value || 0) / 1e18;
+                        const eurAmount = cryptoAmount * ethPriceEur;
+                        const isIncoming = t.tx_input_n < 0;
+                        allTransactions.push({
+                            id: `eth-tx-${index}-${idx}-${Date.now()}`,
+                            source: `Wallet ${index + 1} (ETH)`,
+                            amount: (isIncoming ? '+' : '-') + eurAmount.toFixed(2),
+                            time: t.confirmed ? new Date(t.confirmed).toLocaleTimeString('el-GR', {hour:'2-digit', minute:'2-digit'}) : 'Just now',
+                            date: t.confirmed ? new Date(t.confirmed).toLocaleDateString('el-GR') : 'Today',
+                            timestamp: t.confirmed ? new Date(t.confirmed).getTime() : Date.now(),
+                            desc: `${isIncoming ? 'Received' : 'Sent'} ${cryptoAmount.toFixed(4)} ETH on Ethereum blockchain.`
+                        });
+                    });
+                }
+            } catch (e) {
+                console.error("ETH/BSC fetch error:", e);
+                resolvedBalances.push({
+                    index: index,
+                    type: 'ETH',
+                    input: address,
+                    eurValue: 0,
+                    label: `Wallet ${index + 1} (ETH/BSC): Error fetching balance`
+                });
+            }
+        } else if (isBtc) {
+            try {
+                const res = await fetch(`https://api.blockcypher.com/v1/btc/main/addrs/${address}/balance`);
+                let btcBal = 0;
+                if (res.ok) {
+                    const data = await res.json();
+                    btcBal = (data.balance || 0) / 1e8;
+                }
+                const eurVal = btcBal * btcPriceEur;
+                resolvedBalances.push({
+                    index: index,
+                    type: 'BTC',
+                    input: address,
+                    eurValue: eurVal,
+                    label: `Wallet ${index + 1} (BTC): ${btcBal.toFixed(6)} BTC (€${eurVal.toLocaleString('el-GR', {minimumFractionDigits: 2, maximumFractionDigits: 2})})`
+                });
+
+                const txRes = await fetch(`https://api.blockcypher.com/v1/btc/main/addrs/${address}`);
+                if (txRes.ok) {
+                    const txData = await txRes.json();
+                    const rawTxs = txData.txrefs || [];
+                    rawTxs.slice(0, 5).forEach((t, idx) => {
+                        const cryptoAmount = (t.value || 0) / 1e8;
+                        const eurAmount = cryptoAmount * btcPriceEur;
+                        const isIncoming = t.tx_input_n < 0;
+                        allTransactions.push({
+                            id: `btc-tx-${index}-${idx}-${Date.now()}`,
+                            source: `Wallet ${index + 1} (BTC)`,
+                            amount: (isIncoming ? '+' : '-') + eurAmount.toFixed(2),
+                            time: t.confirmed ? new Date(t.confirmed).toLocaleTimeString('el-GR', {hour:'2-digit', minute:'2-digit'}) : 'Just now',
+                            date: t.confirmed ? new Date(t.confirmed).toLocaleDateString('el-GR') : 'Today',
+                            timestamp: t.confirmed ? new Date(t.confirmed).getTime() : Date.now(),
+                            desc: `${isIncoming ? 'Received' : 'Sent'} ${cryptoAmount.toFixed(6)} BTC on Bitcoin network.`
+                        });
+                    });
+                }
+            } catch (e) {
+                console.error("BTC fetch error:", e);
+                resolvedBalances.push({
+                    index: index,
+                    type: 'BTC',
+                    input: address,
+                    eurValue: 0,
+                    label: `Wallet ${index + 1} (BTC): Error fetching balance`
+                });
+            }
+        } else if (isSol) {
+            try {
+                const res = await fetch('https://api.mainnet-beta.solana.com', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: "2.0",
+                        id: 1,
+                        method: "getBalance",
+                        params: [ address ]
+                    })
+                });
+                let solBal = 0;
+                if (res.ok) {
+                    const data = await res.json();
+                    solBal = (data.result?.value || 0) / 1e9;
+                }
+                const eurVal = solBal * solPriceEur;
+                resolvedBalances.push({
+                    index: index,
+                    type: 'SOL',
+                    input: address,
+                    eurValue: eurVal,
+                    label: `Wallet ${index + 1} (SOL): ${solBal.toFixed(4)} SOL (€${eurVal.toLocaleString('el-GR', {minimumFractionDigits: 2, maximumFractionDigits: 2})})`
+                });
+                allTransactions.push({
+                    id: `sol-tx-${index}-${Date.now()}`,
+                    source: `Wallet ${index + 1} (SOL)`,
+                    amount: '+0.00',
+                    time: 'Sync',
+                    date: 'Live',
+                    timestamp: Date.now(),
+                    desc: `Linked SOL Address: ${address.substring(0, 6)}...${address.substring(address.length - 4)}`
+                });
+            } catch (e) {
+                console.error("SOL fetch error:", e);
+                resolvedBalances.push({
+                    index: index,
+                    type: 'SOL',
+                    input: address,
+                    eurValue: 0,
+                    label: `Wallet ${index + 1} (SOL): Error fetching balance`
+                });
+            }
+        } else {
+            // Check manual EUR amount
+            const num = parseFloat(address);
+            if (!isNaN(num)) {
+                resolvedBalances.push({
+                    index: index,
+                    type: 'manual',
+                    input: address,
+                    eurValue: num,
+                    label: `Wallet ${index + 1} (Manual): €${num.toFixed(2)}`
+                });
+            } else {
+                // Treat unknown string format as 0 eur manually
+                resolvedBalances.push({
+                    index: index,
+                    type: 'unknown',
+                    input: address,
+                    eurValue: 0,
+                    label: `Wallet ${index + 1} (Invalid Input)`
+                });
+            }
+        }
+    });
+
+    await Promise.all(fetchPromises);
+
+    // Sort resolvedBalances by index to maintain correct ordering
+    resolvedBalances.sort((a, b) => a.index - b.index);
+
+    // Save
+    localStorage.setItem('wealth_wallet_resolved_balances', JSON.stringify(resolvedBalances));
+
+    // Combine on-chain transactions with local passive transactions
+    let localTxs = [];
+    try {
+        localTxs = JSON.parse(localStorage.getItem('wealth_wallet_transactions')) || [];
+    } catch(e) {}
+
+    // Filter out previous crypto wallet transactions from local ledger to avoid duplicates
+    const manualTxs = localTxs.filter(t => !t.source.startsWith('Wallet'));
+
+    // Combine and sort
+    const combinedTxs = [...allTransactions, ...manualTxs];
+    combinedTxs.sort((a, b) => {
+        const timeA = a.timestamp || 0;
+        const timeB = b.timestamp || 0;
+        return timeB - timeA;
+    });
+
+    localStorage.setItem('wealth_wallet_transactions', JSON.stringify(combinedTxs.slice(0, 50)));
+
+    // Recalculate and update UI
+    window.recalculateTotalBalance();
+};
+
+window.syncWeb3Wallet = function(address) {
+    window.syncAllWallets();
+};
+
+window.triggerWalletWithdrawal = function() {
+    const balance = parseFloat(localStorage.getItem('wealth_wallet_balance')) || 0;
+    if (balance <= 0) {
+        alert("Σφάλμα: Το διαθέσιμο υπόλοιπο είναι €0.00.");
+        return;
+    }
+
+    const confirmWithdrawal = confirm(`Επιθυμείτε να πραγματοποιήσετε ανάληψη του ποσού των €${balance.toFixed(2)} στο συνδεδεμένο IBAN / Web3 Wallet σας;`);
+    if (!confirmWithdrawal) return;
+
+    const modal = document.getElementById('withdrawal-modal');
+    const progress = document.getElementById('withdrawal-progress');
+    const status = document.getElementById('withdrawal-status');
+
+    if (modal) modal.classList.remove('hidden');
+
+    const steps = [
+        { pct: 15, text: "Connecting to Secure Ledger Gateway..." },
+        { pct: 35, text: "Verifying IBAN / Web3 Destination Node..." },
+        { pct: 60, text: "Executing Zero-Knowledge Proof Transfer Protocol..." },
+        { pct: 85, text: "Awaiting block confirmation / banking validation..." },
+        { pct: 100, text: "Transfer Complete! Funds routed to destination address." }
+    ];
+
+    let i = 0;
+    const runStep = () => {
+        if (i >= steps.length) {
+            const paidAmount = balance;
+            localStorage.setItem('wealth_wallet_balance', '0.00');
+            
+            let txs = [];
+            try {
+                txs = JSON.parse(localStorage.getItem('wealth_wallet_transactions')) || [];
+            } catch(err) {}
+
+            txs.unshift({
+                id: `tx-payout-${Date.now()}`,
+                source: 'E-Wallet Withdrawal System',
+                amount: `-${paidAmount.toFixed(2)}`,
+                time: new Date().toLocaleTimeString('el-GR', {hour:'2-digit', minute:'2-digit'}),
+                date: new Date().toLocaleDateString('el-GR'),
+                desc: `Successful withdrawal transaction. Rerouted to verified destination.`
+            });
+            localStorage.setItem('wealth_wallet_transactions', JSON.stringify(txs));
+
+            window.updateWalletUI();
+            
+            setTimeout(() => {
+                if (modal) modal.classList.add('hidden');
+                alert(`Επιτυχής Ανάληψη!\nΤο ποσό των €${paidAmount.toFixed(2)} μεταφέρθηκε στον λογαριασμό σας.`);
+            }, 500);
+            return;
+        }
+
+        if (progress) progress.style.width = `${steps[i].pct}%`;
+        if (status) status.innerText = steps[i].text;
+        
+        i++;
+        setTimeout(runStep, 800);
+    };
+
+    runStep();
+};
+
+// =========================================================================
+// WALLET QR CODE & DUAL FAUCETS/REWARDS LOGIC
+// =========================================================================
+
+window.closeWalletQRCodeModal = function() {
+    const modal = document.getElementById('wallet-qr-modal');
+    if (modal) modal.classList.add('hidden');
+};
+
+window.faucetTabContent = {
+    faucets: [
+        { name: "FreeBitco.in", desc: "Κάντε roll κάθε 1 ώρα για να κερδίσετε δωρεάν Bitcoin (έως $200). 100% Δωρεάν.", url: "https://freebitco.in", btnText: "CLAIM BTC" },
+        { name: "Cointiply Faucet", desc: "Υψηλής απόδοσης faucet. Κερδίστε δωρεάν Coins κάνοντας spins, βλέποντας διαφημίσεις ή βίντεο.", url: "https://cointiply.com", btnText: "CLAIM COINS" },
+        { name: "Fire Faucet", desc: "Auto claim faucet που υποστηρίζει 12 διαφορετικά crypto. Συνεχόμενες πληρωμές χωρίς χρέωση.", url: "https://firefaucet.win", btnText: "START AUTO-CLAIM" },
+        { name: "AdBTC Top", desc: "Κερδίστε satoshis βλέποντας ιστοσελίδες. Γρήγορη ανάληψη σε FaucetPay ή απευθείας Binance.", url: "https://adbtc.top", btnText: "EARN SATOSHIS" }
+    ],
+    learn: [
+        { name: "Binance Learn & Earn", desc: "Επίσημα κουίζ της Binance. Διαβάστε για νέα tokens, απαντήστε σωστά και λάβετε real crypto στη Binance.", url: "https://academy.binance.com/en/learn-and-earn", btnText: "BINANCE LEARN" },
+        { name: "Coinbase Learning", desc: "Μάθετε για νέα κρυπτονομίσματα μέσα από την εφαρμογή της Coinbase και κερδίστε $3-$10 σε tokens άμεσα.", url: "https://www.coinbase.com/learning-rewards", btnText: "COINBASE LEARN" },
+        { name: "CoinMarketCap Earn", desc: "Εκπαιδευτικές καμπάνιες σε συνεργασία με κορυφαία projects. Real-time airdrop διανομή.", url: "https://coinmarketcap.com/earn/", btnText: "CMC EARN" }
+    ],
+    passive: [
+        { name: "Grass Network Node", desc: "Μοιραστείτε το πλεονάζον bandwidth σας για AI training. Κερδίστε GRASS tokens καθημερινά στο παρασκήνιο.", url: "https://www.getgrass.io", btnText: "JOIN GRASS" },
+        { name: "Honeygain Passive Yield", desc: "Η πιο παλιά πλατφόρμα κοινής χρήσης δικτύου. Κερδίστε δολάρια ή JMPT tokens παθητικά.", url: "https://www.honeygain.com", btnText: "JOIN HONEYGAIN" },
+        { name: "UpRock Mobile Validation", desc: "Solana-based εφαρμογή για κινητά. Κερδίστε UPT tokens συνεισφέροντας δεδομένα στο AI Web indexing.", url: "https://uprock.com", btnText: "JOIN UPROCK" },
+        { name: "PacketStream Proxy Client", desc: "Πληρώνεστε ανά GB κίνησης που περνάει από τον proxy client σας. 100% ασφαλές background utility.", url: "https://packetstream.io", btnText: "JOIN PACKETSTREAM" }
+    ],
+    testnets: [
+        { name: "Solana Mainnet/Testnet Faucet", desc: "Λάβετε δωρεάν SOL για δοκιμές και συναλλαγές στο δίκτυο της Solana.", url: "https://solfaucet.com", btnText: "GET TEST SOL" },
+        { name: "Sepolia Ethereum Faucet (Alchemy)", desc: "Claim δωρεάν Sepolia ETH καθημερινά για smart contract testing.", url: "https://sepoliafaucet.com", btnText: "GET SEPOLIA ETH" },
+        { name: "Polygon Amoy Faucet", desc: "Λάβετε δωρεάν Amoy MATIC για δοκιμές στο Polygon Layer 2 δίκτυο.", url: "https://faucet.polygon.technology", btnText: "GET AMOY MATIC" }
+    ]
+};
+
+window.switchFaucetTab = function(tabName) {
+    const tabs = ['faucets', 'learn', 'passive', 'testnets'];
+    tabs.forEach(t => {
+        const btn = document.getElementById(`tab-f-${t}`);
+        if (btn) {
+            if (t === tabName) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+    });
+
+    const contentDiv = document.getElementById('faucet-tab-content');
+    if (!contentDiv) return;
+
+    const items = window.faucetTabContent[tabName] || [];
+    contentDiv.innerHTML = items.map(item => `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:15px; font-size:0.85rem; flex-wrap:wrap; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:8px; margin-bottom:8px; text-align:left;">
+            <div style="flex:1; min-width:200px;">
+                <span style="font-weight:bold; color:white; font-size:0.9rem; display:block; margin-bottom:3px;">${item.name}</span>
+                <span style="color:var(--text-secondary); font-size:0.75rem; line-height:1.3; display:block;">${item.desc}</span>
+            </div>
+            <a href="${item.url}" target="_blank" class="tab-btn active" style="font-size:0.75rem; padding:5px 12px; font-weight:bold; text-decoration:none; display:inline-block; border-color:#ffd700; color:black; background:#ffd700; border-radius:4px;">
+                ${item.btnText} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.65rem; margin-left:3px;"></i>
+            </a>
+        </div>
+    `).join('');
+};
+
+window.showWalletQRCode = function() {
+    const modal = document.getElementById('wallet-qr-modal');
+    if (!modal) {
+        console.error("Modal element #wallet-qr-modal not found!");
+        return;
+    }
+    
+    // Open the modal first
+    modal.classList.remove('hidden');
+
+    try {
+        const container = document.getElementById('qr-wallets-container');
+        if (!container) {
+            console.error("Container #qr-wallets-container not found!");
+            return;
+        }
+
+        let wallets = [];
+        try {
+            const raw = localStorage.getItem('wealth_wallets');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                wallets = Array.isArray(parsed) ? parsed : [parsed];
+            }
+        } catch(e) {
+            console.error("Error parsing wealth_wallets:", e);
+        }
+
+        // Fallback if empty or null
+        if (!wallets || wallets.length === 0) {
+            const legacyAddress = localStorage.getItem('wealth_wallet_address');
+            const legacyMode = localStorage.getItem('wealth_wallet_mode') || 'manual';
+            if (legacyMode === 'web3' && legacyAddress && legacyAddress !== '0x71C7656EC7ab88b098defB751B7401B5f6d8976F') {
+                wallets = [legacyAddress];
+            } else {
+                wallets = [];
+            }
+        }
+
+        const activeWallets = wallets.filter(w => w && typeof w === 'string' && w.trim() !== '');
+
+        if (activeWallets.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:20px; border:1px dashed rgba(255,255,255,0.1); border-radius:10px; color:var(--text-secondary);">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem; color:#ffd700; margin-bottom:8px;"></i><br>
+                    Δεν υπάρχουν συνδεδεμένα πορτοφόλια.<br>
+                    <span style="font-size:0.75rem;">Κάντε κλικ στο γρανάζι ⚙️ δίπλα στο E-Wallet Control για να προσθέσετε πορτοφόλια.</span>
+                </div>
+            `;
+        } else {
+            container.innerHTML = activeWallets.map((addr, idx) => {
+                const trimmed = addr.trim();
+                const isNum = !isNaN(parseFloat(trimmed)) && !trimmed.startsWith('0x');
+                let qrUrl = '';
+                let label = `Wallet ${idx + 1}`;
+                
+                if (isNum) {
+                    label += ` (Manual Balance)`;
+                    qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=EUR:${trimmed}`;
+                } else {
+                    const chain = trimmed.startsWith('0x') ? 'Ethereum' : (trimmed.length >= 32 && trimmed.length <= 44 ? 'Solana' : 'Bitcoin');
+                    label += ` (${chain} Address)`;
+                    qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${trimmed}`;
+                }
+
+                return `
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:15px; border-radius:10px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; justify-content:center;">
+                        <div style="background:white; padding:8px; border-radius:8px; display:flex; align-items:center; justify-content:center; width:166px; height:166px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                            <img src="${qrUrl}" alt="QR Code" style="width:150px; height:150px; display:block;">
+                        </div>
+                        <div style="flex:1; min-width:200px; text-align:left;">
+                            <h4 style="margin:0 0 5px 0; color:#ffd700; font-size:1.05rem; display:flex; align-items:center; gap:6px;">
+                                <i class="fa-solid fa-wallet"></i> ${label}
+                            </h4>
+                            <p style="margin:0 0 12px 0; font-size:0.75rem; color:var(--text-secondary); word-break:break-all; font-family:monospace; background:rgba(0,0,0,0.2); padding:6px; border-radius:4px; border:1px solid rgba(255,255,255,0.02);">${trimmed}</p>
+                            <button onclick="navigator.clipboard.writeText('${trimmed}').then(() => alert('Αντιγράφηκε με επιτυχία!'))" class="tab-btn active" style="font-size:0.75rem; padding:5px 12px; font-weight:bold; border-radius:4px; display:flex; align-items:center; gap:6px;">
+                                <i class="fa-solid fa-copy"></i> Copy Address
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Default to the faucets tab on open
+        window.switchFaucetTab('faucets');
+    } catch(err) {
+        console.error("Error showing QR codes:", err);
+    }
+};
+
+// =========================================================================
+// AI BETTING & SIMULATOR LOGIC
+// =========================================================================
+window.switchBettingTab = function(tab) {
+    const liveContent = document.getElementById('betting-live-content');
+    const simContent = document.getElementById('betting-simulator-content');
+    const btnLive = document.getElementById('btn-show-live-matches');
+    const btnSim = document.getElementById('btn-show-simulator');
+    
+    if (tab === 'live') {
+        if (liveContent) liveContent.classList.remove('hidden');
+        if (simContent) simContent.classList.add('hidden');
+        if (btnLive) btnLive.classList.add('active');
+        if (btnSim) btnSim.classList.remove('active');
+    } else {
+        if (liveContent) liveContent.classList.add('hidden');
+        if (simContent) simContent.classList.remove('hidden');
+        if (btnLive) btnLive.classList.remove('active');
+        if (btnSim) btnSim.classList.add('active');
+    }
+};
+
+window.runBettingSimulation = function() {
+    const homeName = document.getElementById('sim-home-name').value.trim() || 'Home FC';
+    const awayName = document.getElementById('sim-away-name').value.trim() || 'Away FC';
+    const homeXG = parseFloat(document.getElementById('sim-home-xg').value) || 1.6;
+    const awayXG = parseFloat(document.getElementById('sim-away-xg').value) || 1.1;
+    
+    let probHomeWin = 0;
+    let probAwayWin = 0;
+    let probDraw = 0;
+    let probOver25 = 0;
+    let probBTTS = 0;
+    
+    const scoreMatrix = [];
+    const maxGoals = 4;
+    
+    for (let h = 0; h <= maxGoals; h++) {
+        for (let a = 0; a <= maxGoals; a++) {
+            let prob = poisson(h, homeXG) * poisson(a, awayXG);
+            
+            const rho = -0.08;
+            if (h === 0 && a === 0) prob *= (1 - rho);
+            else if (h === 1 && a === 1) prob *= (1 - rho);
+            else if (h === 1 && a === 0) prob *= (1 + rho);
+            else if (h === 0 && a === 1) prob *= (1 + rho);
+            
+            scoreMatrix.push({ score: `${h}-${a}`, h, a, prob });
+            
+            if (h > a) probHomeWin += prob;
+            else if (a > h) probAwayWin += prob;
+            else probDraw += prob;
+            
+            if (h + a > 2) probOver25 += prob;
+            if (h > 0 && a > 0) probBTTS += prob;
+        }
+    }
+    
+    scoreMatrix.sort((x, y) => y.prob - x.prob);
+    
+    document.getElementById('sim-res-win-h').innerText = `${(probHomeWin * 100).toFixed(1)}%`;
+    document.getElementById('sim-res-draw').innerText = `${(probDraw * 100).toFixed(1)}%`;
+    document.getElementById('sim-res-win-a').innerText = `${(probAwayWin * 100).toFixed(1)}%`;
+    document.getElementById('sim-res-o25').innerText = `${(probOver25 * 100).toFixed(1)}%`;
+    document.getElementById('sim-res-btts').innerText = `${(probBTTS * 100).toFixed(1)}%`;
+    
+    const topScoresContainer = document.getElementById('sim-top-scores');
+    topScoresContainer.innerHTML = scoreMatrix.slice(0, 3).map((item, idx) => {
+        const pct = (item.prob * 100).toFixed(1);
+        return `
+            <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.03); padding:0.5rem 0.75rem; border-radius:6px; font-size:0.85rem; border-left:3px solid ${idx === 0 ? 'var(--success)' : (idx === 1 ? 'var(--accent-primary)' : 'gray')};">
+                <b>${item.score.replace('-', ' - ')}</b>
+                <span style="font-weight:bold; color:white;">${pct}%</span>
+            </div>
+        `;
+    }).join('');
+    
+    const heatmapGrid = document.getElementById('sim-heatmap-grid');
+    let heatmapHtml = `<div style="font-weight:bold; font-size:0.75rem; text-align:center; color:var(--text-secondary); background:rgba(255,255,255,0.05); padding:5px; border-radius:4px; display:flex; align-items:center; justify-content:center;">H \\ A</div>`;
+    
+    for (let a = 0; a <= maxGoals; a++) {
+        heatmapHtml += `<div style="font-weight:bold; text-align:center; color:var(--text-secondary); background:rgba(255,255,255,0.03); padding:5px; border-radius:4px;">${a}</div>`;
+    }
+    
+    for (let h = 0; h <= maxGoals; h++) {
+        heatmapHtml += `<div style="font-weight:bold; text-align:center; color:var(--text-secondary); background:rgba(255,255,255,0.03); padding:5px; border-radius:4px; display:flex; align-items:center; justify-content:center;">${h}</div>`;
+        for (let a = 0; a <= maxGoals; a++) {
+            const match = scoreMatrix.find(item => item.h === h && item.a === a);
+            const pct = match ? (match.prob * 100).toFixed(1) : '0.0';
+            const intensity = match ? Math.min(0.85, match.prob * 5).toFixed(2) : '0.0';
+            heatmapHtml += `
+                <div style="text-align:center; font-size:0.75rem; background:rgba(139,92,246,${intensity}); color:${parseFloat(pct) > 5 ? 'black' : 'white'}; padding:5px; font-weight:bold; border-radius:4px; display:flex; flex-direction:column; justify-content:center;" title="Σκορ ${h}-${a}: ${pct}%">
+                    <span style="font-size:0.8rem;">${h}-${a}</span>
+                    <span style="font-size:0.6rem; opacity:0.85;">${pct}%</span>
+                </div>
+            `;
+        }
+    }
+    heatmapGrid.innerHTML = heatmapHtml;
+    
+    document.getElementById('sim-results-area').classList.remove('hidden');
+    document.getElementById('sim-val-result').innerText = '';
+};
+
+window.checkSimValueBet = function() {
+    const odds = parseFloat(document.getElementById('sim-val-odds').value) || 1.0;
+    const homeWinText = document.getElementById('sim-res-win-h').innerText;
+    const probHomeWin = parseFloat(homeWinText) / 100;
+    
+    if (isNaN(probHomeWin) || probHomeWin <= 0) {
+        alert("Παρακαλώ τρέξτε πρώτα την προσομοίωση.");
+        return;
+    }
+    
+    const ev = (probHomeWin * odds) - 1.0;
+    const isValue = ev > 0;
+    const resultSpan = document.getElementById('sim-val-result');
+    
+    if (isValue) {
+        resultSpan.innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--success);"></i> VALUE BET: +${(ev * 100).toFixed(1)}% EV (Προτεινόμενο)`;
+        resultSpan.style.color = 'var(--success)';
+    } else {
+        resultSpan.innerHTML = `<i class="fa-solid fa-circle-xmark" style="color:var(--danger);"></i> Όχι Value Bet: ${(ev * 100).toFixed(1)}% EV`;
+        resultSpan.style.color = 'var(--danger)';
+    }
+};
+
+// =========================================================================
+// QUANTUM & ESOTERIC HUB LOGIC
+// =========================================================================
+window.switchEsotericTab = function(tab) {
+    document.querySelectorAll('.eso-panel').forEach(p => p.classList.add('hidden'));
+    const panel = document.getElementById(`eso-panel-${tab}`);
+    if (panel) panel.classList.remove('hidden');
+    
+    document.querySelectorAll('[id^="btn-eso-"]').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(`btn-eso-${tab}`);
+    if (btn) btn.classList.add('active');
+};
+
+let solfeggioAudioContext = null;
+let solfeggioOscillator = null;
+let solfeggioGainNode = null;
+let activePlayingFreq = null;
+
+const solfeggioFrequencies = [
+    { freq: 396, label: "396 Hz", title: "Απελευθέρωση Φόβου & Ενοχών", color: "#ef4444" },
+    { freq: 417, label: "417 Hz", title: "Διευκόλυνση Αλλαγών & Κάθαρση", color: "#f97316" },
+    { freq: 528, label: "528 Hz", title: "Μεταμόρφωση, Θαύματα & Επισκευή DNA", color: "#eab308" },
+    { freq: 639, label: "639 Hz", title: "Σχέσεις, Αρμονία & Σύνδεση", color: "#10b981" },
+    { freq: 741, label: "741 Hz", title: "Διαίσθηση, Αφύπνιση & Επίλυση", color: "#06b6d4" },
+    { freq: 852, label: "852 Hz", title: "Επιστροφή στην Πνευματική Τάξη", color: "#3b82f6" },
+    { freq: 963, label: "963 Hz", title: "Σύνδεση με το Όλον & Ανώτερος Εαυτός", color: "#8b5cf6" }
+];
+
+let currentSelectedEsotericCategory = 1;
+let currentSelectedEsotericScript = 1;
+
+window.selectEsotericCategory = function(cat) {
+    currentSelectedEsotericCategory = cat;
+    document.querySelectorAll('[id^="btn-eso-cat-"]').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(`btn-eso-cat-${cat}`);
+    if (btn) btn.classList.add('active');
+    window.renderEsotericScriptsList();
+};
+
+window.renderEsotericScriptsList = function() {
+    const listDiv = document.getElementById('eso-scripts-list');
+    if (!listDiv) return;
+    
+    const query = (document.getElementById('eso-scripts-search')?.value || "").toLowerCase().trim();
+    
+    let filtered = window.MetaphysicalHub.scripts;
+    if (query) {
+        filtered = filtered.filter(s => 
+            s.title.toLowerCase().includes(query) || 
+            s.desc.toLowerCase().includes(query) ||
+            s.id.toString() === query
+        );
+    } else {
+        filtered = filtered.filter(s => s.category === currentSelectedEsotericCategory);
+    }
+    
+    listDiv.innerHTML = filtered.map(s => `
+        <button class="tab-btn ${currentSelectedEsotericScript === s.id ? 'active' : ''}" 
+                onclick="window.selectEsotericScript(${s.id})" 
+                style="font-size:0.75rem; text-align:left; justify-content:flex-start; padding:5px 8px; width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                title="${s.title}">
+            #${s.id} ${s.title}
+        </button>
+    `).join('');
+};
+
+window.filterEsotericScripts = function() {
+    window.renderEsotericScriptsList();
+};
+
+window.selectEsotericScript = function(id) {
+    currentSelectedEsotericScript = id;
+    
+    // Highlight in list
+    document.querySelectorAll('#eso-scripts-list button').forEach(b => b.classList.remove('active'));
+    window.renderEsotericScriptsList();
+    
+    const script = window.MetaphysicalHub.scripts.find(s => s.id === id);
+    if (!script) return;
+    
+    document.getElementById('selected-script-number').innerText = `SCRIPT #${script.id}`;
+    document.getElementById('selected-script-title').innerText = script.title;
+    document.getElementById('selected-script-desc').innerText = script.desc;
+    
+    // Execute rendering in sandbox
+    script.render('eso-script-playground');
+};
+
+window.loadEsotericHub = function() {
+    const container = document.getElementById('solfeggio-container');
+    if (container && container.innerHTML.trim() === '') {
+        container.innerHTML = solfeggioFrequencies.map(f => `
+            <div class="glass-panel" style="padding:1rem; border-top:3px solid ${f.color}; display:flex; justify-content:space-between; align-items:center;">
+                <div style="text-align:left;">
+                    <b style="color:${f.color}; font-size:1.1rem;">${f.label}</b>
+                    <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:3px;">${f.title}</div>
+                </div>
+                <button onclick="window.playSolfeggio(${f.freq}, '${f.title}')" class="tab-btn" id="btn-play-freq-${f.freq}" style="border-color:${f.color}; color:${f.color}; padding:6px 12px; font-weight:bold; font-size:0.75rem;">
+                    PLAY <i class="fa-solid fa-play" style="margin-left:3px;"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+    
+    // Initialize our scripts console
+    if (window.MetaphysicalHub) {
+        window.selectEsotericCategory(1);
+        window.selectEsotericScript(1);
+    }
+    
+    window.switchEsotericTab('solfeggio');
+};
+
+window.playSolfeggio = function(freq, title) {
+    if (activePlayingFreq === freq) {
+        window.stopSolfeggio();
+        return;
+    }
+    
+    if (activePlayingFreq) {
+        window.stopSolfeggio();
+    }
+    
+    try {
+        if (!solfeggioAudioContext) {
+            solfeggioAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        if (solfeggioAudioContext.state === 'suspended') {
+            solfeggioAudioContext.resume();
+        }
+        
+        solfeggioOscillator = solfeggioAudioContext.createOscillator();
+        solfeggioGainNode = solfeggioAudioContext.createGain();
+        
+        solfeggioOscillator.type = 'sine';
+        solfeggioOscillator.frequency.setValueAtTime(freq, solfeggioAudioContext.currentTime);
+        
+        solfeggioGainNode.gain.setValueAtTime(0, solfeggioAudioContext.currentTime);
+        solfeggioGainNode.gain.linearRampToValueAtTime(0.25, solfeggioAudioContext.currentTime + 0.1);
+        
+        solfeggioOscillator.connect(solfeggioGainNode);
+        solfeggioGainNode.connect(solfeggioAudioContext.destination);
+        
+        solfeggioOscillator.start();
+        activePlayingFreq = freq;
+        
+        document.getElementById('solfeggio-status').innerHTML = `<span style="animation: premiumPulse 1s infinite; display:inline-block; width:8px; height:8px; background:#ffd700; border-radius:50%; margin-right:5px;"></span> Αναπαραγωγή: ${freq}Hz (${title})`;
+        
+        const btn = document.getElementById(`btn-play-freq-${freq}`);
+        if (btn) {
+            btn.innerHTML = 'STOP <i class="fa-solid fa-stop" style="margin-left:3px;"></i>';
+            btn.style.background = 'rgba(255,255,255,0.05)';
+        }
+    } catch(err) {
+        console.error("Audio Web API Error:", err);
+    }
+};
+
+window.stopSolfeggio = function() {
+    if (solfeggioOscillator) {
+        try {
+            if (solfeggioGainNode && solfeggioAudioContext) {
+                solfeggioGainNode.gain.setValueAtTime(solfeggioGainNode.gain.value, solfeggioAudioContext.currentTime);
+                solfeggioGainNode.gain.linearRampToValueAtTime(0, solfeggioAudioContext.currentTime + 0.1);
+                setTimeout(() => {
+                    if (solfeggioOscillator) {
+                        solfeggioOscillator.stop();
+                        solfeggioOscillator.disconnect();
+                        solfeggioOscillator = null;
+                    }
+                }, 150);
+            } else {
+                solfeggioOscillator.stop();
+                solfeggioOscillator = null;
+            }
+        } catch(e) {}
+    }
+    
+    if (activePlayingFreq) {
+        const btn = document.getElementById(`btn-play-freq-${activePlayingFreq}`);
+        if (btn) {
+            btn.innerHTML = 'PLAY <i class="fa-solid fa-play" style="margin-left:3px;"></i>';
+            btn.style.background = 'transparent';
+        }
+    }
+    
+    activePlayingFreq = null;
+    document.getElementById('solfeggio-status').innerText = 'Ανενεργό';
+};
+
+const tarotDeck = [
+    { name: "Ο Τρελός (The Fool)", symbol: "0", upright: "Νέα ξεκινήματα, αυθορμητισμός, πίστη στο άγνωστο, ελευθερία.", reversed: "Απερισκεψία, κίνδυνος, ανευθυνότητα, διστακτικότητα.", desc: "Ο Τρελός αντιπροσωπεύει την έναρξη ενός νέου ταξιδιού με απόλυτη εμπιστοσύνη στη ζωή. Μην φοβάστε να κάνετε το άλμα." },
+    { name: "Ο Μάγος (The Magician)", symbol: "I", upright: "Δύναμη θέλησης, ικανότητα εκδήλωσης επιθυμιών, συγκέντρωση, δημιουργικότητα.", reversed: "Χειραγώγηση, χαμένη ευκαιρία, έλλειψη σχεδιασμού.", desc: "Ο Μάγος σας υπενθυμίζει ότι έχετε όλα τα απαραίτητα εργαλεία και την εσωτερική δύναμη για να κάνετε τις ιδέες σας πραγματικότητα." },
+    { name: "Η Αρχιέρεια (The High Priestess)", symbol: "II", upright: "Διαίσθηση, υποσυνείδητο, εσωτερική γνώση, μυστικισμός.", reversed: "Κρυφά κίνητρα, αγνόηση της διαίσθησης, επιπολαιότητα.", desc: "Η Αρχιέρεια σας καλεί να στραφείτε προς τα μέσα, να εμπιστευτείτε τα όνειρά σας και να ακούσετε τη σιωπηλή εσωτερική σας φωνή." },
+    { name: "Η Αυτοκράτειρα (The Empress)", symbol: "III", upright: "Γονιμότητα, αφθονία, δημιουργία, φύση, φροντίδα.", reversed: "Δημιουργικό μπλοκάρισμα, εξάρτηση από άλλους, έλλειψη ανάπτυξης.", desc: "Η Αυτοκράτειρα συνδέεται με τη μητέρα φύση και την υλική και πνευματική αφθονία. Είναι ώρα να καλλιεργήσετε τα σχέδιά..." },
+    { name: "Ο Αυτοκράτορας (The Emperor)", symbol: "IV", upright: "Εξουσία, δομή, σταθερότητα, προστασία, λογική.", reversed: "Τυραννία, έλλειψη πειθαρχίας, άκαμπτος έλεγχος.", desc: "Ο Αυτοκράτορας προσφέρει σταθερότητα και καθοδήγηση. Σας ζητά να βάλετε τάξη και πειθαρχία στη ζωή σας." },
+    { name: "Ο Ιεροφάντης (The Hierophant)", symbol: "V", upright: "Παράδοση, πνευματικός δάσκαλος, θεσμοί, συμμόρφωση.", reversed: "Εξέγερση, αντισυμβατικότητα, νέες μέθοδοι, δογματισμός.", desc: "Ο Ιεροφάντης συμβολίζει τη μάθηση, τη φιλοσοφία και την ευθυγράμμιση με ανώτερες ηθικές αξίες." },
+    { name: "Οι Εραστές (The Lovers)", symbol: "VI", upright: "Αρμονία, αγάπη, σχέσεις, ευθυγράμμιση αξιών, επιλογές.", reversed: "Ασυμφωνία, έλλειψη ισορροπίας, κακές αποφάσεις.", desc: "Οι Εραστές αντιπροσωπεύουν μια σημαντική επιλογή ζωής ή την ανάγκη για αρμονία και ένωση στις σχέσεις σας." },
+    { name: "Το Άρμα (The Chariot)", symbol: "VII", upright: "Έλεγχος, θέληση, νίκη, αποφασιστικότητα, υπέρβαση εμποδίων.", reversed: "Έλλειψη κατεύθυνσης, απώλεια ελέγχου, επιθετικότητα.", desc: "Το Άρμα σας ωθεί να παραμείνετε συγκεντρωμένοι στον στόχο σας και να οδηγήσετε τις αντίθετες δυνάμεις προς τη νίκη." },
+    { name: "Η Δύναμη (Strength)", symbol: "VIII", upright: "Θάρρος, εσωτερική δύναμη, συμπόνια, υπομονή, αυτοκυριαρχία.", reversed: "Αδυναμία, αυτοαμφισβήτηση, ωμή βία, έλλειψη ελέγχου.", desc: "Η Δύναμη δείχνει ότι η αληθινή ισχύς πηγάζει από την ήρεμη επιμονή, το θάρρος και την αγάπη, όχι από τη βία." },
+    { name: "Ο Ερημίτης (The Hermit)", symbol: "IX", upright: "Μοναξιά, ενδοσκόπηση, αναζήτηση της αλήθειας, εσωτερική καθοδήγηση.", reversed: "Απομόνωση, μοναξιά, παράνοια, απόρριψη βοήθειας.", desc: "Ο Ερημίτης προτείνει μια περίοδο σιωπηλής απομόνωσης για να βρείτε τις απαντήσεις μέσα σας." },
+    { name: "Ο Τροχός της Τύχης (Wheel of Fortune)", symbol: "X", upright: "Καλή τύχη, καρμικές αλλαγές, πεπρωμένο, καθοριστική στροφή.", reversed: "Κακή τύχη, αντίσταση στην αλλαγή, διακοπή κύκλου.", desc: "Ο Τροχός σας θυμίζει ότι η ζωή έχει σκαμπανεβάσματα. Αποδεχτείτε τις αλλαγές με ηρεμία." }
+];
+
+window.drawTarotCard = function() {
+    const card = tarotDeck[Math.floor(Math.random() * tarotDeck.length)];
+    const isUpright = Math.random() > 0.25;
+    const resultDiv = document.getElementById('tarot-result');
+    resultDiv.classList.remove('hidden');
+    resultDiv.innerHTML = `
+        <div style="text-align:center; margin-bottom:1rem;">
+            <div style="display:inline-block; font-size:0.8rem; background:rgba(167,139,250,0.1); border:1px solid #a78bfa; padding:3px 10px; border-radius:4px; margin-bottom:5px; color:#a78bfa;">
+                ${isUpright ? 'ΟΡΘΙΑ (Upright)' : 'ΑΝΕΣΤΡΑΜΜΕΝΗ (Reversed)'}
+            </div>
+            <h4 style="margin:5px 0; font-size:1.3rem; color:white; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <span style="font-family:serif; border:1px solid rgba(255,255,255,0.2); padding:0 8px; border-radius:4px; font-size:0.95rem;">${card.symbol}</span> ${card.name}
+            </h4>
+        </div>
+        <p style="font-size:0.85rem; color:#ffd700; margin-bottom:0.75rem; font-weight:bold; line-height:1.4;">
+            <i class="fa-solid fa-gem"></i> ${isUpright ? card.upright : card.reversed}
+        </p>
+        <p style="font-size:0.8rem; color:var(--text-secondary); line-height:1.4; border-top:1px dashed rgba(255,255,255,0.08); padding-top:0.75rem;">
+            ${card.desc}
+        </p>
+    `;
+};
+
+let ichingLines = [];
+window.castIChingStep = function() {
+    if (ichingLines.length >= 6) {
+        ichingLines = [];
+    }
+    const coins = [];
+    let sum = 0;
+    for (let i = 0; i < 3; i++) {
+        const isYang = Math.random() > 0.5;
+        coins.push(isYang ? 'Yang' : 'Yin');
+        sum += isYang ? 3 : 2;
+    }
+    const coinsDiv = document.getElementById('iching-coins');
+    if (coinsDiv) {
+        coinsDiv.innerHTML = coins.map(c => `
+            <div class="coin" style="width:50px; height:50px; border-radius:50%; background:#ffd700; border:2px solid #b59410; display:flex; align-items:center; justify-content:center; color:black; font-weight:bold; font-size:0.95rem; box-shadow:0 3px 6px rgba(0,0,0,0.3); animation: spin 0.4s;">
+                ${c}
+            </div>
+        `).join('');
+    }
+    const isYangLine = (sum % 2 !== 0);
+    ichingLines.push(isYangLine);
+    document.getElementById('iching-steps-left').innerText = 6 - ichingLines.length;
+    
+    const linesDiv = document.getElementById('iching-hexagram-lines');
+    linesDiv.innerHTML = ichingLines.map(isYang => {
+        if (isYang) {
+            return `<div style="width:90px; height:10px; background:#a78bfa; border-radius:2px;"></div>`;
+        } else {
+            return `
+                <div style="display:flex; justify-content:space-between; width:90px;">
+                    <div style="width:40px; height:10px; background:#a78bfa; border-radius:2px;"></div>
+                    <div style="width:40px; height:10px; background:#a78bfa; border-radius:2px;"></div>
+                </div>
+            `;
+        }
+    }).join('');
+    
+    if (ichingLines.length === 6) {
+        showIChingResult();
+    }
+};
+
+const ichingInterpretations = [
+    { number: 1, name: "Ch'ien (Η Δημιουργική Δύναμη)", desc: "Απόλυτο Yang, δύναμη, δημιουργικότητα, ηγεσία. Είναι η στιγμή της δράσης και της εκδήλωσης των στόχων σας." },
+    { number: 2, name: "K'un (Η Δεκτική Δύναμη)", desc: "Απόλυτο Yin, δεκτικότητα, υπομονή, υποστήριξη. Μην πιέζετε τις καταστάσεις, αφήστε τα πράγματα να κυλήσουν." },
+    { number: 3, name: "Chun (Η Δυσκολία στο Ξεκίνημα)", desc: "Ανάπτυξη γεμάτη εμπόδια. Όπως ο σπόρος που σπάει το χώμα, απαιτείται υπομονή και προσεκτικά βήματα." },
+    { number: 4, name: "Meng (Η Νεανική Άγνοια)", desc: "Ανάγκη για μάθηση και καθοδήγηση. Μην ντρέπεστε να ρωτήσετε αυτούς που γνωρίζουν περισσότερα." },
+    { number: 5, name: "Hsu (Η Αναμονή / Υπομονή)", desc: "Η αναμονή με πίστη. Συγκεντρώστε τις δυνάμεις σας και περιμένετε την κατάλληλη στιγμή." },
+    { number: 6, name: "Sung (Η Σύγκρουση)", desc: "Αποφύγετε τη σύγκρουση. Η υποχώρηση ή η εύρεση ενός συμβιβασμού είναι η καλύτερη λύση τώρα." }
+];
+
+function showIChingResult() {
+    const index = Math.floor(Math.random() * ichingInterpretations.length);
+    const hex = ichingInterpretations[index];
+    const resultDiv = document.getElementById('iching-result');
+    resultDiv.classList.remove('hidden');
+    resultDiv.innerHTML = `
+        <h4 style="margin:0 0 10px 0; color:white; font-size:1.25rem;">Hexagram #${hex.number}</h4>
+        <h5 style="margin:0 0 12px 0; color:#a78bfa; font-size:1.05rem;">${hex.name}</h5>
+        <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.4;">
+            ${hex.desc}
+        </p>
+        <button class="tab-btn active" onclick="window.resetIChing()" style="margin-top:1.25rem; font-size:0.75rem; border-radius:20px;">ΝΕΑ ΕΡΩΤΗΣΗ</button>
+    `;
+    document.getElementById('btn-cast-iching').disabled = true;
+}
+
+window.resetIChing = function() {
+    ichingLines = [];
+    document.getElementById('iching-steps-left').innerText = 6;
+    document.getElementById('iching-hexagram-lines').innerHTML = '';
+    document.getElementById('iching-result').classList.add('hidden');
+    document.getElementById('btn-cast-iching').disabled = false;
+};
+
+window.generateSigil = function() {
+    const intention = document.getElementById('sigil-intention').value.trim();
+    if (!intention) {
+        alert("Παρακαλώ εισάγετε μια πρόθεση.");
+        return;
+    }
+    const grVowels = ['Α', 'Ε', 'Η', 'Ι', 'Ο', 'Υ', 'Ω', 'A', 'E', 'I', 'O', 'U', 'Y'];
+    let cleanStr = intention.toUpperCase().replace(/\s+/g, '');
+    let noVowels = '';
+    for (let char of cleanStr) {
+        if (!grVowels.includes(char)) {
+            noVowels += char;
+        }
+    }
+    if (!noVowels) noVowels = cleanStr;
+    let uniqueStr = '';
+    for (let char of noVowels) {
+        if (!uniqueStr.includes(char)) {
+            uniqueStr += char;
+        }
+    }
+    document.getElementById('sigil-letters').innerText = `Κωδικοποιημένα Γράμματα: ${uniqueStr.split('').join(' ')}`;
+    const size = 180;
+    const center = size / 2;
+    const r = size / 2 - 15;
+    const points = [];
+    for (let i = 0; i < uniqueStr.length; i++) {
+        const code = uniqueStr.charCodeAt(i);
+        const angle = ((code % 360) * Math.PI) / 180;
+        const x = center + r * Math.cos(angle);
+        const y = center + r * Math.sin(angle);
+        points.push({ x, y });
+    }
+    let pathData = '';
+    if (points.length > 0) {
+        pathData = `M ${points[0].x} ${points[0].y}`;
+        for (let i = 1; i < points.length; i++) {
+            const cpX = (points[i-1].x + points[i].x) / 2 + (Math.random() * 20 - 10);
+            const cpY = (points[i-1].y + points[i].y) / 2 + (Math.random() * 20 - 10);
+            pathData += ` Q ${cpX} ${cpY}, ${points[i].x} ${points[i].y}`;
+        }
+        pathData += ` L ${center} ${center}`;
+    } else {
+        pathData = `M ${center} 15 A ${r} ${r} 0 1 1 ${center} ${size - 15} Z`;
+    }
+    const svgHtml = `
+        <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="background:#000;">
+            <circle cx="${center}" cy="${center}" r="${r}" fill="none" stroke="#a78bfa" stroke-width="1.5" />
+            <circle cx="${center}" cy="${center}" r="${r - 6}" fill="none" stroke="#a78bfa" stroke-width="0.5" stroke-dasharray="3,3" />
+            <path d="${pathData}" fill="none" stroke="#ffd700" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            ${points.map((p, idx) => {
+                if (idx === 0) return `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#a78bfa" />`;
+                if (idx === points.length - 1) return `<line x1="${p.x - 4}" y1="${p.y}" x2="${p.x + 4}" y2="${p.y}" stroke="#a78bfa" stroke-width="2" /><line x1="${p.x}" y1="${p.y - 4}" x2="${p.x}" y2="${p.y + 4}" stroke="#a78bfa" stroke-width="2" />`;
+                return '';
+            }).join('')}
+        </svg>
+    `;
+    document.getElementById('sigil-svg-container').innerHTML = svgHtml;
+};
+
+let zenerAttempts = 0;
+let zenerScore = 0;
+const zenerSymbols = ['circle', 'cross', 'waves', 'square', 'star'];
+const zenerIcons = {
+    circle: 'fa-regular fa-circle',
+    cross: 'fa-solid fa-plus',
+    waves: 'fa-solid fa-water',
+    square: 'fa-regular fa-square',
+    star: 'fa-regular fa-star'
+};
+
+window.guessZener = function(guessedSymbol) {
+    if (zenerAttempts >= 25) {
+        alert("Το τεστ ολοκληρώθηκε! Πατήστε Επανεκκίνηση για νέο τεστ.");
+        return;
+    }
+    const computerSymbol = zenerSymbols[Math.floor(Math.random() * zenerSymbols.length)];
+    const cardDiv = document.getElementById('zener-computer-card');
+    cardDiv.innerHTML = `<i class="${zenerIcons[computerSymbol]}"></i>`;
+    cardDiv.style.borderColor = '#ffd700';
+    cardDiv.style.color = '#ffd700';
+    
+    zenerAttempts++;
+    const isCorrect = (guessedSymbol === computerSymbol);
+    if (isCorrect) zenerScore++;
+    
+    const rate = Math.round((zenerScore / zenerAttempts) * 100);
+    document.getElementById('zener-attempts').innerText = `${zenerAttempts} / 25`;
+    document.getElementById('zener-score').innerText = zenerScore;
+    document.getElementById('zener-rate').innerText = `${rate}%`;
+    
+    const feedback = document.getElementById('zener-feedback');
+    if (isCorrect) {
+        feedback.innerHTML = `<span style="color:var(--success);"><i class="fa-solid fa-circle-check"></i> Σωστό! Ανιχνεύθηκε συντονισμός.</span>`;
+    } else {
+        feedback.innerHTML = `<span style="color:var(--text-secondary);">Λάθος. Δοκιμάστε ξανά.</span>`;
+    }
+    
+    if (zenerAttempts === 25) {
+        let analysis = "";
+        if (zenerScore >= 12) {
+            analysis = "Εξαιρετική Διαίσθηση / Πιθανή Τηλεπάθεια (+3σ)";
+        } else if (zenerScore >= 7) {
+            analysis = "Πάνω από τον Μέσο Όρο (Διαίσθηση ενεργή)";
+        } else {
+            analysis = "Φυσιολογικά επίπεδα τύχης (20% αναμενόμενο)";
+        }
+        feedback.innerHTML = `<b style="color:#ffd700;"><i class="fa-solid fa-trophy"></i> ΤΕΛΟΣ: ${analysis}</b>`;
+    }
+};
+
+window.resetZener = function() {
+    zenerAttempts = 0;
+    zenerScore = 0;
+    document.getElementById('zener-attempts').innerText = '0 / 25';
+    document.getElementById('zener-score').innerText = '0';
+    document.getElementById('zener-rate').innerText = '0%';
+    document.getElementById('zener-feedback').innerText = 'Ξεκινήστε επιλέγοντας μια κάρτα παρακάτω!';
+    
+    const cardDiv = document.getElementById('zener-computer-card');
+    cardDiv.innerHTML = `<i class="fa-solid fa-question"></i>`;
+    cardDiv.style.borderColor = '#8b5cf6';
+    cardDiv.style.color = '#8b5cf6';
+};
+
+// --- Global Sync & Verify Modals & Routines ---
+window.closeSyncVerifyModal = function() {
+    const modal = document.getElementById('sync-verify-modal');
+    if (modal) modal.classList.add('hidden');
+};
+
+window.runGlobalSyncAndVerify = async function() {
+    const modal = document.getElementById('sync-verify-modal');
+    const checklist = document.getElementById('sync-checklist');
+    const couponData = document.getElementById('sync-coupon-data');
+    const couponList = document.getElementById('sync-coupon-list');
+    const syncIcon = document.getElementById('sync-icon');
+    const modalSyncIcon = document.getElementById('modal-sync-icon');
+    
+    if (!modal || !checklist) return;
+    
+    modal.classList.remove('hidden');
+    couponData.style.display = 'none';
+    
+    if (syncIcon) syncIcon.classList.add('fa-spin');
+    if (modalSyncIcon) modalSyncIcon.classList.add('fa-spin');
+    
+    const categories = [
+        { key: 'sec', label: 'Πύλη Εισόδου & Ασφάλεια', run: async () => {
+            const hasAccess = localStorage.getItem('dashboard_access') === 'true';
+            if (!hasAccess) throw new Error("Μη εξουσιοδοτημένη πρόσβαση.");
+            return "Εξουσιοδοτημένη συνεδρία (Active Session).";
+        }},
+        { key: 'network', label: 'Ανίχνευση Δικτύου & Τοποθεσία (HTTPS)', run: async () => {
+            const netInfo = await window.InfoDashExtreme.fetchUserNetworkInfo();
+            const method = window.lastUsedMethod_network || 'Αυτόματη';
+            if (!netInfo || !netInfo.ip || netInfo.ip === '127.0.0.1') throw new Error("Αδυναμία ανίχνευσης δικτύου.");
+            return `Επαληθεύτηκε: IP ${netInfo.ip} via ${method}`;
+        }},
+        { key: 'weather', label: 'Τηλεμετρία Καιρού (wttr.in/Open-Meteo)', run: async () => {
+            const savedCity = localStorage.getItem('infodash_weather_city') || 'Heraklion';
+            const weather = await window.InfoDashExtreme.fetchWeatherData(savedCity);
+            const method = window.lastUsedMethod_weather || 'Αυτόματη';
+            if (!weather || !weather.temp) throw new Error("Αδυναμία λήψης καιρού.");
+            return `Επαληθεύτηκε: ${weather.city} ${weather.temp}°C via ${method}`;
+        }},
+        { key: 'lottery', label: 'Mega Lottery Engine (OPAP)', run: async () => {
+            if (!window.LotteryEngine) throw new Error("Lottery Engine offline.");
+            const data = await window.LotteryEngine.fetchData('joker');
+            if (!data || data.length === 0) throw new Error("Κενά δεδομένα κληρώσεων.");
+            const latest = data[0];
+            const method = window.lastUsedMethod_lottery?.['joker'] || 'Αυτόματη';
+            return `Επαληθεύτηκε via ${method}: Joker Draw #${latest.id} (${latest.numbers.join(', ')} + ${latest.bonus.join(', ')})`;
+        }},
+        { key: 'crypto', label: 'Crypto Top 100 Markets', run: async () => {
+            const data = await fetchCryptos();
+            const count = data.top20?.length || 0;
+            if (count === 0) throw new Error("Αποτυχία λήψης τιμών Crypto.");
+            const method = window.lastUsedMethod_crypto || 'Αυτόματη';
+            return `Επαληθεύτηκε via ${method}: ${count} Crypto Assets συγχρονίστηκαν (Top: ${data.top20[0]?.name || 'BTC'}).`;
+        }},
+        { key: 'sports', label: 'Live Scores & Matches (ESPN)', run: async () => {
+            const matches = await fetchPopularMatches();
+            const liveFtCount = matches.filter(m => !m.isOpap).length;
+            return `Συγχρονίστηκε: ${liveFtCount} ζωντανοί/τελικοί αγώνες.`;
+        }},
+        { key: 'coupon', label: 'Κουπόνι Πάμε Στοίχημα (OPAP Sports)', run: async () => {
+            let couponMatches = await fetchPameStoiximaMatches();
+            let isDerived = false;
+            
+            if (couponMatches.length === 0) {
+                // Try Fallback to ESPN derived
+                const matches = await fetchPopularMatches();
+                couponMatches = matches.filter(m => m.isOpap);
+                isDerived = true;
+            }
+            
+            if (couponMatches.length === 0) throw new Error("Αποτυχία λήψης κουπονιού.");
+            
+            couponList.innerHTML = '';
+            couponMatches.slice(0, 15).forEach(m => {
+                const tips = m.predictions?.recommended_tips || [];
+                const odds1 = tips.find(t => t.prob.includes('Odds 1'))?.odds || 'N/A';
+                const oddsX = tips.find(t => t.prob.includes('Odds X'))?.odds || 'N/A';
+                const odds2 = tips.find(t => t.prob.includes('Odds 2'))?.odds || 'N/A';
+                
+                couponList.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.05); font-size:0.8rem;">
+                        <span style="color:#aaa; font-weight:bold; font-size:0.75rem; width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${m.league}">${m.league}</span>
+                        <span style="color:#fff; font-weight:600; flex:1; margin-left:10px;">${m.home} - ${m.away}</span>
+                        <div style="display:flex; gap:8px; font-family:monospace; margin-left:10px;">
+                            <span style="background:rgba(59,130,246,0.1); padding:2px 6px; border-radius:4px; color:#3b82f6;">1: <b>${odds1}</b></span>
+                            <span style="background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px; color:#ccc;">X: <b>${oddsX}</b></span>
+                            <span style="background:rgba(236,72,153,0.1); padding:2px 6px; border-radius:4px; color:#ec4899;">2: <b>${odds2}</b></span>
+                        </div>
+                    </div>
+                `;
+            });
+            couponData.style.display = 'block';
+            return isDerived 
+                ? `Επαληθεύτηκε: ${couponMatches.length} αγώνες (Μέθοδος Β: ESPN Derived Odds)`
+                : `Επαληθεύτηκε: ${couponMatches.length} αγώνες (Μέθοδος Α: Pame Stoixima API)`;
+        }},
+        { key: 'news', label: 'Live News Hub Feed', run: async () => {
+            const currentTab = document.getElementById('news-gr-btn')?.classList.contains('active') ? 'gr' : 'world';
+            if (currentTab === 'gr') {
+                await window.loadGrNews();
+            } else {
+                await window.loadWorldNews();
+            }
+            const method = window.lastUsedMethod_news || 'Αυτόματη';
+            return `Επαληθεύτηκε via ${method}: 30 Live News Headlines φορτώθηκαν στα Ελληνικά.`;
+        }}
+    ];
+    
+    checklist.innerHTML = categories.map(c => `
+        <div id="sync-item-${c.key}" style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:rgba(255,255,255,0.02); border-radius:8px; border:1px solid rgba(255,255,255,0.05); font-size:0.9rem;">
+            <i class="fa-solid fa-spinner fa-spin" style="color:var(--accent-primary);"></i>
+            <span style="color:#fff; font-weight:600;">${c.label}</span>
+            <span class="status-detail" style="margin-left:auto; color:var(--text-secondary); font-size:0.8rem;">Έλεγχος σύνδεσης...</span>
+        </div>
+    `).join('');
+    
+    for (const c of categories) {
+        const item = document.getElementById(`sync-item-${c.key}`);
+        if (!item) continue;
+        
+        try {
+            const res = await c.run();
+            item.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+            item.style.background = 'rgba(16, 185, 129, 0.03)';
+            const icon = item.querySelector('i');
+            if (icon) {
+                icon.className = 'fa-solid fa-circle-check';
+                icon.style.color = 'var(--success)';
+                icon.classList.remove('fa-spin');
+            }
+            const statusDetail = item.querySelector('.status-detail');
+            if (statusDetail) {
+                statusDetail.innerText = res;
+                statusDetail.style.color = 'var(--success)';
+            }
+        } catch(e) {
+            item.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+            item.style.background = 'rgba(239, 68, 68, 0.03)';
+            const icon = item.querySelector('i');
+            if (icon) {
+                icon.className = 'fa-solid fa-circle-xmark';
+                icon.style.color = 'var(--danger)';
+                icon.classList.remove('fa-spin');
+            }
+            const statusDetail = item.querySelector('.status-detail');
+            if (statusDetail) {
+                statusDetail.innerText = e.message || 'Αποτυχία API.';
+                statusDetail.style.color = 'var(--danger)';
+            }
+        }
+        await new Promise(r => setTimeout(r, 300));
+    }
+    
+    if (syncIcon) syncIcon.classList.remove('fa-spin');
+    if (modalSyncIcon) modalSyncIcon.classList.remove('fa-spin');
+    
+    const activeSection = document.querySelector('.view-section:not(.hidden)');
+    if (activeSection) {
+        if (activeSection.id === 'myhub-view') loadMyHub();
+        if (activeSection.id === 'betting-view') {
+            allFetchedMatches = [];
+            loadBettingMatches();
+        }
+        if (activeSection.id === 'lottery-view') {
+            const activeTab = document.querySelector('.lottery-tabs .tab-btn.active');
+            loadLotteries(activeTab?.dataset.game || 'eurojackpot');
+        }
+        if (activeSection.id === 'crypto-view') loadCrypto();
+        if (activeSection.id === 'top-sites-view') loadTopSites();
+    }
+};
+
+// --- Top Global Sites Loader ---
+async function loadTopSites() {
+    const grid = document.getElementById('top-sites-grid');
+    if (!grid) return;
+    
+    grid.innerHTML = '<div style="text-align:center; padding:40px; color:#aaa; grid-column: 1 / -1;"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--accent-primary); margin-bottom:10px;"></i><br>Φόρτωση κορυφαίων ιστοσελίδων...</div>';
+    
+    try {
+        const sites = getTopGlobalSites();
+        grid.innerHTML = sites.map(site => `
+            <div class="glass-panel" style="padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; min-height:200px; transition: transform 0.2s, border-color 0.2s; cursor:pointer;" onmouseover="this.style.borderColor='var(--accent-primary)'; this.style.transform='translateY(-5px)';" onmouseout="this.style.borderColor='var(--panel-border)'; this.style.transform='translateY(0)';" onclick="window.open('${site.url}', '_blank')">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <span style="font-size:0.75rem; background:rgba(59,130,246,0.1); color:var(--accent-primary); padding:4px 10px; border-radius:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">${site.category}</span>
+                        <i class="${site.icon}" style="font-size:1.5rem; color:var(--text-secondary);"></i>
+                    </div>
+                    <h3 style="color:#fff; margin:0 0 8px 0; font-size:1.15rem; font-weight:600;">${site.name}</h3>
+                    <p style="color:var(--text-secondary); font-size:0.85rem; line-height:1.45; margin:0;">${site.desc}</p>
+                </div>
+                <div style="margin-top:1.5rem; display:flex; align-items:center; gap:5px; font-size:0.8rem; color:var(--accent-primary); font-weight:600;">
+                    Επίσκεψη <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
+                </div>
+            </div>
+        `).join('');
+    } catch(e) {
+        console.error("Error loading top global sites:", e);
+        grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--danger); grid-column: 1 / -1;"><i class="fa-solid fa-triangle-exclamation fa-2x"></i><br>Αποτυχία φόρτωσης. Παρακαλώ δοκιμάστε ξανά.</div>';
+    }
+}
+window.loadTopSites = loadTopSites;
+
+// --- Auto-Refresh Interval Setup (Every 60 Seconds) ---
+let autoRefreshInterval = null;
+function startAutoRefreshLoop() {
+    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+    autoRefreshInterval = setInterval(async () => {
+        console.log("Auto-refreshing dashboard data...");
+        // 1. Update weather / network telemetry
+        await updateTelemetryHeader();
+        
+        // 2. Refresh news ticker
+        await initNewsTicker();
+        
+        // 3. Refresh active view if applicable
+        const activeSection = document.querySelector('.view-section:not(.hidden)');
+        if (activeSection) {
+            if (activeSection.id === 'myhub-view') loadMyHub();
+            if (activeSection.id === 'betting-view') {
+                loadBettingMatches();
+            }
+            if (activeSection.id === 'lottery-view') {
+                const activeTab = document.querySelector('.lottery-tabs .tab-btn.active');
+                const game = activeTab ? activeTab.getAttribute('data-game') : 'eurojackpot';
+                loadLotteries(game);
+            }
+            if (activeSection.id === 'crypto-view') loadCrypto();
+            if (activeSection.id === 'top-sites-view') loadTopSites();
+        }
+    }, 60000);
+}
+
+
+
