@@ -6301,40 +6301,106 @@ function startAutoRefreshLoop() {
 window.currentApisPortalSubcat = 'all';
 
 function loadApisPortal() {
-    const categoriesBar = document.getElementById('apis-categories-bar');
+    const sidebarList = document.getElementById('apis-sidebar-list');
     const grid = document.getElementById('apis-grid');
     
-    if (!categoriesBar || !grid) return;
+    if (!sidebarList || !grid) return;
     
-    // 1. Render Category Filter buttons
-    categoriesBar.innerHTML = window.FREE_APIS_CATEGORIES.map(cat => `
-        <button class="filter-btn ${cat.id === window.currentApisPortalSubcat ? 'active' : ''}" 
-                onclick="window.selectApisCategory('${cat.id}')">
-            <i class="${cat.icon}" style="margin-right: 4px;"></i> ${cat.name}
-        </button>
-    `).join('');
+    // Render Category Sidebar list
+    renderApisSidebarList();
     
-    // 2. Render cards
+    // Render initial grid
     renderApisGrid();
+}
+
+function renderApisSidebarList(categoriesList = null) {
+    const sidebarList = document.getElementById('apis-sidebar-list');
+    if (!sidebarList) return;
+    
+    const listToRender = categoriesList || window.FREE_APIS_CATEGORIES;
+    
+    // Add "All" option if not already present in lists
+    let html = '';
+    
+    // If not filtering, or query matches "Όλα"
+    if (!categoriesList || 'όλα τα apis'.includes(window.currentApisCatQuery || '')) {
+        const totalCount = window.FREE_APIS_DATA.length;
+        html += `
+            <div class="sidebar-cat-item ${window.currentApisPortalSubcat === 'all' ? 'active' : ''}" 
+                 onclick="window.selectApisCategory('all')"
+                 style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #fff; font-size: 0.85rem; margin-bottom: 2px; ${window.currentApisPortalSubcat === 'all' ? 'background: var(--accent-primary); font-weight: bold;' : 'background: rgba(255,255,255,0.02);'}"
+                 onmouseover="if(this.className.indexOf('active')===-1) this.style.background='rgba(59,130,246,0.1)'"
+                 onmouseout="if(this.className.indexOf('active')===-1) this.style.background='rgba(255,255,255,0.02)'">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-list" style="width: 16px; text-align: center; color: var(--accent-primary);"></i>
+                    <span>Όλα τα APIs</span>
+                </div>
+                <span style="font-size: 0.75rem; opacity: 0.7; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 10px;">${totalCount}</span>
+            </div>
+        `;
+    }
+    
+    html += listToRender.map(cat => {
+        if (cat.id === 'all') return ''; // Handled manually
+        const count = window.FREE_APIS_DATA.filter(api => api.category === cat.id).length;
+        const isActive = window.currentApisPortalSubcat === cat.id;
+        return `
+            <div class="sidebar-cat-item ${isActive ? 'active' : ''}" 
+                 onclick="window.selectApisCategory('${cat.id}')"
+                 style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #fff; font-size: 0.85rem; margin-bottom: 2px; ${isActive ? 'background: var(--accent-primary); font-weight: bold;' : 'background: rgba(255,255,255,0.02);'}"
+                 onmouseover="if(this.className.indexOf('active')===-1) this.style.background='rgba(59,130,246,0.1)'"
+                 onmouseout="if(this.className.indexOf('active')===-1) this.style.background='rgba(255,255,255,0.02)'">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="${cat.icon}" style="width: 16px; text-align: center; color: ${isActive ? '#fff' : 'var(--accent-primary)'};"></i>
+                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">${cat.name}</span>
+                </div>
+                <span style="font-size: 0.75rem; opacity: 0.7; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 10px;">${count}</span>
+            </div>
+        `;
+    }).join('');
+    
+    sidebarList.innerHTML = html;
 }
 
 function selectApisCategory(catId) {
     window.currentApisPortalSubcat = catId;
     
-    // Update active class
-    const buttons = document.querySelectorAll('#apis-categories-bar .filter-btn');
-    buttons.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${catId}'`)) {
-            btn.classList.add('active');
+    // Re-render sidebar items to update active class
+    renderApisSidebarList(window.filteredCategoriesList || null);
+    
+    // Update active category title in UI
+    const titleEl = document.getElementById('apis-active-category-title');
+    if (titleEl) {
+        if (catId === 'all') {
+            titleEl.textContent = 'Όλα τα APIs';
+        } else {
+            const catObj = window.FREE_APIS_CATEGORIES.find(c => c.id === catId);
+            titleEl.textContent = catObj ? catObj.name : catId;
         }
-    });
+    }
     
     // Clear search input on category switch
     const searchInput = document.getElementById('apis-search');
     if (searchInput) searchInput.value = '';
     
     renderApisGrid();
+}
+
+function filterApisCategories(query) {
+    window.currentApisCatQuery = query ? query.toLowerCase().trim() : '';
+    
+    if (!window.currentApisCatQuery) {
+        window.filteredCategoriesList = null;
+        renderApisSidebarList();
+        return;
+    }
+    
+    window.filteredCategoriesList = window.FREE_APIS_CATEGORIES.filter(cat => {
+        return cat.name.toLowerCase().includes(window.currentApisCatQuery) || 
+               cat.id.toLowerCase().includes(window.currentApisCatQuery);
+    });
+    
+    renderApisSidebarList(window.filteredCategoriesList);
 }
 
 function renderApisGrid(customList = null) {
@@ -6360,12 +6426,12 @@ function renderApisGrid(customList = null) {
         return `
             <div class="glass-panel" style="padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; min-height:190px; transition: transform 0.2s, border-color 0.2s; cursor:pointer;" onmouseover="this.style.borderColor='var(--accent-primary)'; this.style.transform='translateY(-5px)';" onmouseout="this.style.borderColor='var(--panel-border)'; this.style.transform='translateY(0)';" onclick="window.open('${api.url}', '_blank')">
                 <div>
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-                        <span style="font-size:0.75rem; background:rgba(59,130,246,0.1); color:var(--accent-primary); padding:4px 10px; border-radius:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">${catName}</span>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; gap: 8px;">
+                        <span style="font-size:0.7rem; background:rgba(59,130,246,0.1); color:var(--accent-primary); padding:4px 10px; border-radius:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">${catName}</span>
                         <i class="${api.icon}" style="font-size:1.4rem; color:var(--text-secondary);"></i>
                     </div>
-                    <h3 style="color:#fff; margin:0 0 8px 0; font-size:1.15rem; font-weight:600;">${api.name}</h3>
-                    <p style="color:var(--text-secondary); font-size:0.85rem; line-height:1.45; margin:0;">${api.desc}</p>
+                    <h3 style="color:#fff; margin:0 0 8px 0; font-size:1.1rem; font-weight:600;">${api.name}</h3>
+                    <p style="color:var(--text-secondary); font-size:0.82rem; line-height:1.45; margin:0;">${api.desc}</p>
                 </div>
                 <div style="margin-top:1.5rem; display:flex; align-items:center; gap:5px; font-size:0.8rem; color:var(--accent-primary); font-weight:600;">
                     Επίσκεψη API <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
@@ -6383,8 +6449,11 @@ function filterApis(query) {
     
     const cleaned = query.toLowerCase().trim();
     const matched = window.FREE_APIS_DATA.filter(api => {
+        const catObj = window.FREE_APIS_CATEGORIES.find(c => c.id === api.category);
+        const catName = catObj ? catObj.name : api.category;
         return api.name.toLowerCase().includes(cleaned) || 
                api.desc.toLowerCase().includes(cleaned) ||
+               catName.toLowerCase().includes(cleaned) ||
                api.category.toLowerCase().includes(cleaned);
     });
     
@@ -6393,6 +6462,8 @@ function filterApis(query) {
 
 window.loadApisPortal = loadApisPortal;
 window.selectApisCategory = selectApisCategory;
+window.renderApisSidebarList = renderApisSidebarList;
+window.filterApisCategories = filterApisCategories;
 window.renderApisGrid = renderApisGrid;
 window.filterApis = filterApis;
 

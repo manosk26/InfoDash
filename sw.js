@@ -1,4 +1,4 @@
-const CACHE_NAME = 'infodash-cache-v7';
+const CACHE_NAME = 'infodash-cache-v8';
 const ASSETS = [
     './',
     './index.html',

@@ -493,16 +493,36 @@
                 <section id="apis-directory-view" class="view-section hidden">
                     <div class="section-header">
                         <h1>Πύλη Δωρεάν <span class="gradient-text">APIs</span></h1>
-                        <p>Μια οργανωμένη λίστα από 50 κορυφαία δωρεάν APIs παγκοσμίως, με αναλυτική περιγραφή στα ελληνικά και δυνατότητα αναζήτησης/φιλτραρίσματος.</p>
+                        <p>Μια οργανωμένη βάση δεδομένων από 50 κατηγορίες και 250+ κορυφαία δωρεάν APIs παγκοσμίως, με αναλυτική περιγραφή στα ελληνικά.</p>
                     </div>
-                    <div class="top-sites-search-container" style="margin-bottom: 2rem; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                        <div class="search-bar" style="width: 100%; max-width: 400px; margin: 0;">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="apis-search" placeholder="Αναζήτηση σε 50 APIs (π.χ. Weather, Geolocation)..." oninput="window.filterApis(this.value)">
+                    
+                    <div class="apis-portal-layout" style="display: flex; gap: 20px; align-items: flex-start;">
+                        <!-- Left sidebar for categories -->
+                        <div class="apis-sidebar glass-panel" style="width: 320px; min-width: 300px; padding: 1.25rem; display: flex; flex-direction: column; gap: 12px; height: 68vh; border: 1px solid var(--panel-border); border-radius: 12px; background: rgba(10, 15, 30, 0.7); box-shadow: var(--shadow-sm);">
+                            <h3 style="margin: 0; font-size: 1.1rem; color: #fff; font-weight: 600; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-open" style="color: var(--accent-primary);"></i> Κατηγορίες APIs</h3>
+                            <div class="search-bar" style="width: 100%; margin: 0; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; height: 38px;">
+                                <i class="fa-solid fa-magnifying-glass" style="font-size: 0.85rem; left: 10px;"></i>
+                                <input type="text" id="apis-cat-search" placeholder="Αναζήτηση κατηγορίας..." oninput="window.filterApisCategories(this.value)" style="padding-left: 2rem; font-size: 0.85rem;">
+                            </div>
+                            <div id="apis-sidebar-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px;">
+                                <!-- Categories list loaded dynamically -->
+                            </div>
                         </div>
-                        <div id="apis-categories-bar" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+                        
+                        <!-- Right main content area -->
+                        <div class="apis-content-area" style="flex: 1; display: flex; flex-direction: column; gap: 15px; width: 100%;">
+                            <div class="apis-search-bar-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                                <div class="search-bar" style="width: 100%; max-width: 450px; margin: 0; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; height: 42px;">
+                                    <i class="fa-solid fa-magnifying-glass" style="left: 12px;"></i>
+                                    <input type="text" id="apis-search" placeholder="Αναζήτηση σε 250+ APIs (π.χ. NASA, Ocean, Species)..." oninput="window.filterApis(this.value)" style="padding-left: 2.25rem;">
+                                </div>
+                                <div id="apis-active-category-title" style="font-size: 1rem; color: var(--accent-primary); font-weight: bold; background: rgba(59, 130, 246, 0.1); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.2);">
+                                    Όλα τα APIs
+                                </div>
+                            </div>
+                            <div id="apis-grid" class="recommendations-grid" style="overflow-y: auto; max-height: 60vh; padding-right: 5px;"></div>
+                        </div>
                     </div>
-                    <div id="apis-grid" class="recommendations-grid"></div>
                 </section>
                 <section id="health-view" class="view-section hidden"><div id="health-tabs" class="filters-bar"></div><div id="health-content"></div></section>
                 <section id="creator-view" class="view-section hidden"><div id="creator-tabs" class="filters-bar"></div><div id="creator-content"></div></section>

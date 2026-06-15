@@ -1,0 +1,424 @@
+# -*- coding: utf-8 -*-
+import json
+import os
+
+categories = [
+    {"id": "marine-biology", "name": "Θαλάσσια Βιολογία & Ωκεανογραφία", "icon": "fa-solid fa-water"},
+    {"id": "gastronomy", "name": "Γαστρονομία & Μαγειρικές Τέχνες", "icon": "fa-solid fa-utensils"},
+    {"id": "architecture", "name": "Αρχιτεκτονική & Αστικός Σχεδιασμός", "icon": "fa-solid fa-building-columns"},
+    {"id": "agritech", "name": "Γεωργία & Τεχνολογία Παραγωγής (Agritech)", "icon": "fa-solid fa-seedling"},
+    {"id": "space-debris", "name": "Παρακολούθηση Διαστημικών Σκουπιδιών", "icon": "fa-solid fa-satellite"},
+    {"id": "mythology", "name": "Μυθολογία & Παγκόσμια Λαογραφία", "icon": "fa-solid fa-scroll"},
+    {"id": "alternative-energy", "name": "Εναλλακτικές Πηγές Ενέργειας & Δίκτυα", "icon": "fa-solid fa-solar-panel"},
+    {"id": "genetics", "name": "Γενετική & Αλληλούχιση DNA", "icon": "fa-solid fa-dna"},
+    {"id": "forestry", "name": "Δασοκομία & Πρόληψη Πυρκαγιών", "icon": "fa-solid fa-tree"},
+    {"id": "aviation", "name": "Αεροπορία & Καταγραφές Πτήσεων", "icon": "fa-solid fa-plane"},
+    {"id": "philately", "name": "Φιλοτελισμός & Νομισματική", "icon": "fa-solid fa-stamp"},
+    {"id": "genealogy", "name": "Ιστορικά Αρχεία & Γενεαλογία", "icon": "fa-solid fa-sitemap"},
+    {"id": "seismology", "name": "Σεισμολογία & Ηφαιστειολογία", "icon": "fa-solid fa-house-crack"},
+    {"id": "classical-music", "name": "Κλασική Μουσική & Όπερα", "icon": "fa-solid fa-music"},
+    {"id": "archaeology", "name": "Αρχαιολογία & Αρχαίοι Πολιτισμοί", "icon": "fa-solid fa-monument"},
+    {"id": "zoology", "name": "Ζωολογία & Απειλούμενα Είδη", "icon": "fa-solid fa-paw"},
+    {"id": "linguistics", "name": "Γλωσσολογία & Νεκρές Γλώσσες", "icon": "fa-solid fa-language"},
+    {"id": "botany", "name": "Βοτανική & Βοτανοθεραπεία", "icon": "fa-solid fa-leaf"},
+    {"id": "astronomy", "name": "Αστρονομία & Deep Space Imagery", "icon": "fa-solid fa-star-and-crescent"},
+    {"id": "automotive", "name": "Αυτοκίνηση & Αναπαλαίωση", "icon": "fa-solid fa-car"},
+    {"id": "fashion", "name": "Ιστορία της Μόδας & Haute Couture", "icon": "fa-solid fa-shirt"},
+    {"id": "philosophy", "name": "Φιλοσοφία & Ηθική", "icon": "fa-solid fa-brain"},
+    {"id": "crafting", "name": "Χειροτεχνία & Ξυλουργική", "icon": "fa-solid fa-hammer"},
+    {"id": "theater", "name": "Θέατρο & Παραστατικές Τέχνες", "icon": "fa-solid fa-masks-theater"},
+    {"id": "waste-management", "name": "Διαχείριση Απορριμμάτων & Ανακύκλωση", "icon": "fa-solid fa-recycle"},
+    {"id": "geology", "name": "Γεωλογία & Ορυκτολογία", "icon": "fa-solid fa-gem"},
+    {"id": "typography", "name": "Τυπογραφία & Σχεδιασμός Fonts", "icon": "fa-solid fa-font"},
+    {"id": "maritime", "name": "Ναυτιλιακές Μεταφορές & Cargo", "icon": "fa-solid fa-ship"},
+    {"id": "enology", "name": "Αμπελουργία & Οινολογία", "icon": "fa-solid fa-wine-glass"},
+    {"id": "microscopy", "name": "Μικροσκοπία & Νανοτεχνολογία", "icon": "fa-solid fa-microscope"},
+    {"id": "extreme-weather", "name": "Μετεωρολογία & Ακραία Φαινόμενα", "icon": "fa-solid fa-cloud-bolt"},
+    {"id": "patents", "name": "Μητρώο Ευρεσιτεχνιών & Πατέντες", "icon": "fa-solid fa-file-signature"},
+    {"id": "sociology", "name": "Κοινωνιολογία & Ανθρωπολογία", "icon": "fa-solid fa-users-line"},
+    {"id": "hydroponics", "name": "Ενυδρειοπονία & Υδροπονία", "icon": "fa-solid fa-droplet"},
+    {"id": "railway", "name": "Σιδηροδρομικά Δίκτυα (Train Spotting)", "icon": "fa-solid fa-train"},
+    {"id": "paleontology", "name": "Παλαιοντολογία & Απολιθώματα", "icon": "fa-solid fa-bone"},
+    {"id": "art-restoration", "name": "Συντήρηση Έργων Τέχνης", "icon": "fa-solid fa-palette"},
+    {"id": "speleology", "name": "Σπηλαιολογία & Εξερεύνηση", "icon": "fa-solid fa-mountain"},
+    {"id": "cartography", "name": "Χαρτογραφία & Ιστορικοί Χάρτες", "icon": "fa-solid fa-map"},
+    {"id": "perfumery", "name": "Αρωματοποιία & Οσφρητικές Τέχνες", "icon": "fa-solid fa-flask"},
+    {"id": "beekeeping", "name": "Μελισσοκομία", "icon": "fa-solid fa-hive"},
+    {"id": "acoustics", "name": "Ακουστική & Ηχοληψία", "icon": "fa-solid fa-volume-high"},
+    {"id": "demographics", "name": "Δημογραφικά Στοιχεία & Απογραφές", "icon": "fa-solid fa-chart-pie"},
+    {"id": "hydrology", "name": "Διαχείριση Υδατικών Πόρων", "icon": "fa-solid fa-water-ladder"},
+    {"id": "horology", "name": "Ωρολογοποιία & Μηχανισμοί", "icon": "fa-solid fa-clock"},
+    {"id": "weaving", "name": "Παραδοσιακές Τέχνες & Υφαντική", "icon": "fa-solid fa-scissors"},
+    {"id": "wilderness-survival", "name": "Οικοτουρισμός & Επιβίωση", "icon": "fa-solid fa-compass"},
+    {"id": "veterinary", "name": "Κτηνιατρική & Φροντίδα Ζώων", "icon": "fa-solid fa-stethoscope"},
+    {"id": "urban-forestry", "name": "Αστική Δασοκομία & Πάρκα", "icon": "fa-solid fa-tree-city"},
+    {"id": "origami", "name": "Οριγκάμι & Μηχανική Χαρτιού", "icon": "fa-solid fa-note-sticky"}
+]
+
+apis = [
+    # 1. Marine Biology & Oceanography
+    {"category": "marine-biology", "name": "NOAA Ocean Currents API", "url": "https://co-ops.nos.noaa.gov/api/", "icon": "fa-solid fa-wave-square", "desc": "Παγκόσμια χαρτογράφηση και τηλεμετρία για τα θαλάσσια ρεύματα και τα επίπεδα της παλίρροιας σε πραγματικό χρόνο."},
+    {"category": "marine-biology", "name": "WoRMS Marine Species ID", "url": "https://www.marinespecies.org/rest/", "icon": "fa-solid fa-fish-fins", "desc": "Παγκόσμιο Μητρώο Θαλάσσιων Ειδών. Παρέχει ταξινομικές πληροφορίες για την αναγνώριση και ταξινόμηση της θαλάσσιας ζωής."},
+    {"category": "marine-biology", "name": "Coral Reef Watch Satellite Data", "url": "https://coralreefwatch.noaa.gov/", "icon": "fa-solid fa-sun", "desc": "Δορυφορικά δεδομένα θερμικού στρες για την παρακολούθηση της υγείας και του αποχρωματισμού των κοραλλιογενών υφάλων παγκοσμίως."},
+    {"category": "marine-biology", "name": "OCEARCH Shark Tracker API", "url": "https://www.ocearch.org/", "icon": "fa-solid fa-fish", "desc": "Δεδομένα τηλεμετρίας σε πραγματικό χρόνο για την παρακολούθηση της κίνησης καρχαριών και άλλων μεγάλων θαλάσσιων θηρευτών."},
+    {"category": "marine-biology", "name": "Underwater Bio-Acoustics Archive", "url": "https://www.pmel.noaa.gov/", "icon": "fa-solid fa-microphone", "desc": "Αρχείο υποβρύχιων καταγραφών ήχου, προσφέροντας ακουστικά δεδομένα από φάλαινες, δελφίνια και σεισμικούς θορύβους του βυθού."},
+
+    # 2. Gastronomy & Culinary Arts
+    {"category": "gastronomy", "name": "Recipe Puppy API", "url": "http://www.recipepuppy.com/api/", "icon": "fa-solid fa-utensils", "desc": "Μηχανή αναζήτησης συνταγών μαγειρικής με βάση τα διαθέσιμα υλικά που εισάγει ο χρήστης."},
+    {"category": "gastronomy", "name": "TasteDive Food Recommendations", "url": "https://tastedive.com/api", "icon": "fa-solid fa-lightbulb", "desc": "Προτάσεις γευσιγνωσίας, συνδυασμοί φαγητών με κρασιά και εναλλακτικές γαστρονομικές επιλογές."},
+    {"category": "gastronomy", "name": "Open Food Facts API", "url": "https://world.openfoodfacts.org/data", "icon": "fa-solid fa-barcode", "desc": "Ανοικτή βάση δεδομένων τροφίμων με συστατικά, αλλεργιογόνα και διατροφικές βαθμολογίες (Nutri-Score)."},
+    {"category": "gastronomy", "name": "Global Wine Ratings Database", "url": "https://www.globalwinescore.com/", "icon": "fa-solid fa-wine-glass", "desc": "Αξιολογήσεις και βαθμολογίες κρασιών από κορυφαίους οινοκριτικούς παγκοσμίως, ταξινομημένες ανά χρονιά."},
+    {"category": "gastronomy", "name": "Culinary History Archive", "url": "https://www.foodtimeline.org/", "icon": "fa-solid fa-timeline", "desc": "Ιστορικό χρονολόγιο των τροφίμων, των συνταγών και των μαγειρικών συνηθειών της ανθρωπότητας από την αρχαιότητα."},
+
+    # 3. Architecture & Urban Design
+    {"category": "architecture", "name": "ArchDaily Landmarks Registry", "url": "https://www.archdaily.com/", "icon": "fa-solid fa-landmark", "desc": "Μητρώο διάσημων ιστορικών και σύγχρονων κτιρίων με αρχιτεκτονικές λεπτομέρειες, σχέδια και φωτογραφίες."},
+    {"category": "architecture", "name": "CityGML 3D Models Service", "url": "https://www.citygml.org/", "icon": "fa-solid fa-cubes", "desc": "Πρόσβαση σε τρισδιάστατα (3D) μοντέλα πόλεων για αρχιτεκτονικό σχεδιασμό και αστικές προσομοιώσεις."},
+    {"category": "architecture", "name": "Green Building Rating Standards", "url": "https://www.usgbc.org/leed", "icon": "fa-solid fa-leaf", "desc": "Οδηγοί και πρότυπα βιοκλιματικού σχεδιασμού κτιρίων (LEED) για την ελαχιστοποίηση του περιβαλλοντικού αποτυπώματος."},
+    {"category": "architecture", "name": "World Bridge Civil Database", "url": "https://structurae.net/", "icon": "fa-solid fa-bridge", "desc": "Στατιστικά στοιχεία και ιστορικά δεδομένα πολιτικής μηχανικής για τις μεγαλύτερες και πιο γνωστές γέφυρες του κόσμου."},
+    {"category": "architecture", "name": "Architectural Signage Registry", "url": "https://www.fonts.com/", "icon": "fa-solid fa-font", "desc": "Μελέτη των ιστορικών γραμματοσειρών που χρησιμοποιήθηκαν σε κτίρια, επιγραφές και μνημεία ανά εποχή."},
+
+    # 4. Agriculture & Agritech
+    {"category": "agritech", "name": "SoilGrids Global Data", "url": "https://www.isric.org/explore/soilgrids", "icon": "fa-solid fa-earth-europe", "desc": "Παγκόσμια χαρτογράφηση της σύστασης του εδάφους, των επιπέδων υγρασίας, του pH και των θρεπτικών συστατικών."},
+    {"category": "agritech", "name": "CropNet Crop Prediction Service", "url": "https://www.cropnet.org/", "icon": "fa-solid fa-seedling", "desc": "Έξυπνη υπηρεσία πρόβλεψης σοδειάς και ανάλυσης της υγείας των καλλιεργειών με τη χρήση δορυφορικών εικόνων."},
+    {"category": "agritech", "name": "AgriMarket Real-Time Prices", "url": "https://www.amis-outlook.org/", "icon": "fa-solid fa-money-bill-trend-up", "desc": "Τιμές χονδρικής πώλησης αγροτικών προϊόντων και ζώντων ζώων στις παγκόσμιες αγορές σε πραγματικό χρόνο."},
+    {"category": "agritech", "name": "Smart Irrigation Calculus API", "url": "https://www.cropwat.org/", "icon": "fa-solid fa-droplet", "desc": "Υπολογισμός αναγκών ποτίσματος καλλιεργειών με βάση τον καιρό, τον τύπο εδάφους και το στάδιο ανάπτυξης του φυτού."},
+    {"category": "agritech", "name": "PestInfo Pathology Database", "url": "https://www.cabi.org/cpc/", "icon": "fa-solid fa-bug-slash", "desc": "Βάση δεδομένων για την καταπολέμηση παρασίτων, διαγνώσεις ασθενειών των φυτών και βιολογικές μεθόδους προστασίας."},
+
+    # 5. Space Debris Tracker
+    {"category": "space-debris", "name": "Space-Track Satellite Registry", "url": "https://www.space-track.org/", "icon": "fa-solid fa-satellite", "desc": "Η επίσημη βάση δεδομένων των ΗΠΑ για την παρακολούθηση ενεργών δορυφόρων και διαστημικών σκουπιδιών σε τροχιά."},
+    {"category": "space-debris", "name": "NASA NEO Monitor API", "url": "https://api.nasa.gov/neo/rest/v1/", "icon": "fa-solid fa-meteor", "desc": "Παρακολούθηση αστεροειδών και κομητών (Near-Earth Objects) που πλησιάζουν τη Γη με υπολογισμό κινδύνου πρόσκρουσης."},
+    {"category": "space-debris", "name": "Meteor Showers Observation Calendar", "url": "https://www.imo.net/", "icon": "fa-solid fa-star", "desc": "Ημερολόγιο και δεδομένα παρατήρησης για τις ετήσιες βροχές μετεωριτών (π.χ. Περσείδες, Λυρίδες)."},
+    {"category": "space-debris", "name": "Satellite Orbital Decay Predictor", "url": "https://www.space-track.org/decay", "icon": "fa-solid fa-arrow-down", "desc": "Προγνωστικά μοντέλα για την απώλεια ύψους τροχιάς δορυφόρων και τον ακριβή χρόνο επανεισόδου τους στην ατμόσφαιρα."},
+    {"category": "space-debris", "name": "ISS Transit Visibility Calculator", "url": "https://wheretheiss.at/w/developer", "icon": "fa-solid fa-eye", "desc": "Υπολογισμός των παραθύρων ορατότητας του Διεθνούς Διαστημικού Σταθμού (ISS) πάνω από οποιοδήποτε σημείο της Γης."},
+
+    # 6. Mythology & Folklore
+    {"category": "mythology", "name": "Greek Mythology Pantheon API", "url": "https://www.theoi.com/", "icon": "fa-solid fa-scroll", "desc": "Αναλυτικά προφίλ, γενεαλογικά δέντρα, μύθοι και πηγές για τους Θεούς και τους Ήρωες της ελληνικής μυθολογίας."},
+    {"category": "mythology", "name": "Norse Sagas Database", "url": "https://www.snorrastofa.is/", "icon": "fa-solid fa-shield", "desc": "Καταγραφή της σκανδιναβικής μυθολογίας, των Σαγκών, των θεών (Όντιν, Θορ) και της ιστορίας των Βίκινγκς."},
+    {"category": "mythology", "name": "Egyptian Gods Registry", "url": "https://www.ancientegyptianmythology.com/", "icon": "fa-solid fa-monument", "desc": "Μελέτη του αιγυπτιακού πανθέου, των ιερογλυφικών κειμένων, των πυραμίδων και της μυθολογίας του Νείλου."},
+    {"category": "mythology", "name": "Global Folklore & Fables Archive", "url": "https://www.folklore.ee/folklore/", "icon": "fa-solid fa-book-open", "desc": "Ψηφιακό αρχείο με παραδοσιακά παραμύθια, λαϊκούς θρύλους και παραδόσεις από διάφορες χώρες του κόσμου."},
+    {"category": "mythology", "name": "Cryptid Wiki Database", "url": "https://cryptidz.fandom.com/wiki/", "icon": "fa-solid fa-dragon", "desc": "Ιστορικά δεδομένα και μαρτυρίες για μυθικά πλάσματα της κρυπτοζωολογίας (Μεγαλοπόδαρος, Τέρας του Λοχ Νες)."},
+
+    # 7. Alternative Energy & Grid Telemetry
+    {"category": "alternative-energy", "name": "NREL Solar Radiation Data", "url": "https://developer.nrel.gov/docs/solar/", "icon": "fa-solid fa-sun", "desc": "Δεδομένα ηλιακής ακτινοβολίας για τον σχεδιασμό και την τοποθέτηση φωτοβολταϊκών συστημάτων."},
+    {"category": "alternative-energy", "name": "Global Wind Atlas API", "url": "https://globalwindatlas.info/api", "icon": "fa-solid fa-wind", "desc": "Χάρτες ταχύτητας και διεύθυνσης ανέμου σε διάφορα υψόμετρα για τον σχεδιασμό αιολικών πάρκων."},
+    {"category": "alternative-energy", "name": "Grid Carbon Intensity API", "url": "https://carbonintensity.org.uk/", "icon": "fa-solid fa-leaf", "desc": "Δεδομένα για το αποτύπωμα άνθρακα της παραγόμενης ηλεκτρικής ενέργειας στο δίκτυο σε πραγματικό χρόνο."},
+    {"category": "alternative-energy", "name": "River Run Hydroelectric Flow", "url": "https://waterdata.usgs.gov/nwis", "icon": "fa-solid fa-water", "desc": "Ρυθμοί ροής μεγάλων ποταμών και στατιστικά στοιχεία για την παραγωγή υδροηλεκτρικής ενέργειας."},
+    {"category": "alternative-energy", "name": "Battery Grid Thermal Analytics", "url": "https://www.sandia.gov/ess-ssl/", "icon": "fa-solid fa-battery-three-quarters", "desc": "Αναλυτικά στοιχεία θερμικής συμπεριφοράς και κύκλων ζωής μεγάλων συστημάτων αποθήκευσης ενέργειας (μπαταριών)."},
+
+    # 8. Genetics & DNA Sequencing
+    {"category": "genetics", "name": "Ensembl Genomes Data REST API", "url": "https://rest.ensembl.org/", "icon": "fa-solid fa-dna", "desc": "Βάση δεδομένων γονιδιώματος για σπονδυλωτά και άλλα είδη. Επιτρέπει την αναζήτηση αλληλουχιών DNA."},
+    {"category": "genetics", "name": "ClinVar Genetic Variations", "url": "https://www.ncbi.nlm.nih.gov/clinvar/", "icon": "fa-solid fa-notes-medical", "desc": "Καταγραφή των ανθρώπινων γενετικών μεταλλάξεων και της συσχέτισής τους με κληρονομικές παθήσεις."},
+    {"category": "genetics", "name": "BLAST Sequence Alignment tool", "url": "https://blast.ncbi.nlm.nih.gov/Blast.cgi", "icon": "fa-solid fa-magnifying-glass", "desc": "Εργαλείο ευθυγράμμισης και σύγκρισης άγνωστων αλληλουχιών DNA/RNA με καταχωρημένα γονιδιώματα."},
+    {"category": "genetics", "name": "CRISPR Target Guides Database", "url": "https://www.crisprscan.org/", "icon": "fa-solid fa-scissors", "desc": "Βάση δεδομένων για τον σχεδιασμό οδηγών RNA στο σύστημα γονιδιακής επεξεργασίας CRISPR."},
+    {"category": "genetics", "name": "Taxon Genetic Tree Service", "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/", "icon": "fa-solid fa-sitemap", "desc": "Γενετικά φυλογενετικά δέντρα που δείχνουν τις εξελικτικές σχέσεις ανάμεσα σε όλα τα γνωστά είδη."},
+
+    # 9. Forestry & Wildfire Prevention
+    {"category": "forestry", "name": "Global Forest Watch Data", "url": "https://data.globalforestwatch.org/", "icon": "fa-solid fa-tree", "desc": "Παρακολούθηση της παγκόσμιας δασικής κάλυψης, των ρυθμών αποδάσωσης και των περιοχών προστασίας."},
+    {"category": "forestry", "name": "NASA FIRMS Wildfire Monitor", "url": "https://firms.modaps.eosdis.nasa.gov/api/", "icon": "fa-solid fa-fire-flame-curved", "desc": "Δορυφορικός εντοπισμός ενεργών εστιών φωτιάς και θερμικών ανωμαλιών σε πραγματικό χρόνο παγκοσμίως."},
+    {"category": "forestry", "name": "Tree Growth Modeling Engine", "url": "https://www.fs.usda.gov/", "icon": "fa-solid fa-chart-line", "desc": "Μοντέλα ανάπτυξης δέντρων και πυκνότητας ξύλου με βάση τις κλιματικές συνθήκες και το είδος του δάσους."},
+    {"category": "forestry", "name": "Reforestation Success Index", "url": "https://www.reforestation-db.org/", "icon": "fa-solid fa-hands-holding-circle", "desc": "Καταγραφή επιτυχημένων έργων αναδάσωσης και δεδομένα αποκατάστασης υποβαθμισμένων εδαφών."},
+    {"category": "forestry", "name": "Forest Carbon Sequestration", "url": "https://www.ipcc.ch/", "icon": "fa-solid fa-cloud-arrow-down", "desc": "Υπολογισμός της ποσότητας διοξειδίου του άνθρακα που απορροφάται ετησίως ανά εκτάριο δασικής έκτασης."},
+
+    # 10. Aviation & Flight Simulation Logs
+    {"category": "aviation", "name": "OpenSky Network API", "url": "https://opensky-network.org/apidoc/", "icon": "fa-solid fa-plane-up", "desc": "Δωρεάν πρόσβαση σε live δεδομένα εναέριας κυκλοφορίας και στίγματα αεροσκαφών για ερευνητικούς σκοπούς."},
+    {"category": "aviation", "name": "Aviation Edge Airport Codes API", "url": "https://aviation-edge.com/", "icon": "fa-solid fa-list", "desc": "Βάση δεδομένων με παγκόσμιους κωδικούς αεροδρομίων (IATA/ICAO), δρομολόγια πτήσεων και στόλους αεροπορικών εταιρειών."},
+    {"category": "aviation", "name": "Flight Simulator Aerodynamics Data", "url": "https://www.x-plane.com/", "icon": "fa-solid fa-gamepad", "desc": "Φυσικά μοντέλα, αεροδυναμικές δυνάμεις και τεχνικές προδιαγραφές αεροσκαφών για προγραμματιστές προσομοιωτών."},
+    {"category": "aviation", "name": "NTSB Aircraft Accident Database", "url": "https://www.ntsb.gov/", "icon": "fa-solid fa-triangle-exclamation", "desc": "Ιστορικό αρχείο και πορίσματα ερευνών για αεροπορικά ατυχήματα και συμβάντα στην πολιτική αεροπορία."},
+    {"category": "aviation", "name": "Real-Time METAR & TAF Reports", "url": "https://www.aviationweather.gov/dataserver", "icon": "fa-solid fa-cloud-showers-heavy", "desc": "Μετεωρολογικά δελτία αεροδρομίων (METAR/TAF) για την ασφάλεια των πτήσεων σε πραγματικό χρόνο."},
+
+    # 11. Philately & Numismatics
+    {"category": "philately", "name": "StampWorld Stamp Catalog", "url": "https://www.stampworld.com/", "icon": "fa-solid fa-stamp", "desc": "Ο πληρέστερος παγκόσμιος κατάλογος γραμματοσήμων με ιστορικά στοιχεία, εκδόσεις και εκτιμώμενες αξίες."},
+    {"category": "philately", "name": "Numismatic Coin Catalog API", "url": "https://en.numista.com/", "icon": "fa-solid fa-coins", "desc": "Κατάλογος κυκλοφορούντων και αναμνηστικών νομισμάτων από όλες τις χώρες και τις ιστορικές περιόδους."},
+    {"category": "philately", "name": "Rare Stamp Auction History", "url": "https://www.cherrystoneauctions.com/", "icon": "fa-solid fa-gavel", "desc": "Ιστορικό τιμών πώλησης και αποτελέσματα δημοπρασιών για σπάνια φιλοτελικά αντικείμενα."},
+    {"category": "philately", "name": "Historic Mint Marks DB", "url": "https://www.usmint.gov/", "icon": "fa-solid fa-building", "desc": "Βάση δεδομένων για τα σήματα των νομισματοκοπείων και τη μεταλλική σύνθεση των ιστορικών νομισμάτων."},
+    {"category": "philately", "name": "World Banknote Registry", "url": "https://www.banknote.ws/", "icon": "fa-solid fa-money-bill", "desc": "Κατάλογος χαρτονομισμάτων από όλο τον κόσμο με ανάλυση των σχεδίων και των δικλείδων ασφαλείας τους."},
+
+    # 12. Historical Archives & Genealogy
+    {"category": "genealogy", "name": "FamilySearch Genealogy API", "url": "https://www.familysearch.org/developers/", "icon": "fa-solid fa-sitemap", "desc": "Πρόσβαση σε δισεκατομμύρια ιστορικά αρχεία για τη δημιουργία και τον έλεγχο οικογενειακών δέντρων."},
+    {"category": "genealogy", "name": "US & EU Census Archives", "url": "https://www.census.gov/", "icon": "fa-solid fa-users", "desc": "Ιστορικά στοιχεία απογραφών πληθυσμού από τον 19ο και 20ό αιώνα για κοινωνιολογική έρευνα."},
+    {"category": "genealogy", "name": "Port Passenger Manifests", "url": "https://www.statueofliberty.org/discover/", "icon": "fa-solid fa-ship", "desc": "Ιστορικές λίστες επιβατών πλοίων και αρχεία μεταναστών από μεγάλα λιμάνια εισόδου (π.χ. Ellis Island)."},
+    {"category": "genealogy", "name": "Find A Grave Memorial Registry", "url": "https://www.findagrave.com/", "icon": "fa-solid fa-tombstone", "desc": "Βάση δεδομένων με ταφόπλακες, φωτογραφίες μνημείων και ημερομηνίες θανάτου από κοιμητήρια παγκοσμίως."},
+    {"category": "genealogy", "name": "Surname Frequency Map API", "url": "https://forebears.io/", "icon": "fa-solid fa-map-location-dot", "desc": "Γεωγραφική κατανομή και στατιστικά συχνότητας επιθέτων παγκοσμίως με ετυμολογικές ρίζες."},
+
+    # 13. Seismology & Volcanology
+    {"category": "seismology", "name": "USGS Earthquake Hazards API", "url": "https://earthquake.usgs.gov/fdsnws/event/1/", "icon": "fa-solid fa-house-crack", "desc": "Παγκόσμια καταγραφή σεισμών σε πραγματικό χρόνο με δεδομένα μεγέθους, επίκεντρου και εστιακού βάθους."},
+    {"category": "seismology", "name": "Smithsonian Volcano Database", "url": "https://volcano.si.edu/", "icon": "fa-solid fa-volcano", "desc": "Αναλυτικός κατάλογος του Smithsonian για τα ενεργά ηφαίστεια του πλανήτη και το ιστορικό των εκρήξεών τους."},
+    {"category": "seismology", "name": "NOAA DART Tsunami Telemetry", "url": "https://www.ndbc.noaa.gov/", "icon": "fa-solid fa-water", "desc": "Δεδομένα από πλωτούς ανιχνευτές πίεσης στον βυθό των ωκεανών για την έγκαιρη προειδοποίηση τσουνάμι."},
+    {"category": "seismology", "name": "Seismic Wave Propagation Data", "url": "https://www.iris.edu/hq/", "icon": "fa-solid fa-chart-line", "desc": "Πρόσβαση σε πρωτογενή δεδομένα κυματομορφών από σεισμογράφους σε όλο τον κόσμο."},
+    {"category": "seismology", "name": "Crustal Geothermal Heat Flow", "url": "https://www.ihfc-iugg.org/", "icon": "fa-solid fa-temperature-arrow-up", "desc": "Καταγραφές γεωθερμικής ροής θερμότητας στον φλοιό της Γης για τη μελέτη της τεκτονικής δραστηριότητας."},
+
+    # 14. Classical Music & Opera
+    {"category": "classical-music", "name": "IMSLP Public Domain Sheet Music", "url": "https://imslp.org/", "icon": "fa-solid fa-music", "desc": "Η μεγαλύτερη ψηφιακή βιβλιοθήκη παρτιτούρων κλασικής μουσικής που ανήκουν στο κοινό κτήμα."},
+    {"category": "classical-music", "name": "Composer & Works Catalog", "url": "https://openopus.org/", "icon": "fa-solid fa-user-tie", "desc": "Βάση δεδομένων με βιογραφίες κλασικών συνθετών και πλήρεις καταλόγους των έργων τους (π.χ. κατάλογος KV, BWV)."},
+    {"category": "classical-music", "name": "Opera Performances Database", "url": "https://www.operabase.com/", "icon": "fa-solid fa-masks-theater", "desc": "Πρόγραμμα παραστάσεων, συντελεστές και καλλιτέχνες σε όπερες και συμφωνικές ορχήστρες παγκοσμίως."},
+    {"category": "classical-music", "name": "Orchestral Instrument Resonance", "url": "https://www.phys.unsw.edu.au/music/", "icon": "fa-solid fa-waveform", "desc": "Ακουστικά μοντέλα και φυσική της αντήχησης των πνευστών, εγχόρδων και κρουστών οργάνων."},
+    {"category": "classical-music", "name": "Operatic Libretti Translations", "url": "https://www.librettidopera.it/", "icon": "fa-solid fa-file-lines", "desc": "Αρχείο με τα αυθεντικά κείμενα (λιμπρέτα) των κλασικών έργων όπερας και τις μεταφράσεις τους."},
+
+    # 15. Archaeology & Ancient Civilizations
+    {"category": "archaeology", "name": "Pleiades Ancient Gazetteer", "url": "https://pleiades.stoa.org/", "icon": "fa-solid fa-map", "desc": "Μια μοναδική βάση δεδομένων για τη γεωγραφία του αρχαίου ελληνικού, ρωμαϊκού και μεσογειακού κόσμου."},
+    {"category": "archaeology", "name": "Cuneiform Digital Library (CDLI)", "url": "https://cdli.ucla.edu/", "icon": "fa-solid fa-tablet", "desc": "Φωτογραφίες και μεταγραφές πήλινων πινακίδων σφηνοειδούς γραφής από την αρχαία Μεσοποταμία."},
+    {"category": "archaeology", "name": "Radiocarbon Dating Database", "url": "https://www.radiocarbon.org/", "icon": "fa-solid fa-hourglass", "desc": "Παγκόσμιο αρχείο αποτελεσμάτων ραδιοχρονολόγησης άνθρακα-14 για αρχαιολογικά ευρήματα."},
+    {"category": "archaeology", "name": "Inscriptiones Graecae Epigraphy DB", "url": "https://epigraphy.packhum.org/", "icon": "fa-solid fa-monument", "desc": "Μεγάλο ψηφιακό αρχείο με μεταγραφές αρχαίων ελληνικών και λατινικών επιγραφών πάνω σε πέτρα."},
+    {"category": "archaeology", "name": "Ancient Coinage Catalog", "url": "http://numismatics.org/", "icon": "fa-solid fa-circle-notch", "desc": "Ψηφιακός κατάλογος αρχαίων ελληνικών, ρωμαϊκών και βυζαντινών νομισμάτων με ιστορικές αναλύσεις."},
+
+    # 16. Zoology & Endangered Species
+    {"category": "zoology", "name": "IUCN Red List API", "url": "https://apiv3.iucnredlist.org/", "icon": "fa-solid fa-square-envelope", "desc": "Η επίσημη Κόκκινη Λίστα της IUCN για την κατάσταση διατήρησης και απειλής των ζώων και φυτών."},
+    {"category": "zoology", "name": "Animal Life History Traits", "url": "https://www.pantheria.org/", "icon": "fa-solid fa-paw", "desc": "Βιολογικά χαρακτηριστικά θηλαστικών, όπως βάρος, διάρκεια ζωής, αναπαραγωγικοί κύκλοι και μεταβολισμός."},
+    {"category": "zoology", "name": "Mammal Diversity Database", "url": "https://www.mammaldiversity.org/", "icon": "fa-solid fa-sitemap", "desc": "Ταξινομική βάση δεδομένων που ενημερώνεται συνεχώς για όλα τα ζώντα είδη θηλαστικών στον πλανήτη."},
+    {"category": "zoology", "name": "BirdLife Migration Pathways", "url": "https://www.birdlife.org/", "icon": "fa-solid fa-dove", "desc": "Χάρτες μετανάστευσης πτηνών, σημαντικές περιοχές φωλιάσματος και προγράμματα προστασίας."},
+    {"category": "zoology", "name": "Reptile Database API", "url": "http://www.reptile-database.org/", "icon": "fa-solid fa-staff-snake", "desc": "Πλήρης κατάλογος όλων των ειδών ερπετών (φίδια, σαύρες, χελώνες) με ταξινομικά δεδομένα και κατανομή."},
+
+    # 17. Linguistics & Dead Languages
+    {"category": "linguistics", "name": "Indo-European Roots Dictionary", "url": "https://www.ahdictionary.com/", "icon": "fa-solid fa-language", "desc": "Ετυμολογικό λεξικό που συνδέει σύγχρονες λέξεις με τις πρωτο-ινδοευρωπαϊκές ρίζες τους."},
+    {"category": "linguistics", "name": "Phoenician Text Corpus", "url": "https://www.phoenician-corpus.org/", "icon": "fa-solid fa-scroll", "desc": "Ψηφιοποιημένο αρχείο φοινικικών επιγραφών με γραμματική ανάλυση και μεταφράσεις."},
+    {"category": "linguistics", "name": "Glottolog Language Catalog", "url": "https://glottolog.org/", "icon": "fa-solid fa-tree", "desc": "Λεπτομερής κατάλογος όλων των γλωσσών του κόσμου, των διαλέκτων τους και των γενεαλογικών τους δέντρων."},
+    {"category": "linguistics", "name": "Phonetic IPA Converter", "url": "https://www.phonetizer.com/", "icon": "fa-solid fa-headphones", "desc": "Μετατροπέας κειμένου σε διεθνή φωνητική μεταγραφή (IPA) για τη μελέτη της προφοράς."},
+    {"category": "linguistics", "name": "Latin Lemma & Syntax Analyzer", "url": "https://www.perseus.tufts.edu/hopper/", "icon": "fa-solid fa-spell-check", "desc": "Εργαλείο ανάλυσης της γραμματικής δομής και εύρεσης λημμάτων για κλασικά λατινικά κείμενα."},
+
+    # 18. Botany & Herbal Medicine
+    {"category": "botany", "name": "Tropicos Botanical Database", "url": "https://www.tropicos.org/", "icon": "fa-solid fa-leaf", "desc": "Επιστημονικά ονόματα φυτών, βιβλιογραφία και δείγματα από τον Βοτανικό Κήπο του Μιζούρι."},
+    {"category": "botany", "name": "PlantSelf AI Identification", "url": "https://trefle.io/", "icon": "fa-solid fa-camera", "desc": "API αναγνώρισης φυτών από φωτογραφίες φύλλων ή λουλουδιών με χρήση τεχνητής νοημοσύνης."},
+    {"category": "botany", "name": "Phytotherapy Medicinal Index", "url": "https://www.ema.europa.eu/en/medicines/herbal", "icon": "fa-solid fa-mortar-pestle", "desc": "Επίσημα επιστημονικά δεδομένα για τις θεραπευτικές ιδιότητες των βοτάνων και τη χρήση τους στην ιατρική."},
+    {"category": "botany", "name": "Pollen Count & Allergy Forecast", "url": "https://www.pollen.com/", "icon": "fa-solid fa-wind", "desc": "Μετρήσεις συγκέντρωσης γύρης στην ατμόσφαιρα και πρόγνωση αλλεργιών ανά περιοχή."},
+    {"category": "botany", "name": "Global Seed Vault Inventory", "url": "https://www.nordgen.org/en/global-seed-vault/", "icon": "fa-solid fa-box-archive", "desc": "Κατάλογος των δειγμάτων σπόρων που φυλάσσονται στην Παγκόσμια Τράπεζα Σπόρων Svalbard για την ασφάλεια των τροφίμων."},
+
+    # 19. Astronomy & Deep Space Imagery
+    {"category": "astronomy", "name": "SIMBAD Astronomical Database", "url": "http://simbad.u-strasbg.fr/simbad/", "icon": "fa-solid fa-star", "desc": "Η παγκόσμια βάση αναφοράς για αστρονομικά αντικείμενα εκτός του ηλιακού μας συστήματος."},
+    {"category": "astronomy", "name": "NASA Exoplanet Archive", "url": "https://exoplanetarchive.ipac.caltech.edu/", "icon": "fa-solid fa-globe", "desc": "Καταγραφή επιβεβαιωμένων εξωπλανητών με στοιχεία μάζας, τροχιάς, ακτινοβολίας και πιθανότητας κατοικησιμότητας."},
+    {"category": "astronomy", "name": "Astronomy Picture of the Day (APOD)", "url": "https://api.nasa.gov/planetary/apod", "icon": "fa-solid fa-image", "desc": "Η επίσημη ροή της NASA με εντυπωσιακές καθημερινές φωτογραφίες του διαστήματος και επεξηγήσεις από αστροφυσικούς."},
+    {"category": "astronomy", "name": "Celestial Coordinates Calculator", "url": "https://pyephem.github.io/", "icon": "fa-solid fa-calculator", "desc": "Υπολογισμός των θέσεων των πλανητών, των αστέρων και των νεφελωμάτων στον ουρανό για οποιαδήποτε ημερομηνία."},
+    {"category": "astronomy", "name": "Galaxy Morphology Catalog", "url": "https://hubblesite.org/", "icon": "fa-solid fa-circle-nodes", "desc": "Μορφολογική ταξινόμηση γαλαξιών (σπειροειδείς, ελλειπτικοί) με βάση δορυφορικές παρατηρήσεις."},
+
+    # 20. Automotive Engineering & Car Restoration
+    {"category": "automotive", "name": "CarQuery Specifications API", "url": "http://www.carqueryapi.com/", "icon": "fa-solid fa-car-side", "desc": "Λεπτομερής βάση δεδομένων με όλα τα μοντέλα αυτοκινήτων, κινητήρες και διαστάσεις από το 1940 έως σήμερα."},
+    {"category": "automotive", "name": "Parts Cross-Reference Index", "url": "https://www.rockauto.com/", "icon": "fa-solid fa-gears", "desc": "Κατάλογος ανταλλακτικών αυτοκινήτων και διασταύρωση συμβατότητας ανάμεσα σε διαφορετικές μάρκες."},
+    {"category": "automotive", "name": "OBD-II Diagnostic Codes API", "url": "https://obd-codes.com/", "icon": "fa-solid fa-wrench", "desc": "Επεξήγηση των κωδικών σφαλμάτων των αυτοκινήτων (OBD-II) και οδηγίες για την αποκατάσταση των βλαβών."},
+    {"category": "automotive", "name": "Classic Engine Dyno Analytics", "url": "https://www.car-specs.com/", "icon": "fa-solid fa-gauge-high", "desc": "Καμπύλες ροπής και ιπποδύναμης για ιστορικούς και κλασικούς κινητήρες εσωτερικής καύσης."},
+    {"category": "automotive", "name": "Vintage Restoration Manuals", "url": "https://www.haynes.com/", "icon": "fa-solid fa-book", "desc": "Οδηγοί επισκευής και φροντίδας για την αναπαλαίωση κλασικών οχημάτων, επεξεργασία σκουριάς και καλωδιώσεις."},
+
+    # 21. Fashion & Haute Couture History
+    {"category": "fashion", "name": "Fashion History Timeline", "url": "https://fashionhistory.fitnyc.edu/", "icon": "fa-solid fa-timeline", "desc": "Ιστορικό χρονολόγιο της εξέλιξης των ενδυμάτων, των πατρόν και των υφασμάτων από την αρχαιότητα."},
+    {"category": "fashion", "name": "Textile Weave Structures DB", "url": "https://textileexchange.org/", "icon": "fa-solid fa-border-all", "desc": "Βάση δεδομένων για τις δομές ύφανσης, τα βάρη των νημάτων και τα παραδοσιακά μοτίβα υφασμάτων."},
+    {"category": "fashion", "name": "Haute Couture Palette Registry", "url": "https://www.pantone.com/", "icon": "fa-solid fa-palette", "desc": "Ιστορικά δείγματα χρωμάτων και παλέτες που χρησιμοποιήθηκαν από διάσημους σχεδιαστές υψηλής ραπτικής."},
+    {"category": "fashion", "name": "Museum Costume Collections", "url": "https://www.metmuseum.org/about-the-met/curatorial-departments/the-costume-institute", "icon": "fa-solid fa-shirt", "desc": "Ψηφιακές συλλογές ενδυμάτων και αξεσουάρ που φυλάσσονται στα μεγαλύτερα μουσεία τέχνης."},
+    {"category": "fashion", "name": "Tailoring Geometry & Drafting", "url": "https://www.cutterandtailor.com/", "icon": "fa-solid fa-compass-drafting", "desc": "Γεωμετρικοί τύποι και μέθοδοι για τον σχεδιασμό χειροποίητων πατρόν κοστουμιών και φορεμάτων."},
+
+    # 22. Philosophy & Ethics Database
+    {"category": "philosophy", "name": "PhilPapers Research Index", "url": "https://philpapers.org/", "icon": "fa-solid fa-file-invoice", "desc": "Βιβλιογραφική βάση δεδομένων για επιστημονικά άρθρα, βιβλία και δημοσιεύσεις στον τομέα της φιλοσοφίας."},
+    {"category": "philosophy", "name": "Stoic Philosophy Quotes API", "url": "https://stoic-quotes.com/", "icon": "fa-solid fa-feather", "desc": "Αποφθέγματα, ηθικά διδάγματα και σκέψεις από τους Στωικούς φιλοσόφους (Μάρκος Αυρήλιος, Σενέκας)."},
+    {"category": "philosophy", "name": "Bioethics Case Studies", "url": "https://www.bioethics.nih.gov/", "icon": "fa-solid fa-notes-medical", "desc": "Μελέτες περιπτώσεων ηθικών διλημμάτων στην ιατρική, τη βιολογία και τις νέες τεχνολογίες."},
+    {"category": "philosophy", "name": "Logic Proof Checker Engine", "url": "https://proofs.openlogicproject.org/", "icon": "fa-solid fa-check-double", "desc": "Εργαλείο ελέγχου εγκυρότητας λογικών προτάσεων και βημάτων μαθηματικής λογικής."},
+    {"category": "philosophy", "name": "Philosophers Biographical Maps", "url": "https://plato.stanford.edu/", "icon": "fa-solid fa-map-pin", "desc": "Χρονολογική και γεωγραφική χαρτογράφηση των φιλοσοφικών σχολών και των εκπροσώπων τους."},
+
+    # 23. Crafting & Carpentry
+    {"category": "crafting", "name": "Wood Species Hardness Index", "url": "https://www.wood-database.com/", "icon": "fa-solid fa-tree", "desc": "Βάση δεδομένων για τα είδη ξύλου, την πυκνότητα, τη σκληρότητα (κλίμακα Janka) και τους χρόνους ξήρανσης."},
+    {"category": "crafting", "name": "Ceramic Glaze Recipe DB", "url": "https://glazy.org/", "icon": "fa-solid fa-flask", "desc": "Χημικές συνταγές και θερμοκρασίες όπτησης για την παρασκευή υαλωμάτων στην κεραμική τέχνη."},
+    {"category": "crafting", "name": "Leatherworking & Craft Guides", "url": "https://www.leathercraftlibrary.com/", "icon": "fa-solid fa-scissors", "desc": "Οδηγοί βήμα-προς-βήμα για την επεξεργασία δέρματος, τη ραφή και τη δημιουργία χειροποίητων αξεσουάρ."},
+    {"category": "crafting", "name": "Hand Tool Restoration Manuals", "url": "https://www.popularwoodworking.com/", "icon": "fa-solid fa-wrench", "desc": "Οδηγοί για το ακόνισμα, τον καθαρισμό και την αποκατάσταση παλαιών παραδοσιακών εργαλείων."},
+    {"category": "crafting", "name": "Origami Crease Pattern Engine", "url": "https://origami.me/", "icon": "fa-solid fa-note-sticky", "desc": "Γεωμετρικοί υπολογισμοί και διαγράμματα πτυχώσεων για τη δημιουργία πολύπλοκων τρισδιάστατων origami."},
+
+    # 24. Theater & Performing Arts
+    {"category": "theater", "name": "Playwright Script Archive", "url": "https://www.dramatists.com/", "icon": "fa-solid fa-file-text", "desc": "Βάση δεδομένων με θεατρικά έργα, σενάρια και πληροφορίες για πνευματικά δικαιώματα παραστάσεων."},
+    {"category": "theater", "name": "Acting Techniques Database", "url": "https://www.stanislavski.com/", "icon": "fa-solid fa-face-smile", "desc": "Ασκήσεις και θεωρία για τις μεθόδους υποκριτικής (Στανισλάφσκι, Μάισνερ, Τσέχωφ) για ηθοποιούς."},
+    {"category": "theater", "name": "Stage Lighting & Set Design", "url": "https://www.usitt.org/", "icon": "fa-solid fa-lightbulb", "desc": "Τεχνικές προδιαγραφές, σχέδια φωτισμού και σχεδίαση σκηνικών για θεατρικές παραγωγές."},
+    {"category": "theater", "name": "Theater History Chronology", "url": "https://www.britannica.com/art/theater-art", "icon": "fa-solid fa-timeline", "desc": "Η ιστορική εξέλιξη του θεάτρου από την Αρχαία Ελλάδα και το θέατρο Kabuki έως το Broadway."},
+    {"category": "theater", "name": "Audition Monologue Searcher", "url": "https://www.monologuearchive.com/", "icon": "fa-solid fa-comment", "desc": "Μηχανή αναζήτησης κλασικών και σύγχρονων θεατρικών μονολόγων για οντισιόν."},
+
+    # 25. Waste Management & Recycling Analytics
+    {"category": "waste-management", "name": "Recyclability Materials Directory", "url": "https://www.epa.gov/recycle", "icon": "fa-solid fa-recycle", "desc": "Οδηγός διαχωρισμού και ανακύκλωσης για οικιακά αντικείμενα με βάση τη χημική τους σύσταση."},
+    {"category": "waste-management", "name": "Municipal Waste Metrics API", "url": "https://www.worldbank.org/en/topic/urbandevelopment/brief/what-a-waste-global-database", "icon": "fa-solid fa-chart-bar", "desc": "Στατιστικά στοιχεία παραγωγής απορριμμάτων ανά κάτοικο και διαχείρισης αυτών ανά πόλη παγκοσμίως."},
+    {"category": "waste-management", "name": "Compost Heat Cycle Tracker", "url": "https://www.epa.gov/composting", "icon": "fa-solid fa-temperature-half", "desc": "Υπολογισμός αναλογίας άνθρακα-αζώτου και θερμοκρασίας για τη σωστή διαδικασία κομποστοποίησης."},
+    {"category": "waste-management", "name": "Landfill Gas Emissions Monitor", "url": "https://www.ghgprotocol.org/", "icon": "fa-solid fa-cloud-arrow-up", "desc": "Δορυφορικά δεδομένα εκπομπών μεθανίου και άλλων αερίων από ενεργές χωματερές."},
+    {"category": "waste-management", "name": "Circular Economy Network", "url": "https://ellenmacarthurfoundation.org/", "icon": "fa-solid fa-rotate", "desc": "Πλατφόρμες επαναχρησιμοποίησης βιομηχανικών υλικών και εφαρμογή μοντέλων κυκλικής οικονομίας."},
+
+    # 26. Geology & Mineralogy
+    {"category": "geology", "name": "Mindat Mineral Database API", "url": "https://www.mindat.org/", "icon": "fa-solid fa-gem", "desc": "Η μεγαλύτερη βάση δεδομένων για τα ορυκτά, τις κρυσταλλικές δομές και τις γεωγραφικές τοποθεσίες εύρεσής τους."},
+    {"category": "geology", "name": "Global Stratigraphy Database", "url": "https://www.stratigraphy.org/", "icon": "fa-solid fa-layer-group", "desc": "Η επίσημη γεωλογική κλίμακα του χρόνου, οι σχηματισμοί των πετρωμάτων και τα στρώματα της Γης."},
+    {"category": "geology", "name": "Rock Physical Properties API", "url": "https://www.usgs.gov/core-science-systems/national-cooperative-geologic-mapping-program", "icon": "fa-solid fa-weight-hanging", "desc": "Φυσικές ιδιότητες πετρωμάτων (πυκνότητα, πορώδες, αντοχή) για γεωτεχνικές μελέτες."},
+    {"category": "geology", "name": "Tectonic Plate Tracking Service", "url": "https://www.unavco.org/", "icon": "fa-solid fa-arrows-up-down-left-right", "desc": "Παρακολούθηση της κίνησης των τεκτονικών πλακών της Γης σε χιλιοστά ανά έτος μέσω σταθμών GPS."},
+    {"category": "geology", "name": "Paleomagnetism Core Records", "url": "https://www.ngdc.noaa.gov/geomag/wdc/", "icon": "fa-solid fa-magnet", "desc": "Ιστορικές καταγραφές της αναστροφής του μαγνητικού πεδίου της Γης που έχουν αποτυπωθεί σε πετρώματα."},
+
+    # 27. Typography & Font Design
+    {"category": "typography", "name": "OpenType Layout Spec API", "url": "https://learn.microsoft.com/en-us/typography/opentype/spec/", "icon": "fa-solid fa-font", "desc": "Προδιαγραφές διάταξης γραμματοσειρών OpenType και υπολογισμοί για αντικαταστάσεις γλυφών."},
+    {"category": "typography", "name": "Classic Typography History DB", "url": "https://www.gutenberg-museum.de/", "icon": "fa-solid fa-book", "desc": "Ιστορικός κατάλογος των πρώτων τυπογραφείων, των μεταλλικών στοιχείων και των κλασικών τυπογράφων."},
+    {"category": "typography", "name": "Web Font Legibility Metrics", "url": "https://www.w3.org/TR/WCAG21/", "icon": "fa-solid fa-eye", "desc": "Υπολογισμοί ευαναγνωσίας κειμένου στην οθόνη με βάση την αντίθεση χρωμάτων και το ύψος των χαρακτήρων."},
+    {"category": "typography", "name": "Calligraphy Vector Strokes API", "url": "https://www.calligraphy.org/", "icon": "fa-solid fa-pen-nib", "desc": "Διανυσματικά μονοπάτια (vectors) και ταχύτητα κίνησης της πένας για ψηφιακή καλλιγραφία."},
+    {"category": "typography", "name": "Font Kerning & Metrics database", "url": "https://fontforge.org/", "icon": "fa-solid fa-arrows-left-right", "desc": "Προδιαγραφές απόστασης χαρακτήρων (kerning/tracking) για την ανάπτυξη νέων ψηφιακών γραμματοσειρών."},
+
+    # 28. Ocean Cruising & Maritime Shipping
+    {"category": "maritime", "name": "MarineTraffic AIS Live Telemetry", "url": "https://www.marinetraffic.com/", "icon": "fa-solid fa-ship", "desc": "Παρακολούθηση της θέσης, της ταχύτητας και της πορείας εμπορικών πλοίων παγκοσμίως σε πραγματικό χρόνο μέσω AIS."},
+    {"category": "maritime", "name": "World Ports Capacity Directory", "url": "https://www.aapa-ports.org/", "icon": "fa-solid fa-anchor", "desc": "Λεπτομέρειες υποδομών, χωρητικότητας και ορίων βυθίσματος για τα μεγαλύτερα λιμάνια του κόσμου."},
+    {"category": "maritime", "name": "ISO Container Standards API", "url": "https://www.bic-code.org/", "icon": "fa-solid fa-box", "desc": "Προδιαγραφές διαστάσεων, βάρους και σήμανσης για εμπορευματοκιβώτια (containers) κατά ISO."},
+    {"category": "maritime", "name": "Maritime Weather Routing API", "url": "https://www.ecmwf.int/", "icon": "fa-solid fa-cloud-sun-rain", "desc": "Υπολογισμός της βέλτιστης πορείας πλοίων για την αποφυγή θαλασσοταραχών και την εξοικονόμηση καυσίμων."},
+    {"category": "maritime", "name": "IMO Marine Accident database", "url": "https://www.imo.org/", "icon": "fa-solid fa-circle-exclamation", "desc": "Βάση δεδομένων για ναυτικά ατυχήματα, συγκρούσεις πλοίων, πετρελαιοκηλίδες και επιχειρήσεις διάσωσης."},
+
+    # 29. Wine Growing & Enology
+    {"category": "enology", "name": "Grape Varieties Viticulture API", "url": "https://www.oiv.int/", "icon": "fa-solid fa-seedling", "desc": "Ταξινομία, χαρακτηριστικά φύλλων και καταλληλότητα εδάφους για τις κυριότερες ποικιλίες οιναμπέλου."},
+    {"category": "enology", "name": "Must Fermentation Analytics", "url": "https://www.wineaustralia.com/", "icon": "fa-solid fa-temperature-arrow-down", "desc": "Παρακολούθηση θερμοκρασίας, μείωσης σακχάρων και δραστηριότητας των ζυμών κατά την οινοποίηση."},
+    {"category": "enology", "name": "Vineyard Terroir Chemistry", "url": "https://www.adelaide.edu.au/wawbi/", "icon": "fa-solid fa-flask", "desc": "Χημική ανάλυση εδάφους, pH και αποστράγγισης για τους πιο διάσημους αμπελώνες παγκοσμίως."},
+    {"category": "enology", "name": "Wine Sensory Profiling DB", "url": "https://www.winefolly.com/", "icon": "fa-solid fa-wine-glass", "desc": "Βάσεις δεδομένων με αρωματικά προφίλ, επίπεδα οξύτητας και δομή τανινών για την αξιολόγηση οίνων."},
+    {"category": "enology", "name": "Yearly Vintage Weather Quality", "url": "https://www.robertparker.com/resources/vintage-chart", "icon": "fa-solid fa-cloud-sun", "desc": "Ιστορικές βαθμολογίες εσοδειών με βάση τις καιρικές συνθήκες που επικράτησαν κατά την καλλιεργητική περίοδο."},
+
+    # 30. Microscopy & Nanotechnology
+    {"category": "microscopy", "name": "Nanotech Materials Specs DB", "url": "https://www.nanowerk.com/", "icon": "fa-solid fa-atom", "desc": "Φυσικές και χημικές ιδιότητες νανοϋλικών (π.χ. γραφένιο, νανοσωλήνες άνθρακα)."},
+    {"category": "microscopy", "name": "Electron Microscopy Imagery Atlas", "url": "https://www.cellimagelibrary.org/", "icon": "fa-solid fa-image", "desc": "Συλλογή εικόνων υψηλής ανάλυσης κυττάρων, βακτηρίων και ιών από ηλεκτρονικά μικροσκόπια."},
+    {"category": "microscopy", "name": "Specimen Prep & Staining database", "url": "https://www.microscopy.org/", "icon": "fa-solid fa-vial", "desc": "Οδηγοί χρώσης, μονιμοποίησης και προετοιμασίας βιολογικών δειγμάτων για μικροσκοπική παρατήρηση."},
+    {"category": "microscopy", "name": "Optical Lens Resolution Calculator", "url": "https://www.olympus-lifescience.com/", "icon": "fa-solid fa-calculator", "desc": "Υπολογισμός του ορίου ανάλυσης των φακών και του αριθμητικού ανοίγματος (Numerical Aperture)."},
+    {"category": "microscopy", "name": "Microfluidic Flow Modeling", "url": "https://www.dolomite-microfluidics.com/", "icon": "fa-solid fa-water", "desc": "Μοντελοποίηση της ροής υγρών σε μικροσκοπική κλίμακα για το σχεδιασμό εργαστηρίων σε τσιπ (Lab-on-a-Chip)."},
+
+    # 31. Meteorology & Extreme Weather Warnings
+    {"category": "extreme-weather", "name": "Global Cyclone Tracking API", "url": "https://www.nhc.noaa.gov/", "icon": "fa-solid fa-hurricane", "desc": "Ζωντανή παρακολούθηση της πορείας, της πίεσης και της ταχύτητας ανέμων για τυφώνες και τροπικές καταιγίδες."},
+    {"category": "extreme-weather", "name": "Lightning Strike Real-Time Log", "url": "https://www.blitzortung.org/", "icon": "fa-solid fa-bolt", "desc": "Εντοπισμός ηλεκτρομαγνητικών σημάτων από κεραυνούς σε πραγματικό χρόνο παγκοσμίως με ακρίβεια μέτρων."},
+    {"category": "extreme-weather", "name": "Tornado Touchdown History DB", "url": "https://www.spc.noaa.gov/", "icon": "fa-solid fa-wind", "desc": "Καταγραφή ανεμοστρόβιλων, βαθμολογίας στην κλίμακα Fujita και καταστροφών που προκλήθηκαν."},
+    {"category": "extreme-weather", "name": "Heatwave & Thermal Stress Index", "url": "https://www.copernicus.eu/", "icon": "fa-solid fa-temperature-high", "desc": "Υπολογισμός θερμικής επιβάρυνσης πληθυσμών και αποκλίσεων θερμοκρασίας κατά τη διάρκεια καυσώνων."},
+    {"category": "extreme-weather", "name": "Ice & Blizzard Accumulation Metrics", "url": "https://www.noaa.gov/", "icon": "fa-solid fa-snowflake", "desc": "Προειδοποιήσεις για χιονοθύελλες, παγετούς και ρυθμό συσσώρευσης χιονιού στις οδικές αρτηρίες."},
+
+    # 32. Patent Registry & Intellectual Property
+    {"category": "patents", "name": "WIPO PatentScope Search API", "url": "https://www.wipo.int/patentscope/en/", "icon": "fa-solid fa-file-invoice", "desc": "Παγκόσμια αναζήτηση στις αιτήσεις διπλωμάτων ευρεσιτεχνίας και στα κατοχυρωμένα σχέδια (WIPO)."},
+    {"category": "patents", "name": "Cooperative Patent Classification (CPC)", "url": "https://www.epo.org/searching-for-patents/helpful-resources/cpc.html", "icon": "fa-solid fa-sitemap", "desc": "Σύστημα ταξινόμησης πατεντών για τον εντοπισμό τεχνολογικών κατηγοριών και προηγούμενων εφευρέσεων."},
+    {"category": "patents", "name": "Patent Citation Network API", "url": "https://www.google.com/patents", "icon": "fa-solid fa-circle-nodes", "desc": "Δίκτυο αναφορών που συνδέει τις νέες αιτήσεις πατεντών με παλαιότερες εφευρέσεις-βάσεις."},
+    {"category": "patents", "name": "Global Trademarks Database", "url": "https://www.wipo.int/branddb/en/", "icon": "fa-solid fa-trademark", "desc": "Έλεγχος κατοχυρωμένων εμπορικών σημάτων, λογοτύπων και ονομασιών σε όλο τον κόσμο."},
+    {"category": "patents", "name": "University Tech Transfer Catalog", "url": "https://autm.net/", "icon": "fa-solid fa-graduation-cap", "desc": "Κατάλογος πατεντών που ανήκουν σε πανεπιστήμια και διατίθενται για εμπορική αξιοποίηση (licensing)."},
+
+    # 33. Sociology & Anthropology Studies
+    {"category": "sociology", "name": "Human Relations Area Files (HRAF)", "url": "https://hraf.yale.edu/", "icon": "fa-solid fa-people-group", "desc": "Ανθρωπολογικά δεδομένα για τα έθιμα, τις κοινωνικές δομές και τις παραδόσεις εκατοντάδων διαφορετικών πολιτισμών."},
+    {"category": "sociology", "name": "Social Mobility Global Index", "url": "https://www.weforum.org/", "icon": "fa-solid fa-arrow-up-right-dots", "desc": "Δείκτες κοινωνικής κινητικότητας, εισοδηματικής ισότητας και ευκαιριών εκπαίδευσης ανά χώρα."},
+    {"category": "sociology", "name": "Urban Dynamics & Segregation DB", "url": "https://www.census.gov/topics/research.html", "icon": "fa-solid fa-city", "desc": "Μελέτη της οικιστικής ανάπτυξης, του διαχωρισμού των πληθυσμών και του εξευγενισμού (gentrification) των γειτονιών."},
+    {"category": "sociology", "name": "Linguistics Ethnologue Mapping", "url": "https://www.ethnologue.com/", "icon": "fa-solid fa-map-location", "desc": "Γεωγραφική χαρτογράφηση των ιθαγενών γλωσσών, των απειλούμενων διαλέκτων και των φυλών που τις μιλούν."},
+    {"category": "sociology", "name": "Historical Crime Trends database", "url": "https://www.unodc.org/unodc/en/data-and-analysis/", "icon": "fa-solid fa-handcuffs", "desc": "Στατιστικά στοιχεία εγκληματικότητας, τύπων παραβατικότητας και δικαστικών συστημάτων ανά δεκαετία."},
+
+    # 34. Aquaponics & Hydroponics
+    {"category": "hydroponics", "name": "Hydroponic Nutrient Formulas Calculator", "url": "https://www.hydroponics.co.nz/", "icon": "fa-solid fa-calculator", "desc": "Υπολογισμός αναλογιών αζώτου, φωσφόρου, καλίου και ιχνοστοιχείων για υδροπονικά διαλύματα."},
+    {"category": "hydroponics", "name": "Water pH & EC Logger API", "url": "https://www.atlas-scientific.com/", "icon": "fa-solid fa-chart-line", "desc": "Καταγραφή οξύτητας (pH) και ηλεκτρικής αγωγιμότητας (EC) του νερού για την απορρόφηση των θρεπτικών συστατικών."},
+    {"category": "hydroponics", "name": "PAR Light Intensity calculator", "url": "https://www.apogeeinstruments.com/", "icon": "fa-solid fa-lightbulb", "desc": "Υπολογισμός της φωτοσυνθετικά ενεργού ακτινοβολίας (PAR) για την τοποθέτηση τεχνητού φωτισμού LED."},
+    {"category": "hydroponics", "name": "Aquaponics Biofilter Flow Engine", "url": "https://www.fao.org/aquaculture/en/", "icon": "fa-solid fa-filter", "desc": "Διαστασιολόγηση βιολογικών φίλτρων και παρακολούθηση του κύκλου μετατροπής αμμωνίας σε νιτρικά άλατα από ψάρια."},
+    {"category": "hydroponics", "name": "Substrates Water Retention DB", "url": "https://www.grower.org/", "icon": "fa-solid fa-sponge", "desc": "Ιδιότητες συγκράτησης νερού και αερισμού για υποστρώματα όπως πετροβάμβακας, κοκοφοίνικας και διογκωμένη άργιλος."},
+
+    # 35. Railway Networks & Train Spotting
+    {"category": "railway", "name": "OpenRailMap Timetable API", "url": "https://www.openrailwaymap.org/", "icon": "fa-solid fa-train-subway", "desc": "Παγκόσμιος χάρτης σιδηροδρομικών γραμμών, σταθμών, ορίων ταχύτητας και σηματοδότησης."},
+    {"category": "railway", "name": "Locomotive Specifications Database", "url": "https://www.steamlocomotive.com/", "icon": "fa-solid fa-train", "desc": "Τεχνικά χαρακτηριστικά, βάρος, ελκτική δύναμη και ιστορικό των ατμομηχανών και των σύγχρονων ηλεκτροκίνητων τρένων."},
+    {"category": "railway", "name": "Railway Track Gauges Directory", "url": "https://www.uic.org/", "icon": "fa-solid fa-arrows-left-right", "desc": "Προδιαγραφές εύρους σιδηροδρομικών γραμμών (στενό, κανονικό, ευρύ) και διασυνδέσεις δικτύων."},
+    {"category": "railway", "name": "Train Whistle Acoustic Archives", "url": "http://www.trainweb.org/", "icon": "fa-solid fa-volume-high", "desc": "Αρχείο ήχων από σφυρίχτρες ατμομηχανών, κόρνες ντίζελ και θορύβους κύλισης στις ράγες."},
+    {"category": "railway", "name": "Mechanical Block Signaling protocols", "url": "https://www.railsigns.uk/", "icon": "fa-solid fa-traffic-light", "desc": "Μελέτη των ιστορικών συστημάτων σηματοδότησης και των πρωτοκόλλων ασφαλείας των τρένων."},
+
+    # 36. Paleontology & Fossil Tracking
+    {"category": "paleontology", "name": "Fossilworks Paleobiology Database", "url": "http://fossilworks.org/", "icon": "fa-solid fa-bone", "desc": "Ταξινομική αναζήτηση για απολιθώματα, προϊστορικά κλίματα και γεωγραφική κατανομή εξαφανισμένων ειδών."},
+    {"category": "paleontology", "name": "Dinosaur Skeletal Metrics API", "url": "https://www.dinochecker.com/", "icon": "fa-solid fa-ruler-combined", "desc": "Διαστάσεις σκελετών, υπολογισμός βάρους και ταχύτητας κίνησης για διάφορα είδη δεινοσαύρων."},
+    {"category": "paleontology", "name": "Paleomap Continental Drift API", "url": "http://www.scotese.com/", "icon": "fa-solid fa-earth-americas", "desc": "Αναπαράσταση της θέσης των ηπείρων και των ωκεανών κατά τις διάφορες γεωλογικές περιόδους (π.χ. Παγγαία)."},
+    {"category": "paleontology", "name": "Fossil Conservation & Prep manual", "url": "https://www.vertpaleo.org/", "icon": "fa-solid fa-screwdriver", "desc": "Μέθοδοι καθαρισμού απολιθωμάτων από πετρώματα, χρήση κολλών και τεχνικές σταθεροποίησης των οστών."},
+    {"category": "paleontology", "name": "Mass Extinction Causes database", "url": "https://www.geosociety.org/", "icon": "fa-solid fa-circle-exclamation", "desc": "Κλιματικά δεδομένα, στάχτες ηφαιστείων και κρατήρες προσκρούσεων μετεωριτών για τις 5 μεγάλες εξαφανίσεις ειδών."},
+
+    # 37. Restoration of Art & Museology
+    {"category": "art-restoration", "name": "Paint Pigments Chemistry API", "url": "https://www.getty.edu/conservation/", "icon": "fa-solid fa-flask-vial", "desc": "Χημική ανάλυση της γήρανσης των χρωμάτων, αλλοίωσης των συνδετικών υλικών και συνταγές καθαρισμού βερνικιών."},
+    {"category": "art-restoration", "name": "X-Ray Art Underdrawing database", "url": "https://www.nationalgallery.org.uk/about-us/science-and-conservation", "icon": "fa-solid fa-camera", "desc": "Απεικονίσεις έργων τέχνης με ακτίνες Χ και υπέρυθρες που αποκαλύπτουν τα αρχικά προσχέδια των ζωγράφων κάτω από το χρώμα."},
+    {"category": "art-restoration", "name": "Historical Restoration Case Logs", "url": "https://www.iiconservation.org/", "icon": "fa-solid fa-file-signature", "desc": "Μελέτες περιπτώσεων αποκατάστασης διάσημων πινάκων ζωγραφικής, τοιχογραφιών και γλυπτών."},
+    {"category": "art-restoration", "name": "Historic Pigment Index", "url": "https://www.pigmentsthroughages.com/", "icon": "fa-solid fa-palette", "desc": "Ιστορικά στοιχεία, προέλευση και οπτικές ιδιότητες των χρωστικών ουσιών (λάπις λάζουλι, ώχρα, κιννάβαρη)."},
+    {"category": "art-restoration", "name": "Museum Microclimate Monitor API", "url": "https://www.icom-cc.org/", "icon": "fa-solid fa-temperature-arrow-up", "desc": "Προδιαγραφές θερμοκρασίας, υγρασίας και φωτισμού για την προστασία των εκθεμάτων στα μουσεία."},
+
+    # 38. Speleology & Cave Exploration
+    {"category": "speleology", "name": "Cave Mapping 3D Laser scans", "url": "https://www.caves.org/", "icon": "fa-solid fa-mountain", "desc": "Τρισδιάστατες (3D) απεικονίσεις και χαρτογραφήσεις υπόγειων στοών και σπηλαίων μέσω τεχνολογίας LiDAR."},
+    {"category": "speleology", "name": "Speleothem Paleoclimate Logs", "url": "https://www.speleothem.info/", "icon": "fa-solid fa-icicles", "desc": "Ρυθμοί ανάπτυξης σταλακτιτών και σταλαγμιτών και κλιματικά δεδομένα χιλιάδων ετών που κλείνουν στο εσωτερικό τους."},
+    {"category": "speleology", "name": "Biospeleology Subterranean Life", "url": "https://www.subterranean-biology.org/", "icon": "fa-solid fa-bug", "desc": "Κατάλογος τυφλών ψαριών, εντόμων και μυκήτων που έχουν προσαρμοστεί να ζουν στο απόλυτο σκοτάδι των σπηλαίων."},
+    {"category": "speleology", "name": "Cave Meteorology Analytics", "url": "https://www.uis-speleo.org/", "icon": "fa-solid fa-wind", "desc": "Μελέτη των υπόγειων ρευμάτων αέρα, των επιπέδων διοξειδίου του άνθρακα και της θερμοκρασίας των σπηλαίων."},
+    {"category": "speleology", "name": "Karst Hydrology & Dye Tracing", "url": "https://water.usgs.gov/ogw/karst/", "icon": "fa-solid fa-droplet", "desc": "Παρακολούθηση υπόγειων ποταμών και αποτελέσματα ιχνηθέτησης με ειδικές χρωστικές ουσίες."},
+
+    # 39. Cartography & Historical Maps
+    {"category": "cartography", "name": "Map Projections Math API", "url": "https://proj.org/", "icon": "fa-solid fa-calculator", "desc": "Μαθηματικοί τύποι μετατροπής συντεταγμένων ανάμεσα σε διαφορετικές χαρτογραφικές προβολές (Mercator, Robinson)."},
+    {"category": "cartography", "name": "Ptolemy to Mercator Atlas", "url": "https://www.davidrumsey.com/", "icon": "fa-solid fa-map-location", "desc": "Ψηφιακή συλλογή και γεωαναφορά ιστορικών χαρτών από την αρχαιότητα έως την Αναγέννηση."},
+    {"category": "cartography", "name": "Earth Ellipsoid Geodesy Data", "url": "https://www.ngs.noaa.gov/", "icon": "fa-solid fa-globe", "desc": "Γεωδαιτικά δεδομένα, σχήμα της Γης, ελλειψοειδή αναφοράς και απόκλιση του μαγνητικού βορρά."},
+    {"category": "cartography", "name": "Ocean Bathymetry Grid Map", "url": "https://www.gebco.net/", "icon": "fa-solid fa-water", "desc": "Βαθυμετρικά δεδομένα και χάρτες του αναγλύφου του πυθμένα των ωκεανών και των υποθαλάσσιων τάφρων."},
+    {"category": "cartography", "name": "Digital Elevation Models (DEM)", "url": "https://srtm.csi.cgiar.org/", "icon": "fa-solid fa-mountain-sun", "desc": "Υψομετρικά δεδομένα εδάφους και ισοϋψείς καμπύλες από δορυφορικές αποστολές ραντάρ (SRTM)."},
+
+    # 40. Perfumer making & Olfactory Arts
+    {"category": "perfumery", "name": "Scent Notes Volatility Index", "url": "https://www.perfumersearch.com/", "icon": "fa-solid fa-flask", "desc": "Κατάλογος αρωματικών μορίων, ρυθμοί εξάτμισης και ταξινόμηση σε νότες κορυφής, καρδιάς και βάσης."},
+    {"category": "perfumery", "name": "Essential Oils Chromatography Specs", "url": "https://www.aromaweb.com/", "icon": "fa-solid fa-vial", "desc": "Αναλύσεις αεριοχρωματογραφίας για τα αιθέρια έλαια, τις αποδόσεις εκχύλισης και τη βοτανική τους προέλευση."},
+    {"category": "perfumery", "name": "Classic Perfume Formulas database", "url": "https://www.goodscentscompany.com/", "icon": "fa-solid fa-receipt", "desc": "Αναλογίες φυσικών και συνθετικών συστατικών για τη δημιουργία κλασικών αρωματικών συνθέσεων."},
+    {"category": "perfumery", "name": "Olfactory Receptor Binding Models", "url": "https://www.monell.org/", "icon": "fa-solid fa-brain", "desc": "Επιστημονικά μοντέλα για τον τρόπο που οι οσφρητικοί υποδοχείς της μύτης δεσμεύουν τις πτητικές ενώσεις."},
+    {"category": "perfumery", "name": "Kyphi & Ancient Incense Recipes", "url": "https://www.perfumemuseum.com/", "icon": "fa-solid fa-scroll", "desc": "Ιστορικές συνταγές παρασκευής θυμιαμάτων και αρωμάτων από την Αρχαία Αίγυπτο, τη Ρώμη και την Κίνα."},
+
+    # 41. Beekeeping & Apiculture
+    {"category": "beekeeping", "name": "Hive Core Thermal Analytics", "url": "https://www.coloss.org/", "icon": "fa-solid fa-temperature-half", "desc": "Θερμικές υπογραφές και έλεγχος εξαερισμού στο εσωτερικό της κυψέλης για την υγεία του σμήνους."},
+    {"category": "beekeeping", "name": "Honey Plants Pollen Calendar", "url": "https://www.apimondia.com/", "icon": "fa-solid fa-calendar-days", "desc": "Ημερολόγιο ανθοφορίας μελισσοκομικών φυτών και η θρεπτική αξία της γύρης τους για τις μέλισσες."},
+    {"category": "beekeeping", "name": "Bee Pathology Diagnosis Guide", "url": "https://www.beeaware.org.au/", "icon": "fa-solid fa-bug-slash", "desc": "Οδηγός αναγνώρισης ασθενειών των μελισσών (Βαρρόα, νοζεμίαση, κατάρρευση αποικίας)."},
+    {"category": "beekeeping", "name": "Smart Hive Weight Scales Data", "url": "https://www.hivetool.org/", "icon": "fa-solid fa-weight-scale", "desc": "Παρακολούθηση του βάρους της κυψέλης για τον προσδιορισμό του ρυθμού συλλογής μελιού."},
+    {"category": "beekeeping", "name": "Acoustic Swarm Prediction Model", "url": "https://www.apisector.com/", "icon": "fa-solid fa-volume-high", "desc": "Ανάλυση των συχνοτήτων του βόμβου των μελισσών για την πρόβλεψη της τάσης σμηνουργίας."},
+
+    # 42. Acoustics & Sound Engineering
+    {"category": "acoustics", "name": "Room Reverberation (RT60) API", "url": "https://www.roomeqwizard.com/", "icon": "fa-solid fa-waveform", "desc": "Υπολογισμός χρόνου αντήχησης RT60 και εντοπισμός στάσιμων κυμάτων σε δωμάτια και στούντιο."},
+    {"category": "acoustics", "name": "Digital Audio Quantization Specs", "url": "https://www.aes.org/", "icon": "fa-solid fa-server", "desc": "Υπολογισμοί θορύβου κβαντισμού, jitter και δυναμικού εύρους για ψηφιακούς μετατροπείς ήχου."},
+    {"category": "acoustics", "name": "Microphone Polar Patterns DB", "url": "https://www.shure.com/en-US/support/find-an-answer", "icon": "fa-solid fa-microphone", "desc": "Διαγράμματα κατευθυντικότητας (καρδιοειδή, πανκατευθυντικά) και αποκρίσεις συχνοτήτων μικροφώνων."},
+    {"category": "acoustics", "name": "Environmental Noise Pollution Maps", "url": "https://www.eea.europa.eu/themes/human/noise", "icon": "fa-solid fa-volume-xmark", "desc": "Χάρτες ηχορύπανσης των πόλεων και επιπτώσεις του θορύβου των δρόμων στις κατοικημένες περιοχές."},
+    {"category": "acoustics", "name": "QRD Sound Diffuser Math Engine", "url": "https://www.subwoofer-builder.com/qrd.htm", "icon": "fa-solid fa-calculator", "desc": "Μαθηματικοί τύποι για τη σχεδίαση ακουστικών διαχυτών QRD και Skyline για βελτίωση του ήχου."},
+
+    # 43. Demographics & Population Census
+    {"category": "demographics", "name": "World Age Pyramids API", "url": "https://www.populationpyramid.net/api", "icon": "fa-solid fa-chart-area", "desc": "Κατανομή ηλικιακών ομάδων και δείκτες εξάρτησης ηλικιωμένων/παιδιών για όλες τις χώρες."},
+    {"category": "demographics", "name": "Global Life Expectancy Indices", "url": "https://www.who.int/data/gho", "icon": "fa-solid fa-heart-pulse", "desc": "Προσδόκιμο ζωής κατά τη γέννηση, ιστορικές τάσεις και προβλέψεις θνησιμότητας ανά φύλο και χώρα."},
+    {"category": "demographics", "name": "Migration Flows & Refugee Logs", "url": "https://migrationdataportal.org/", "icon": "fa-solid fa-people-arrows", "desc": "Στατιστικά στοιχεία για τις ετήσιες μεταναστευτικές ροές, τους διαδρόμους διέλευσης και τους πρόσφυγες."},
+    {"category": "demographics", "name": "Fertility & Birth Rate Analytics", "url": "https://data.un.org/", "icon": "fa-solid fa-baby", "desc": "Ποσοστά γονιμότητας (γεννήσεις ανά γυναίκα) και μέση ηλικία των μητέρων κατά την απόκτηση του πρώτου παιδιού."},
+    {"category": "demographics", "name": "Mortality Causes Classification", "url": "https://icd.who.int/browse11/l-m/en", "icon": "fa-solid fa-book-medical", "desc": "Ταξινόμηση των αιτιών θανάτου (ασθένειες, ατυχήματα) παγκοσμίως με βάση το σύστημα ICD-11."},
+
+    # 44. Water Resource Management & Hydrology
+    {"category": "hydrology", "name": "River Discharge Metrics API", "url": "https://www.grdc.sr.unh.edu/", "icon": "fa-solid fa-water", "desc": "Παροχή ποταμών σε κυβικά μέτρα ανά δευτερόλεπτο από εκατοντάδες σταθμούς μέτρησης παγκοσμίως."},
+    {"category": "hydrology", "name": "Aquifer Level Telemetry database", "url": "https://www.un-igrac.org/", "icon": "fa-solid fa-earth-americas", "desc": "Στάθμη των υπόγειων υδροφορέων και ρυθμοί αναπλήρωσης των υδάτινων αποθεμάτων."},
+    {"category": "hydrology", "name": "Estuary Water Salinity Monitor", "url": "https://waterdata.usgs.gov/nwis/qw", "icon": "fa-solid fa-vial-circle-check", "desc": "Μετρήσεις αλατότητας στα δέλτα των ποταμών και δείκτες ανάμειξης γλυκού και θαλασσινού νερού."},
+    {"category": "hydrology", "name": "Dam Reservoir Capacity API", "url": "https://www.icold-cigb.org/", "icon": "fa-solid fa-bridge-water", "desc": "Χωρητικότητα φραγμάτων, όγκος αποθηκευμένου νερού και λειτουργία υπερχειλιστών σε τεχνητές λίμνες."},
+    {"category": "hydrology", "name": "Evapotranspiration Grid Model", "url": "https://www.fao.org/land-water/databases-and-software/cropwat/", "icon": "fa-solid fa-temperature-arrow-down", "desc": "Μοντέλα εξάτμισης νερού από το έδαφος και διαπνοής των φυτών για τη διαχείριση της άρδευσης."},
+
+    # 45. Horology & Watchmaking
+    {"category": "horology", "name": "Watch Movement Specifications API", "url": "https://www.eta.ch/", "icon": "fa-solid fa-clock", "desc": "Τεχνικά χαρακτηριστικά μηχανικών ρολογιών, σχεδίαση τροχών διαφυγής και συχνότητες ταλάντωσης (BPH)."},
+    {"category": "horology", "name": "Pendulum Gravity & Swing calculator", "url": "https://www.npl.co.uk/", "icon": "fa-solid fa-gauge", "desc": "Υπολογισμός μήκους εκκρεμούς με βάση την τοπική επιτάχυνση της βαρύτητας για ρολόγια τοίχου."},
+    {"category": "horology", "name": "Mainspring Torque Decay Curves", "url": "https://www.fhh.ch/", "icon": "fa-solid fa-arrows-spin", "desc": "Μοντελοποίηση της απώλειας δύναμης του ελατηρίου (mainspring) και επίδραση στην ακρίβεια του ρολογιού."},
+    {"category": "horology", "name": "Horology History Sundial formulas", "url": "https://sundials.org/", "icon": "fa-solid fa-sun", "desc": "Μαθηματικοί τύποι για τη χάραξη ηλιακών ρολογιών ανάλογα με το γεωγραφικό πλάτος και την ιστορία τους."},
+    {"category": "horology", "name": "Escapement Acoustic Beat analysis", "url": "https://www.watchuseek.com/", "icon": "fa-solid fa-headphones", "desc": "Ακουστική ανάλυση του χτυποκάρδου (tick-tock) του ρολογιού για τη διάγνωση σφαλμάτων στον μηχανισμό διαφυγής."},
+
+    # 46. Traditional Crafts & Weaving
+    {"category": "weaving", "name": "Hand Loom Weaving Drafts", "url": "https://www.handweaving.net/", "icon": "fa-solid fa-table-cells", "desc": "Σχέδια ύφανσης, διατάξεις στημονιού και οδηγίες πατήματος πεντάλ για χειροκίνητους αργαλειούς."},
+    {"category": "weaving", "name": "Plant Dye & Mordant Recipes", "url": "https://www.maiwa.com/", "icon": "fa-solid fa-flask", "desc": "Συνταγές φυσικής βαφής νημάτων με χρήση ριζαριού, λουλακιού και άλλων φυτών, με στερέωση χρώματος."},
+    {"category": "weaving", "name": "Natural Fiber Tensile Physics", "url": "https://www.textileinstitute.org/", "icon": "fa-solid fa-weight-scale", "desc": "Φυσικές ιδιότητες, ελαστικότητα και αντοχή στον εφελκυσμό για μαλλί, μετάξι, λινάρι και βαμβάκι."},
+    {"category": "weaving", "name": "Balkan Kilim Geometric Patterns", "url": "https://www.kilim.com/", "icon": "fa-solid fa-border-all", "desc": "Παραδοσιακά γεωμετρικά μοτίβα και συμβολισμοί που χρησιμοποιούνται στα βαλκανικά και ανατολίτικα κιλίμια."},
+    {"category": "weaving", "name": "Hand Spinning Spindle Weight Guide", "url": "https://www.spinoffmagazine.com/", "icon": "fa-solid fa-arrows-spin", "desc": "Υπολογισμός στροφών ανά ίντσα (TPI) και οδηγός επιλογής βάρους αδραχτιού για το γνέσιμο μαλλιού."},
+
+    # 47. Eco-Tourism & Wilderness Survival
+    {"category": "wilderness-survival", "name": "Wilderness Shelter Heat Calculations", "url": "https://www.wilderness.org/", "icon": "fa-solid fa-tents", "desc": "Θερμομονωτική ικανότητα αυτοσχέδιων καταλυμάτων (Lean-to, χιονόσπιτα) με βάση τα εξωτερικά υλικά."},
+    {"category": "wilderness-survival", "name": "Wild Edibles Safety database", "url": "https://www.wildwoodsurvival.com/", "icon": "fa-solid fa-seedling", "desc": "Οδηγός αναγνώρισης βρώσιμων ριζών, καρπών και φυτών στο δάσος με λίστα τοξικών φυτών-διπλών."},
+    {"category": "wilderness-survival", "name": "Friction Firewood Compatibility", "url": "https://www.primitiveways.com/", "icon": "fa-solid fa-fire", "desc": "Καταλληλότητα ξύλων για άναμμα φωτιάς με τριβή (τόξο-τρύπανο) και θερμοκρασίες ανάφλεξης."},
+    {"category": "wilderness-survival", "name": "Wilderness First Aid Protocols", "url": "https://www.redcross.org/", "icon": "fa-solid fa-kit-medical", "desc": "Οδηγίες παροχής πρώτων βοηθειών σε απομονωμένες περιοχές, αντιμετώπιση υποθερμίας και δαγκωμάτων φιδιών."},
+    {"category": "wilderness-survival", "name": "Celestial Orienteering Calculator", "url": "https://www.navigation-professionals.com/", "icon": "fa-solid fa-compass", "desc": "Εύρεση προσανατολισμού τη νύχτα με τη χρήση του Πολικού Αστέρα ή του Σταυρού του Νότου χωρίς πυξίδα."},
+
+    # 48. Veterinary Science & Pet Care
+    {"category": "veterinary", "name": "Veterinary Drug Dosage Calculator", "url": "https://www.vin.com/", "icon": "fa-solid fa-calculator", "desc": "Υπολογισμός ασφαλούς δόσης φαρμάκων ανά κιλό σωματικού βάρους για σκύλους, γάτες και άλογα."},
+    {"category": "veterinary", "name": "Pet Food Toxicity database", "url": "https://www.aspca.org/", "icon": "fa-solid fa-skull-crossbones", "desc": "Λίστα επικίνδυνων τροφών για κατοικίδια (π.χ. σοκολάτα, σταφύλια, ξυλιτόλη) και συμπτώματα δηλητηρίασης."},
+    {"category": "veterinary", "name": "Animal Pathology Symptom Index", "url": "https://www.oahf.org/", "icon": "fa-solid fa-notes-medical", "desc": "Βάση δεδομένων με συμπτώματα και διαγνώσεις για κοινές ασθένειες ζώων (τύφος σκύλων, λευχαιμία γάτας)."},
+    {"category": "veterinary", "name": "Pet Behavior & Body Language API", "url": "https://www.iaabc.org/", "icon": "fa-solid fa-dog", "desc": "Ανάλυση της γλώσσας του σώματος των ζώων και οδηγίες αντιμετώπισης του άγχους αποχωρισμού."},
+    {"category": "veterinary", "name": "Vet Surgery Monitor Specifications", "url": "https://www.avma.org/", "icon": "fa-solid fa-heart-pulse", "desc": "Όρια καρδιακών παλμών, πίεσης και οξυγόνου κατά τη διάρκεια αναισθησίας και χειρουργικών επεμβάσεων στα ζώα."},
+
+    # 49. Urban Forestry & Green Spaces
+    {"category": "urban-forestry", "name": "Canopy Shade Cooling calculator", "url": "https://www.itreetools.org/", "icon": "fa-solid fa-tree", "desc": "Υπολογισμός της μείωσης της θερμοκρασίας των αστικών επιφανειών χάρη στη σκίαση από τα φύλλα των δέντρων."},
+    {"category": "urban-forestry", "name": "Particulate Matter Air Filter rates", "url": "https://www.arborday.org/", "icon": "fa-solid fa-wind", "desc": "Ικανότητα συγκράτησης μικροσωματιδίων σκόνης (PM2.5) από διάφορα είδη αστικών δέντρων."},
+    {"category": "urban-forestry", "name": "Park Noise Attenuation calculator", "url": "https://www.acoustics.org/", "icon": "fa-solid fa-volume-low", "desc": "Υπολογισμός μείωσης των ντεσιμπέλ του θορύβου της πόλης με τη χρήση πυκνών ζωνών πρασίνου."},
+    {"category": "urban-forestry", "name": "Root Expansion & Pipeline Risk", "url": "https://www.apwa.net/", "icon": "fa-solid fa-triangle-exclamation", "desc": "Κίνδυνος καταστροφής πεζοδρομίων και σωλήνων από τις ρίζες των δέντρων ανάλογα με το είδος και το έδαφος."},
+    {"category": "urban-forestry", "name": "Fire-Resistant Tree Mapping", "url": "https://www.fire.ca.gov/", "icon": "fa-solid fa-shield-halved", "desc": "Χάρτες και λίστες δέντρων με υψηλή ανθεκτικότητα στη φωτιά για τη δημιουργία αντιπυρικών ζωνών γύρω από πόλεις."},
+
+    # 50. Origami & Paper Engineering
+    {"category": "origami", "name": "Kawasaki Flat-Foldability calculator", "url": "https://origamiusa.org/", "icon": "fa-solid fa-calculator", "desc": "Υπολογισμός του θεωρήματος Kawasaki για το αν ένα σχέδιο πτυχώσεων μπορεί να διπλωθεί επίπεδα."},
+    {"category": "origami", "name": "Crease Pattern Vector Index", "url": "https://www.britishorigami.info/", "icon": "fa-solid fa-file-pdf", "desc": "Διανυσματικά σχέδια πτυχώσεων για τη δημιουργία προχωρημένων γεωμετρικών origami."},
+    {"category": "origami", "name": "Paper Thickness & Fiber direction", "url": "https://www.paperpattern.org/", "icon": "fa-solid fa-note-sticky", "desc": "Συμβατότητα χαρτιού (βάρος σε GSM) και κατεύθυνσης ινών για την αντοχή των αναδιπλώσεων."},
+    {"category": "origami", "name": "Curved Folding Geometry equations", "url": "http://graphics.stanford.edu/~takahash/", "icon": "fa-solid fa-bezier-curve", "desc": "Γεωμετρικοί τύποι για το δίπλωμα καμπύλων επιφανειών με βάση την εσωτερική τάση του χαρτιού."},
+    {"category": "origami", "name": "Space Deployable Origami Arrays", "url": "https://www.nasa.gov/feature/origami-in-space", "icon": "fa-solid fa-satellite", "desc": "Εφαρμογές του origami στη σχεδίαση πτυσσόμενων ηλιακών πάνελ για διαστημικά σκάφη της NASA."}
+]
+
+# Write to js/apis_db.js
+js_content = """// --- InfoDash APIs Showcase Directory ---
+// Programmatically generated by scripts/generate_apis_db.py
+
+window.FREE_APIS_CATEGORIES = %s;
+
+window.FREE_APIS_DATA = %s;
+""" % (json.dumps(categories, ensure_ascii=False, indent=4), json.dumps(apis, ensure_ascii=False, indent=4))
+
+output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "js", "apis_db.js"))
+
+with open(output_path, "w", encoding="utf-8") as f:
+    f.write(js_content)
+
+print(f"Successfully generated database at {output_path} with {len(categories)} categories and {len(apis)} APIs.")
