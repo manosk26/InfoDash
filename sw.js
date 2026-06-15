@@ -1,4 +1,4 @@
-const CACHE_NAME = 'infodash-cache-v5';
+const CACHE_NAME = 'infodash-cache-v6';
 const ASSETS = [
     './',
     './index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
     './js/app_v4.js?v=4',
     './js/metaphysical_hub.js?v=4',
     './js/top_sites_db.js?v=4',
+    './js/wealth-data.js?v=4',
     './manifest.json'
 ];
 
