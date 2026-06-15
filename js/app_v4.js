@@ -478,13 +478,14 @@ async function loadBettingMatches() {
 
     try {
         const matches = await fetchPopularMatches();
-        allFetchedMatches = matches;
+        // Φιλτράρισμα: Εμφανίζονται μόνο οι αγώνες που είναι 3/3 επαληθευμένοι
+        allFetchedMatches = matches.filter(m => m.isOpap && m.predictions && m.predictions.recommended_tips);
 
         // Generate Filters dynamically based on leagues that actually have matches
-        const uniqueLeagues = [...new Set(matches.map(m => m.league))];
-        filtersBar.innerHTML = `<button class="filter-btn active" data-filter="all">Όλοι οι Αγώνες (${matches.length})</button>`;
+        const uniqueLeagues = [...new Set(allFetchedMatches.map(m => m.league))];
+        filtersBar.innerHTML = `<button class="filter-btn active" data-filter="all">Όλοι οι Αγώνες (${allFetchedMatches.length})</button>`;
         uniqueLeagues.forEach(league => {
-            const leagueCount = matches.filter(m => m.league === league).length;
+            const leagueCount = allFetchedMatches.filter(m => m.league === league).length;
             filtersBar.innerHTML += `<button class="filter-btn" data-filter="${league}">${league} (${leagueCount})</button>`;
         });
 
@@ -503,7 +504,7 @@ async function loadBettingMatches() {
             });
         });
 
-        renderMatches(matches);
+        renderMatches(allFetchedMatches);
     } catch (error) {
         container.innerHTML = '<div class="error-msg">Σφάλμα φόρτωσης αγώνων. Το API πιθανώς έφτασε το όριο ή δεν ανταποκρίνεται.</div>';
     }
