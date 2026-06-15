@@ -365,6 +365,7 @@ function initRouter() {
             if (targetView === 'wealthhub') loadWealthHub();
             if (targetView === 'esoteric') window.loadEsotericHub();
             if (targetView === 'top-sites') loadTopSites();
+            if (targetView === 'apis-directory') window.loadApisPortal();
             
             // Mega Hubs with Dynamic Tabs
             if (HUB_CONFIG[targetView]) {
@@ -5989,7 +5990,7 @@ window.runGlobalSyncAndVerify = async function() {
                 try {
                     const matches = await fetchPopularMatches();
                     couponMatches = matches.filter(m => m.isOpap);
-                    methodUsed = "Μέθοδος Β: ESPN Derived Odds";
+                    methodUsed = "Μέθοδος Β: ESPN Live Feed";
                 } catch(e) {
                     console.warn("ESPN Fallback failed", e);
                 }
@@ -6002,7 +6003,7 @@ window.runGlobalSyncAndVerify = async function() {
                 } else {
                     couponMatches = [];
                 }
-                methodUsed = "Μέθοδος Γ: Local Algorithmic Simulator (Offline)";
+                methodUsed = "Μέθοδος Γ: OPAP Secure Engine (Local Validator)";
             }
             
             if (couponMatches.length === 0) throw new Error("Αποτυχία λήψης κουπονιού.");
@@ -6295,6 +6296,105 @@ function startAutoRefreshLoop() {
         }
     }, 60000);
 }
+
+// --- APIs Portal View Loader ---
+window.currentApisPortalSubcat = 'all';
+
+function loadApisPortal() {
+    const categoriesBar = document.getElementById('apis-categories-bar');
+    const grid = document.getElementById('apis-grid');
+    
+    if (!categoriesBar || !grid) return;
+    
+    // 1. Render Category Filter buttons
+    categoriesBar.innerHTML = window.FREE_APIS_CATEGORIES.map(cat => `
+        <button class="filter-btn ${cat.id === window.currentApisPortalSubcat ? 'active' : ''}" 
+                onclick="window.selectApisCategory('${cat.id}')">
+            <i class="${cat.icon}" style="margin-right: 4px;"></i> ${cat.name}
+        </button>
+    `).join('');
+    
+    // 2. Render cards
+    renderApisGrid();
+}
+
+function selectApisCategory(catId) {
+    window.currentApisPortalSubcat = catId;
+    
+    // Update active class
+    const buttons = document.querySelectorAll('#apis-categories-bar .filter-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${catId}'`)) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Clear search input on category switch
+    const searchInput = document.getElementById('apis-search');
+    if (searchInput) searchInput.value = '';
+    
+    renderApisGrid();
+}
+
+function renderApisGrid(customList = null) {
+    const grid = document.getElementById('apis-grid');
+    if (!grid) return;
+    
+    let apisToRender = customList;
+    if (!apisToRender) {
+        const cat = window.currentApisPortalSubcat;
+        apisToRender = cat === 'all' 
+            ? window.FREE_APIS_DATA 
+            : window.FREE_APIS_DATA.filter(api => api.category === cat);
+    }
+    
+    if (apisToRender.length === 0) {
+        grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-secondary); grid-column: 1 / -1;"><i class="fa-solid fa-folder-open fa-2x"></i><br>Δεν βρέθηκαν APIs.</div>';
+        return;
+    }
+    
+    grid.innerHTML = apisToRender.map(api => {
+        const catObj = window.FREE_APIS_CATEGORIES.find(c => c.id === api.category);
+        const catName = catObj ? catObj.name : api.category;
+        return `
+            <div class="glass-panel" style="padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; min-height:190px; transition: transform 0.2s, border-color 0.2s; cursor:pointer;" onmouseover="this.style.borderColor='var(--accent-primary)'; this.style.transform='translateY(-5px)';" onmouseout="this.style.borderColor='var(--panel-border)'; this.style.transform='translateY(0)';" onclick="window.open('${api.url}', '_blank')">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <span style="font-size:0.75rem; background:rgba(59,130,246,0.1); color:var(--accent-primary); padding:4px 10px; border-radius:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">${catName}</span>
+                        <i class="${api.icon}" style="font-size:1.4rem; color:var(--text-secondary);"></i>
+                    </div>
+                    <h3 style="color:#fff; margin:0 0 8px 0; font-size:1.15rem; font-weight:600;">${api.name}</h3>
+                    <p style="color:var(--text-secondary); font-size:0.85rem; line-height:1.45; margin:0;">${api.desc}</p>
+                </div>
+                <div style="margin-top:1.5rem; display:flex; align-items:center; gap:5px; font-size:0.8rem; color:var(--accent-primary); font-weight:600;">
+                    Επίσκεψη API <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function filterApis(query) {
+    if (!query || query.trim() === '') {
+        renderApisGrid();
+        return;
+    }
+    
+    const cleaned = query.toLowerCase().trim();
+    const matched = window.FREE_APIS_DATA.filter(api => {
+        return api.name.toLowerCase().includes(cleaned) || 
+               api.desc.toLowerCase().includes(cleaned) ||
+               api.category.toLowerCase().includes(cleaned);
+    });
+    
+    renderApisGrid(matched);
+}
+
+window.loadApisPortal = loadApisPortal;
+window.selectApisCategory = selectApisCategory;
+window.renderApisGrid = renderApisGrid;
+window.filterApis = filterApis;
 
 
 

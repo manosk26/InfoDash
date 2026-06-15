@@ -71,6 +71,7 @@
                 <li class="nav-item" data-target="links"><i class="fa-solid fa-link"></i><span>Directory (Χρήσιμα)</span></li>
                 <li class="nav-item" data-target="leisure"><i class="fa-solid fa-gamepad"></i><span>Leisure & Retr<span ondblclick="window.openSyndicateAccess(); event.stopPropagation();">o</span></span></li>
                 <li class="nav-item" data-target="top-sites"><i class="fa-solid fa-earth-americas"></i><span>Top Global Sites</span></li>
+                <li class="nav-item" data-target="apis-directory" style="border-top: 1px dashed #3b82f6; margin-top: 5px; padding-top: 5px;"><i class="fa-solid fa-cubes" style="color: #3b82f6;"></i><span style="color: #3b82f6; font-weight: bold;">Πύλη Δωρεάν APIs</span></li>
             </ul>
         </nav>
 
@@ -489,6 +490,20 @@
                           </div>
                       </div>
                   </section>
+                <section id="apis-directory-view" class="view-section hidden">
+                    <div class="section-header">
+                        <h1>Πύλη Δωρεάν <span class="gradient-text">APIs</span></h1>
+                        <p>Μια οργανωμένη λίστα από 50 κορυφαία δωρεάν APIs παγκοσμίως, με αναλυτική περιγραφή στα ελληνικά και δυνατότητα αναζήτησης/φιλτραρίσματος.</p>
+                    </div>
+                    <div class="top-sites-search-container" style="margin-bottom: 2rem; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <div class="search-bar" style="width: 100%; max-width: 400px; margin: 0;">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="apis-search" placeholder="Αναζήτηση σε 50 APIs (π.χ. Weather, Geolocation)..." oninput="window.filterApis(this.value)">
+                        </div>
+                        <div id="apis-categories-bar" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+                    </div>
+                    <div id="apis-grid" class="recommendations-grid"></div>
+                </section>
                 <section id="health-view" class="view-section hidden"><div id="health-tabs" class="filters-bar"></div><div id="health-content"></div></section>
                 <section id="creator-view" class="view-section hidden"><div id="creator-tabs" class="filters-bar"></div><div id="creator-content"></div></section>
                 <section id="academic-view" class="view-section hidden"><div id="academic-tabs" class="filters-bar"></div><div id="academic-content"></div></section>
@@ -838,6 +853,7 @@ class OPAPLotteryMLPredictor:
     <script src="./js/metaphysical_hub.js?v=4"></script>
     <script src="./js/top_sites_db.js?v=4"></script>
     <script src="./js/wealth-data.js?v=4"></script>
+    <script src="./js/apis_db.js?v=4"></script>
     <script src="./js/api_v4.js?v=4"></script>
     <script src="./js/app_v4.js?v=4"></script>
 </body>
