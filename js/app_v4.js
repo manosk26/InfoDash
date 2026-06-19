@@ -365,6 +365,7 @@ function initRouter() {
             if (targetView === 'wealthhub') loadWealthHub();
             if (targetView === 'esoteric') window.loadEsotericHub();
             if (targetView === 'top-sites') loadTopSites();
+            if (targetView === 'top-sites-explorer') window.loadTopSitesExplorer();
             if (targetView === 'apis-directory') window.loadApisPortal();
             
             // Mega Hubs with Dynamic Tabs
@@ -6336,6 +6337,7 @@ window.runGlobalSyncAndVerify = async function() {
         }
         if (activeSection.id === 'crypto-view') loadCrypto();
         if (activeSection.id === 'top-sites-view') loadTopSites();
+        if (activeSection.id === 'top-sites-explorer-view') window.loadTopSitesExplorer();
     }
     
     if (syncBtn) {
@@ -6704,6 +6706,188 @@ window.renderApisSidebarList = renderApisSidebarList;
 window.filterApisCategories = filterApisCategories;
 window.renderApisGrid = renderApisGrid;
 window.filterApis = filterApis;
+
+// --- Top Sites Explorer Functions (100 categories) ---
+let currentSelectedTopSitesExplorerCategory = null;
+
+async function loadTopSitesExplorer() {
+    if (!currentSelectedTopSitesExplorerCategory && window.TOP_SITES_EXPLORER_DB && window.TOP_SITES_EXPLORER_DB.length > 0) {
+        currentSelectedTopSitesExplorerCategory = window.TOP_SITES_EXPLORER_DB[0].id;
+    }
+    
+    // Clear search input on load/refresh
+    const searchInput = document.getElementById('top-sites-explorer-search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    const clearBtn = document.getElementById('top-sites-explorer-clear-btn');
+    if (clearBtn) clearBtn.classList.add('hidden');
+    
+    // Show sidebar
+    const sidebar = document.getElementById('top-sites-explorer-sidebar');
+    if (sidebar) sidebar.style.display = 'flex';
+
+    renderTopSitesExplorerCategoriesList();
+    selectTopSitesExplorerCategory(currentSelectedTopSitesExplorerCategory);
+}
+
+function renderTopSitesExplorerCategoriesList(customList = null) {
+    const listContainer = document.getElementById('top-sites-explorer-categories-list');
+    if (!listContainer) return;
+    
+    const categories = customList || window.TOP_SITES_EXPLORER_DB;
+    
+    if (categories.length === 0) {
+        listContainer.innerHTML = '<div style="text-align:center; padding:10px; color:var(--text-secondary); font-size:0.85rem;">Δεν βρέθηκαν κατηγορίες</div>';
+        return;
+    }
+    
+    listContainer.innerHTML = categories.map(cat => {
+        const isActive = cat.id === currentSelectedTopSitesExplorerCategory;
+        return `
+            <button class="nav-item ${isActive ? 'active' : ''}" onclick="window.selectTopSitesExplorerCategory('${cat.id}')" style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:${isActive ? 'rgba(16, 185, 129, 0.15)' : 'transparent'}; border:none; border-radius:6px; color:${isActive ? 'var(--success)' : 'var(--text-primary)'}; cursor:pointer; text-align:left; transition:background 0.2s, color 0.2s; font-size:0.85rem; width:100%; font-weight:${isActive ? 'bold' : 'normal'};">
+                <i class="${cat.icon}" style="color:${isActive ? 'var(--success)' : 'var(--text-secondary)'}; font-size:0.9rem;"></i>
+                <span>${cat.name}</span>
+            </button>
+        `;
+    }).join('');
+}
+
+function selectTopSitesExplorerCategory(catId) {
+    currentSelectedTopSitesExplorerCategory = catId;
+    
+    // Clear search input on category select
+    const searchInput = document.getElementById('top-sites-explorer-search');
+    if (searchInput) searchInput.value = '';
+    const clearBtn = document.getElementById('top-sites-explorer-clear-btn');
+    if (clearBtn) clearBtn.classList.add('hidden');
+    
+    const catObj = window.TOP_SITES_EXPLORER_DB.find(c => c.id === catId);
+    if (!catObj) return;
+    
+    const activeIcon = document.getElementById('top-sites-explorer-active-icon');
+    const activeName = document.getElementById('top-sites-explorer-active-name');
+    const countSpan = document.getElementById('top-sites-explorer-count');
+    
+    if (activeIcon) activeIcon.className = catObj.icon + ' text-green';
+    if (activeName) activeName.textContent = catObj.name;
+    if (countSpan) countSpan.textContent = `${catObj.gr.length + catObj.global.length} sites`;
+    
+    // Highlight category in sidebar
+    renderTopSitesExplorerCategoriesList();
+    
+    renderTopSitesExplorerGrids(catObj.gr, catObj.global);
+}
+
+function renderTopSitesExplorerGrids(grList, globalList, customTitle = null, customIcon = null) {
+    const grGrid = document.getElementById('top-sites-explorer-greek-grid');
+    const globalGrid = document.getElementById('top-sites-explorer-global-grid');
+    
+    if (!grGrid || !globalGrid) return;
+    
+    const countSpan = document.getElementById('top-sites-explorer-count');
+    if (countSpan && customTitle) {
+        countSpan.textContent = `${grList.length + globalList.length} sites`;
+    }
+    
+    if (customTitle) {
+        const activeName = document.getElementById('top-sites-explorer-active-name');
+        if (activeName) activeName.textContent = customTitle;
+    }
+    if (customIcon) {
+        const activeIcon = document.getElementById('top-sites-explorer-active-icon');
+        if (activeIcon) activeIcon.className = customIcon + ' text-green';
+    }
+    
+    const renderCard = (site, index) => {
+        const [name, url, desc, icon] = site;
+        return `
+            <div class="glass-panel" style="padding:1rem; display:flex; flex-direction:column; justify-content:space-between; min-height:140px; transition: transform 0.2s, border-color 0.2s; cursor:pointer;" onmouseover="this.style.borderColor='var(--accent-primary)'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='var(--panel-border)'; this.style.transform='translateY(0)';" onclick="window.open('${url}', '_blank')">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:8px;">
+                        <span style="font-size:0.7rem; background:rgba(255,255,255,0.05); color:var(--text-secondary); padding:2px 8px; border-radius:10px; font-weight:600;">#${index + 1}</span>
+                        <i class="${icon || 'fa-solid fa-earth-americas'}" style="font-size:1.1rem; color:var(--text-secondary);"></i>
+                    </div>
+                    <h4 style="color:#fff; margin:0 0 6px 0; font-size:0.95rem; font-weight:600;">${name}</h4>
+                    <p style="color:var(--text-secondary); font-size:0.78rem; line-height:1.4; margin:0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${desc}</p>
+                </div>
+                <div style="margin-top:1rem; display:flex; align-items:center; gap:4px; font-size:0.75rem; color:var(--accent-primary); font-weight:600;">
+                    <span>Επίσκεψη</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.65rem;"></i>
+                </div>
+            </div>
+        `;
+    };
+    
+    if (grList.length === 0) {
+        grGrid.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:0.8rem;">Κανένα αποτέλεσμα</div>';
+    } else {
+        grGrid.innerHTML = grList.map((site, index) => renderCard(site, index)).join('');
+    }
+    
+    if (globalList.length === 0) {
+        globalGrid.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:0.8rem;">Κανένα αποτέλεσμα</div>';
+    } else {
+        globalGrid.innerHTML = globalList.map((site, index) => renderCard(site, index)).join('');
+    }
+}
+
+function filterTopSitesExplorer(query) {
+    const clearBtn = document.getElementById('top-sites-explorer-clear-btn');
+    const sidebar = document.getElementById('top-sites-explorer-sidebar');
+    
+    if (!query || query.trim() === '') {
+        if (clearBtn) clearBtn.classList.add('hidden');
+        if (sidebar) sidebar.style.display = 'flex';
+        // Reload current active category
+        selectTopSitesExplorerCategory(currentSelectedTopSitesExplorerCategory);
+        return;
+    }
+    
+    if (clearBtn) clearBtn.classList.remove('hidden');
+    if (sidebar) sidebar.style.display = 'none'; // Hide sidebar when searching to show global matches
+    
+    const cleaned = query.toLowerCase().trim();
+    
+    let matchedGr = [];
+    let matchedGlobal = [];
+    
+    window.TOP_SITES_EXPLORER_DB.forEach(cat => {
+        cat.gr.forEach(site => {
+            if (site[0].toLowerCase().includes(cleaned) || 
+                site[2].toLowerCase().includes(cleaned) || 
+                cat.name.toLowerCase().includes(cleaned)) {
+                matchedGr.push(site);
+            }
+        });
+        cat.global.forEach(site => {
+            if (site[0].toLowerCase().includes(cleaned) || 
+                site[2].toLowerCase().includes(cleaned) || 
+                cat.name.toLowerCase().includes(cleaned)) {
+                matchedGlobal.push(site);
+            }
+        });
+    });
+    
+    renderTopSitesExplorerGrids(
+        matchedGr, 
+        matchedGlobal, 
+        `Αναζήτηση: "${query}"`, 
+        'fa-solid fa-magnifying-glass'
+    );
+}
+
+function clearTopSitesExplorerSearch() {
+    const searchInput = document.getElementById('top-sites-explorer-search');
+    if (searchInput) searchInput.value = '';
+    filterTopSitesExplorer('');
+}
+
+window.loadTopSitesExplorer = loadTopSitesExplorer;
+window.renderTopSitesExplorerCategoriesList = renderTopSitesExplorerCategoriesList;
+window.selectTopSitesExplorerCategory = selectTopSitesExplorerCategory;
+window.renderTopSitesExplorerGrids = renderTopSitesExplorerGrids;
+window.filterTopSitesExplorer = filterTopSitesExplorer;
+window.clearTopSitesExplorerSearch = clearTopSitesExplorerSearch;
 
 
 

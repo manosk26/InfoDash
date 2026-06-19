@@ -71,6 +71,7 @@
                 <li class="nav-item" data-target="links"><i class="fa-solid fa-link"></i><span>Directory (Χρήσιμα)</span></li>
                 <li class="nav-item" data-target="leisure"><i class="fa-solid fa-gamepad"></i><span>Leisure & Retr<span ondblclick="window.openSyndicateAccess(); event.stopPropagation();">o</span></span></li>
                 <li class="nav-item" data-target="top-sites"><i class="fa-solid fa-earth-americas"></i><span>Top Global Sites</span></li>
+                <li class="nav-item" data-target="top-sites-explorer" style="border-top: 1px dashed #10b981; margin-top: 5px; padding-top: 5px;"><i class="fa-solid fa-compass" style="color: #10b981;"></i><span style="color: #10b981; font-weight: bold;">Top Sites Explorer (100)</span></li>
                 <li class="nav-item" data-target="apis-directory" style="border-top: 1px dashed #3b82f6; margin-top: 5px; padding-top: 5px;"><i class="fa-solid fa-cubes" style="color: #3b82f6;"></i><span style="color: #3b82f6; font-weight: bold;">Πύλη Δωρεάν APIs</span></li>
             </ul>
         </nav>
@@ -499,7 +500,69 @@
                           </div>
                       </div>
                   </section>
-                <section id="apis-directory-view" class="view-section hidden">
+                  
+                  <section id="top-sites-explorer-view" class="view-section hidden">
+                      <div class="section-header">
+                          <h1>Top Sites <span class="gradient-text">Explorer (100)</span></h1>
+                          <p>Τα κορυφαία και δημοφιλέστερα site από Ελλάδα και παγκοσμίως στις 100 δημοφιλέστερες κατηγορίες αναζήτησης στο διαδίκτυο, χωρισμένα σε 2 στήλες.</p>
+                      </div>
+
+                      <!-- Search bar container -->
+                      <div class="top-sites-search-container" style="margin-bottom: 2rem; display: flex; gap: 10px; align-items: center; max-width: 650px;">
+                          <div class="search-bar" style="width: 100%; max-width: none; margin: 0;">
+                              <i class="fa-solid fa-magnifying-glass"></i>
+                              <input type="text" id="top-sites-explorer-search" placeholder="Αναζήτηση σε 100 κατηγορίες και 2.000+ sites (π.χ. Google, skroutz)..." oninput="window.filterTopSitesExplorer(this.value)">
+                          </div>
+                          <button id="top-sites-explorer-clear-btn" class="tab-btn active hidden" onclick="window.clearTopSitesExplorerSearch()" style="padding: 0.75rem 1.5rem; border-radius: 30px; white-space: nowrap;"><i class="fa-solid fa-times"></i> Καθαρισμός</button>
+                      </div>
+
+                      <!-- Two-column split layout -->
+                      <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+                          <!-- Left sidebar: categories selection list -->
+                          <div id="top-sites-explorer-sidebar" style="width: 320px; flex-shrink: 0; background: rgba(0,0,0,0.25); border: 1px solid var(--panel-border); border-radius: var(--border-radius-lg); padding: 1.25rem; display: flex; flex-direction: column; gap: 8px; max-height: calc(100vh - 280px); overflow-y: auto;">
+                              <div style="font-family: var(--font-heading); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 8px; padding-left: 10px; font-weight: 600;">Κατηγορίες (100)</div>
+                              <div id="top-sites-explorer-categories-list" style="display: flex; flex-direction: column; gap: 6px;">
+                                  <!-- Category buttons dynamically loaded here -->
+                              </div>
+                          </div>
+
+                          <!-- Right panel with split columns (Greek / Global) -->
+                          <div style="flex: 1; min-width: 300px;">
+                              <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                  <h2 style="font-size: 1.5rem; color: white; display: flex; align-items: center; gap: 10px; margin: 0;">
+                                      <i id="top-sites-explorer-active-icon" class="fa-solid fa-compass text-green"></i>
+                                      <span id="top-sites-explorer-active-name">Φόρτωση...</span>
+                                  </h2>
+                                  <span id="top-sites-explorer-count" style="font-size: 0.85rem; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 12px; border: 1px solid var(--panel-border);">20 sites</span>
+                              </div>
+
+                              <!-- Dual column layout for Greek and Global -->
+                              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                                  <!-- Greek Column -->
+                                  <div style="background: rgba(0,0,0,0.15); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 12px; padding: 1.25rem;">
+                                      <h3 style="color: var(--success); margin-top: 0; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; border-bottom: 1px dashed rgba(16, 185, 129, 0.2); padding-bottom: 8px; font-size: 1.1rem;">
+                                          <span>🇬🇷</span> Κορυφαία Ελληνικά
+                                      </h3>
+                                      <div id="top-sites-explorer-greek-grid" style="display: flex; flex-direction: column; gap: 1rem;">
+                                          <!-- Greek sites loaded here -->
+                                      </div>
+                                  </div>
+
+                                  <!-- Global Column -->
+                                  <div style="background: rgba(0,0,0,0.15); border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 12px; padding: 1.25rem;">
+                                      <h3 style="color: var(--accent-primary); margin-top: 0; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; border-bottom: 1px dashed rgba(59, 130, 246, 0.2); padding-bottom: 8px; font-size: 1.1rem;">
+                                          <i class="fa-solid fa-earth-americas text-blue"></i> Παγκόσμια Δημοφιλή
+                                      </h3>
+                                      <div id="top-sites-explorer-global-grid" style="display: flex; flex-direction: column; gap: 1rem;">
+                                          <!-- Global sites loaded here -->
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </section>
+                  
+                  <section id="apis-directory-view" class="view-section hidden">
                     <div class="section-header">
                         <h1>Πύλη Δωρεάν <span class="gradient-text">APIs</span></h1>
                         <p>Μια οργανωμένη βάση δεδομένων από 50 κατηγορίες και 250+ κορυφαία δωρεάν APIs παγκοσμίως, με αναλυτική περιγραφή στα ελληνικά.</p>
@@ -881,6 +944,7 @@ class OPAPLotteryMLPredictor:
     <script src="./js/secret-data.js?v=4"></script>
     <script src="./js/metaphysical_hub.js?v=4"></script>
     <script src="./js/top_sites_db.js?v=4"></script>
+    <script src="./js/top_sites_explorer_db.js?v=4"></script>
     <script src="./js/wealth-data.js?v=4"></script>
     <script src="./js/apis_db.js?v=4"></script>
     <script src="./js/api_v4.js?v=5"></script>
