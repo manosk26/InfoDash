@@ -461,23 +461,18 @@ function initMobileMenu() {
     }
 }
 
-// --- 1. Betting Data Loader ---
 let allFetchedMatches = [];
+let selectedBettingDate = '';
 
-async function loadBettingMatches() {
+async function fetchAndRenderMatchesForDate(dateStr) {
     const container = document.getElementById('matches-container');
     const filtersBar = document.getElementById('betting-filters');
 
-    // Check if already loaded to avoid refetching on every tab switch
-    if (allFetchedMatches.length > 0) {
-        renderMatches(allFetchedMatches);
-        return;
-    }
-
     container.innerHTML = '<div class="loader-glass"><div class="loader-spinner"></div>Φόρτωση Πραγματικών Αγώνων & Στατιστικών...</div>';
+    filtersBar.innerHTML = '';
 
     try {
-        const matches = await fetchPopularMatches();
+        const matches = await fetchPopularMatches(dateStr);
         // Φιλτράρισμα: Εμφανίζονται μόνο οι αγώνες που είναι 3/3 επαληθευμένοι
         allFetchedMatches = matches.filter(m => m.isOpap && m.predictions && m.predictions.recommended_tips);
 
@@ -508,6 +503,56 @@ async function loadBettingMatches() {
     } catch (error) {
         container.innerHTML = '<div class="error-msg">Σφάλμα φόρτωσης αγώνων. Το API πιθανώς έφτασε το όριο ή δεν ανταποκρίνεται.</div>';
     }
+}
+
+async function loadBettingMatches() {
+    const calendarContainer = document.getElementById('betting-calendar');
+    
+    // Initialize calendar if it hasn't been built yet
+    if (calendarContainer && calendarContainer.innerHTML === '') {
+        const today = new Date();
+        const greekShortDays = ["Κυρ", "Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ"];
+        
+        for (let i = 0; i < 7; i++) {
+            const tempDate = new Date(today);
+            tempDate.setDate(today.getDate() + i);
+            
+            const yyyy = tempDate.getFullYear();
+            const mm = String(tempDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(tempDate.getDate()).padStart(2, '0');
+            const dateStr = `${yyyy}${mm}${dd}`;
+            
+            const btn = document.createElement('button');
+            btn.className = `calendar-day-btn ${i === 0 ? 'active' : ''}`;
+            btn.setAttribute('data-date', dateStr);
+            
+            const dayLabel = i === 0 ? "ΣΗΜΕΡΑ" : i === 1 ? "ΑΥΡΙΟ" : greekShortDays[tempDate.getDay()];
+            const dateLabel = `${dd}/${mm}`;
+            
+            btn.innerHTML = `
+                <span class="day-name">${dayLabel}</span>
+                <span class="day-date">${dateLabel}</span>
+            `;
+            
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.calendar-day-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedBettingDate = dateStr;
+                fetchAndRenderMatchesForDate(dateStr);
+            });
+            
+            calendarContainer.appendChild(btn);
+        }
+        
+        // Set default selected date (today)
+        const todayY = today.getFullYear();
+        const todayM = String(today.getMonth() + 1).padStart(2, '0');
+        const todayD = String(today.getDate()).padStart(2, '0');
+        selectedBettingDate = `${todayY}${todayM}${todayD}`;
+    }
+
+    // Load matches for the selected date
+    fetchAndRenderMatchesForDate(selectedBettingDate);
 }
 
 function renderMatches(matchesArray) {
