@@ -246,6 +246,10 @@ async function fetchPopularMatches(dateStr = '') {
             const dateObj = new Date(event.date);
             const timeStr = dateObj.toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' });
 
+            // Extract ESPN numeric leagueId from uid (format s:600~l:600~e:123456)
+            const uid = event.competitions?.[0]?.uid || '';
+            const matchLeagueId = uid.match(/~l:([^~]+)/)?.[1] || 'eng.1';
+
             // Generate clean Greek League Name from slug
             let slugName = event.season?.slug || 'soccer';
             let leagueName = '';
@@ -284,6 +288,7 @@ async function fetchPopularMatches(dateStr = '') {
             return {
                 id: event.id,
                 league: leagueName,
+                leagueId: matchLeagueId,
                 home: homeName,
                 away: awayName,
                 time: timeStr,
@@ -304,7 +309,7 @@ async function fetchPopularMatches(dateStr = '') {
 
     } catch (e) {
         console.warn("Real match fetch failed, loading offline local validator cache:", e);
-        matches = getOfflineSimulatedCoupon();
+        matches = getOfflineSimulatedCoupon(dateStr);
     }
 
     // Sort by date ascending
@@ -312,27 +317,35 @@ async function fetchPopularMatches(dateStr = '') {
     return matches;
 }
 
-function getOfflineSimulatedCoupon() {
-    const today = new Date();
+function getOfflineSimulatedCoupon(dateStr = '') {
+    let baseDate = new Date();
+    if (dateStr && dateStr.length === 8) {
+        const yyyy = parseInt(dateStr.substring(0, 4));
+        const mm = parseInt(dateStr.substring(4, 6)) - 1;
+        const dd = parseInt(dateStr.substring(6, 8));
+        baseDate = new Date(yyyy, mm, dd);
+    }
+
     const mockEvents = [
-        { league: 'FIFA World Cup', home: 'Ελλάδα', away: 'Αργεντινή', hOdds: 5.20, xOdds: 3.80, aOdds: 1.60 },
-        { league: 'FIFA World Cup', home: 'Βραζιλία', away: 'Γερμανία', hOdds: 2.10, xOdds: 3.40, aOdds: 3.20 },
-        { league: 'FIFA World Cup', home: 'Γαλλία', away: 'Αγγλία', hOdds: 2.30, xOdds: 3.20, aOdds: 2.90 },
-        { league: 'UEFA Champions League', home: 'Real Madrid', away: 'Manchester City', hOdds: 2.80, xOdds: 3.60, aOdds: 2.30 },
-        { league: 'UEFA Champions League', home: 'Bayern Munich', away: 'PSG', hOdds: 1.95, xOdds: 3.75, aOdds: 3.40 },
-        { league: 'UEFA Champions League', home: 'Arsenal', away: 'Barcelona', hOdds: 1.85, xOdds: 3.70, aOdds: 3.80 },
-        { league: 'UEFA Europa League', home: 'Olympiacos', away: 'AS Roma', hOdds: 2.45, xOdds: 3.10, aOdds: 2.80 },
-        { league: 'UEFA Europa League', home: 'PAOK', away: 'Manchester United', hOdds: 4.10, xOdds: 3.60, aOdds: 1.75 },
-        { league: 'UEFA Europa League', home: 'Ajax', away: 'FC Porto', hOdds: 2.20, xOdds: 3.30, aOdds: 3.10 }
+        { league: 'FIFA World Cup', leagueId: 'fifa.world', home: 'Ελλάδα', away: 'Αργεντινή', hOdds: 5.20, xOdds: 3.80, aOdds: 1.60 },
+        { league: 'FIFA World Cup', leagueId: 'fifa.world', home: 'Βραζιλία', away: 'Γερμανία', hOdds: 2.10, xOdds: 3.40, aOdds: 3.20 },
+        { league: 'FIFA World Cup', leagueId: 'fifa.world', home: 'Γαλλία', away: 'Αγγλία', hOdds: 2.30, xOdds: 3.20, aOdds: 2.90 },
+        { league: 'UEFA Champions League', leagueId: 'uefa.champions', home: 'Real Madrid', away: 'Manchester City', hOdds: 2.80, xOdds: 3.60, aOdds: 2.30 },
+        { league: 'UEFA Champions League', leagueId: 'uefa.champions', home: 'Bayern Munich', away: 'PSG', hOdds: 1.95, xOdds: 3.75, aOdds: 3.40 },
+        { league: 'UEFA Champions League', leagueId: 'uefa.champions', home: 'Arsenal', away: 'Barcelona', hOdds: 1.85, xOdds: 3.70, aOdds: 3.80 },
+        { league: 'UEFA Europa League', leagueId: 'uefa.europa', home: 'Olympiacos', away: 'AS Roma', hOdds: 2.45, xOdds: 3.10, aOdds: 2.80 },
+        { league: 'UEFA Europa League', leagueId: 'uefa.europa', home: 'PAOK', away: 'Manchester United', hOdds: 4.10, xOdds: 3.60, aOdds: 1.75 },
+        { league: 'UEFA Europa League', leagueId: 'uefa.europa', home: 'Ajax', away: 'FC Porto', hOdds: 2.20, xOdds: 3.30, aOdds: 3.10 }
     ];
 
     return mockEvents.map((ev, i) => {
-        const matchDate = new Date(today);
+        const matchDate = new Date(baseDate);
         matchDate.setHours(18 + (i % 3) * 2, 0, 0, 0);
         
         return {
             id: `offline-sim-${i}`,
             league: ev.league,
+            leagueId: ev.leagueId,
             home: ev.home,
             away: ev.away,
             time: matchDate.toLocaleDateString('el-GR', { day: '2-digit', month: '2-digit', timeZone: 'Europe/Athens' }) + ' ' + matchDate.toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Athens' }),
@@ -366,7 +379,7 @@ async function fetchMatchSummary(leagueName, eventId) {
         'Conference League': 'uefa.conference', 'Championship': 'eng.2', 'Eredivisie': 'ned.1',
         'Primeira Liga': 'por.1', 'Super Lig': 'tur.1', 'Super League': 'gre.1'
     };
-    const leagueId = leagueMap[leagueName] || 'eng.1';
+    const leagueId = leagueMap[leagueName] || leagueName || 'eng.1';
 
     try {
         const targetUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueId}/summary?event=${eventId}`;

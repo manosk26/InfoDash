@@ -183,7 +183,13 @@
                     <!-- Live Content Tab -->
                     <div id="betting-live-content">
                         <!-- Calendar Widget -->
-                        <div id="betting-calendar" class="calendar-widget" style="margin-bottom: 1.5rem;"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                            <div id="betting-calendar" class="calendar-widget" style="margin-bottom: 0; flex: 1;"></div>
+                            <div class="glass-panel" style="padding: 0.5rem 1rem; display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 0.85rem; color: var(--text-secondary);"><i class="fa-solid fa-calendar-days"></i> Επιλογή Ημερομηνίας:</span>
+                                <input type="date" id="betting-date-picker" style="background: #000; border: 1px solid var(--panel-border); color: white; padding: 5px 10px; border-radius: 6px; outline: none; font-family: var(--font-heading); font-size: 0.85rem;" title="Επιλέξτε Ημερομηνία για τα επόμενα 50 χρόνια">
+                            </div>
+                        </div>
                         
                         <div class="filters-bar" id="betting-filters" style="margin-bottom: 1.5rem;"></div>
                         <div id="matches-container" class="matches-grid"></div>
