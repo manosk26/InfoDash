@@ -9,3 +9,5 @@ tmp/
 .agents/
 .agent/
 lighthouse-report.html
+InfoDash_Manual.pdf
+generate_manual.py

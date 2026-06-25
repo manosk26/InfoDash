@@ -177,6 +177,7 @@
                     </div>
 
                     <div class="lottery-tabs" style="display:flex; gap:10px; margin-bottom:1.5rem; border-bottom: 1px solid var(--panel-border); padding-bottom:10px;">
+                        <button class="tab-btn" id="btn-show-daily-tips" onclick="window.switchBettingTab('tips')" style="font-size:1rem; padding:0.5rem 1.5rem;">Κορυφαία Προγνωστικά</button>
                         <button class="tab-btn active" id="btn-show-live-matches" onclick="window.switchBettingTab('live')" style="font-size:1rem; padding:0.5rem 1.5rem;">Live Αγώνες</button>
                         <button class="tab-btn" id="btn-show-simulator" onclick="window.switchBettingTab('sim')" style="font-size:1rem; padding:0.5rem 1.5rem;">AI Προσομοιωτής Ακριβούς Σκορ</button>
                     </div>
@@ -194,6 +195,11 @@
                         
                         <div class="filters-bar" id="betting-filters" style="margin-bottom: 1.5rem;"></div>
                         <div id="matches-container" class="matches-grid"></div>
+                    </div>
+
+                    <!-- Daily Tips Tab Content -->
+                    <div id="betting-tips-content" class="hidden">
+                        <div id="tips-container" class="matches-grid"></div>
                     </div>
 
                     <!-- Simulator Tab -->
