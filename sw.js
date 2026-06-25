@@ -1,12 +1,14 @@
-const CACHE_NAME = 'infodash-cache-v9';
+const CACHE_NAME = 'infodash-cache-v10';
 const ASSETS = [
     './',
     './index.html',
-    './css/styles.css?v=4',
-    './js/api_v4.js?v=5',
-    './js/app_v4.js?v=5',
+    './css/styles.css?v=5',
+    './js/api_v4.js?v=6',
+    './js/app_v4.js?v=6',
     './js/metaphysical_hub.js?v=4',
     './js/top_sites_db.js?v=4',
+    './js/top_sites_explorer_db.js?v=4',
+    './js/secret-data.js?v=4',
     './js/wealth-data.js?v=4',
     './js/apis_db.js?v=4',
     './manifest.json'
