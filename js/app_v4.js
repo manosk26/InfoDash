@@ -121,6 +121,13 @@ window.changeWeatherLocation = () => {
 };
 
 // --- Security Management ---
+async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 function initSecurity() {
     const isAuthorized = localStorage.getItem('dashboard_access') === 'true';
     const gate = document.getElementById('login-gate');
@@ -142,23 +149,24 @@ function initSecurity() {
     const loginError = document.getElementById('login-error');
 
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (loginPassword && loginPassword.value === 'Manos16581!@#') {
-                localStorage.setItem('dashboard_access', 'true');
-                if (gate) {
-                    gate.classList.add('hidden');
-                }
-                if (loginError) {
-                    loginError.classList.add('hidden');
-                }
-                console.log("Correct passcode entered. Dashboard initialized.");
-                initDashboardCore();
-            } else {
-                if (loginError) {
-                    loginError.classList.remove('hidden');
-                }
-                if (loginPassword) {
+            if (loginPassword) {
+                const hashed = await sha256(loginPassword.value);
+                if (hashed === '704cd77be7c778d684634169961fdaadb5296f631250235c38ab5db63c21ce6c') {
+                    localStorage.setItem('dashboard_access', 'true');
+                    if (gate) {
+                        gate.classList.add('hidden');
+                    }
+                    if (loginError) {
+                        loginError.classList.add('hidden');
+                    }
+                    console.log("Correct passcode entered. Dashboard initialized.");
+                    initDashboardCore();
+                } else {
+                    if (loginError) {
+                        loginError.classList.remove('hidden');
+                    }
                     loginPassword.value = '';
                     loginPassword.focus();
                 }
@@ -3604,7 +3612,7 @@ window.runWidget7 = (isEnc) => {
         const mockHashes = {
             '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8': 'password',
             '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92': '123456',
-            'Manos16581': 'Matches Master Account key'
+            '21b31aebf1e4fefbce7ebf028d7862fcadf8423326ca4e2a09189a684a277798': 'Matches Master Account key'
         };
         const decoded = mockHashes[val] || "Error: Hash not found in lookup tables. Run bruteforce.";
         res.innerText = decoded;
